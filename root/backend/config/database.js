@@ -1,8 +1,5 @@
 const path = require('path');
-require('dotenv').config({
-    override: true,
-    path: path.join(__dirname, 'development.env')
-});
+require('dotenv').config();
 const { Pool, Client } = require("pg");
 
 
@@ -13,7 +10,5 @@ const pool = new Pool ({
     port: process.env.DB_PORT,
     database: process.env.DB_NAME,
 });
-
-  
 
 module.exports = pool;
