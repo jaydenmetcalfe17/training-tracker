@@ -2,6 +2,22 @@ const getAllDataFromAthleteProfile = "SELECT * FROM athletes WHERE athlete_id = 
 const getAllDataFromTrainingByDate = "SELECT * FROM sessions WHERE session_day = $1";
 const createAthleteProfile = "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday) VALUES ($1, $2, $3) RETURNING *";
 
+const createSession = 
+`INSERT INTO sessions (
+    session_day, 
+    location, 
+    discipline,
+    snow_conditions, 
+    vis_conditions, 
+    terrain_type, 
+    num_freeski_runs,
+    num_drill_runs,
+    num_course_runs,
+    general_comments
+    ) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+    RETURNING *`;
+
 // EXAMPLE, to fill in with proper initial varibales later  
 const setUpAthleteProfilesTable = `CREATE TABLE IF NOT EXISTS athletes (
     athlete_id SERIAL PRIMARY KEY,
@@ -38,6 +54,7 @@ module.exports = {
     getAllDataFromAthleteProfile,
     getAllDataFromTrainingByDate,
     createAthleteProfile,
+    createSession,
 
     setUpAthleteProfilesTable,
     setUpSessionsTable,

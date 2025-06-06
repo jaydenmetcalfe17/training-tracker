@@ -7,18 +7,18 @@ const queries = require('./queries')
 const getAllDataFromAthleteProfile = async (req, res) => {
     const athleteId = req.query.athleteId;
     if (!athleteId) {
-        return res.status(400).json("Missing athlete ID in query.");
+        return res.status(400).json( {error: "Missing athlete ID in query."} );
     }
     try {
         const result = await pool.query(queries.getAllDataFromAthleteProfile, [athleteId]);
         if (result.rows.length === 0) {
-            return res.status(404).json("No training data found for this athlete");
+            return res.status(404).json({ error: "No training data found for this athlete"} );
         }
         res.status(200).json(result.rows);
 
     } catch (error) {
         console.error('Error getting athlete data: ', error);
-        res.status(500).send('Server error retrieving athlete training data');
+        res.status(500).send({error: 'Server error retrieving athlete training data'} );
     }
 };
 
@@ -28,7 +28,7 @@ const createAthleteProfile = async (req, res) => {
     console.log(athleteFirstName, athleteLastName, birthday);
 
     if (!athleteFirstName || !athleteLastName) {
-        return res.status(400).json("Missing first or last name");
+        return res.status(400).json( {error: "Missing first or last name"} );
     }
 
     try {
@@ -39,11 +39,56 @@ const createAthleteProfile = async (req, res) => {
 
     } catch (error) {
         console.error('Error creating athlete profile: ', error);
-        res.status(500).send('Server error creating athlete profile');
+        res.status(500).send( {error: 'Server error creating athlete profile'} );
+    }
+}
+
+
+// Create a new session
+const createSession = async (req, res) => {
+    const {
+        sessionDay, 
+        location,
+        discipline, 
+        snowConditions, 
+        visConditions, 
+        terrainType, 
+        numFreeskiRuns, 
+        numDrillRuns, 
+        numCourseRuns, 
+        generalComments} = req.body; //should I make this a type somewhere?? 
+
+    console.log(sessionDay, location, discipline);
+
+    if (!sessionDay) {
+        return res.status(400).json( {error: "Missing session day"} );
+    }
+
+    try {
+        const result = await pool.query(queries.createSession, [
+            sessionDay, 
+            location,
+            discipline, 
+            snowConditions, 
+            visConditions, 
+            terrainType, 
+            numFreeskiRuns, 
+            numDrillRuns, 
+            numCourseRuns, 
+            generalComments
+        ]);
+        const newSession = result.rows[0]
+        res.status(201).json(newSession);
+        
+
+    } catch (error) {
+        console.error('Error creating session: ', error);
+        res.status(500).json({ error: error.message }); //
     }
 }
 
 module.exports = {
     getAllDataFromAthleteProfile,
-    createAthleteProfile
+    createAthleteProfile,
+    createSession
 }
