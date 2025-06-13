@@ -1,5 +1,7 @@
+//for routes related to athletes and sessions (as of now)
+
 const { Router } = require('express');
-const controller = require('./controller');
+const controller = require('../controller');
 const router = Router();
 
 

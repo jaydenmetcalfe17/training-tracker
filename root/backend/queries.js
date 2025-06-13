@@ -40,12 +40,20 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     general_comments VARCHAR(250)
 );`
 
-const setUpUsersTable = `CREATE TABLE IF NOT EXISTS sessions (
+
+// user and auth related queries: 
+
+const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50),
-    password VARCHAR(25),
-    status VARCHAR (10)
+    password VARCHAR(50),
+    status VARCHAR (50),
+	google_id TEXT NOT NULL UNIQUE
 );`
+
+const checkUserAuth = "SELECT * FROM users WHERE google_id = $1"
+const createUser = "INSERT INTO users (username, google_id) VALUES ($1, $2)"
+const getUserID = "SELECT user_id FROM users WHERE google_id = $1"
 
 
 // separate table for sessions and attendance
@@ -58,5 +66,8 @@ module.exports = {
 
     setUpAthleteProfilesTable,
     setUpSessionsTable,
-    setUpUsersTable
+    setUpUsersTable,
+    checkUserAuth,
+    createUser,
+    getUserID
 }
