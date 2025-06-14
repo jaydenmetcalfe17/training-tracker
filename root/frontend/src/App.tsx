@@ -3,6 +3,8 @@ import './assets/css/App.css'
 import MainLayout from './layout/MainLayout'
 import CreateAthletePage from './pages/CreateAthletePage';
 import CreateSessionPage from './pages/CreateSessionPage';
+import CreateUserPage from './pages/CreateUserPage';
+import LoginPage from './pages/LoginPage';
 
 
 const App: React.FC = () => (
@@ -14,6 +16,8 @@ const App: React.FC = () => (
 			{/* <Route index element={<HomePage/>}/> */}
       <Route path="/createAthlete" element={<CreateAthletePage/>}/>
 	  <Route path="/createSession" element={<CreateSessionPage/>}/>
+	  <Route path="/createUser" element={<CreateUserPage/>}/>
+	  <Route path="/login" element={<LoginPage/>}/>
       {/* <Route path="*" element={<NotFoundPage/>}/> */}
 		</Routes>
 	</BrowserRouter>

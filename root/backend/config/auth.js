@@ -22,7 +22,7 @@ passport.use(new GoogleStrategy({
             const currentUserQuery = await pool.query(queries.checkUserAuth, [account.sub.toString()]);
             if (currentUserQuery.rows.length === 0) {
                 // create user
-                await pool.query(queries.createUser, [account.name, account.sub.toString()]); //option to do img which would be account.picture
+                await pool.query(queries.createGoogleUser, [account.name, account.sub.toString()]); //option to do img which would be account.picture
                 const id = await pool.query(queries.getUserID, [account.sub.toString()]);
 
                 user = {

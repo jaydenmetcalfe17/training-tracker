@@ -23,4 +23,7 @@ router.get("/google/callback", passport.authenticate("google", {
     }
 );
 
+// Example: POST /api/registration // etc...
+router.post("/registration", controller.createUser);
+
 module.exports = router;

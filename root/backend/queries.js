@@ -57,7 +57,8 @@ const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
 );`
 
 const checkUserAuth = "SELECT * FROM users WHERE google_id = $1"
-const createUser = "INSERT INTO users (name, google_id) VALUES ($1, $2)"
+const createGoogleUser = "INSERT INTO users (name, google_id) VALUES ($1, $2) RETURNING *"
+const createUser = "INSERT INTO users (name, email, password, status) VALUES ($1, $2, $3, $4) RETURNING *"
 const getUserID = "SELECT user_id FROM users WHERE google_id = $1"
 
 
@@ -75,6 +76,7 @@ module.exports = {
     setUpSessionsTable,
     setUpUsersTable,
     checkUserAuth,
+    createGoogleUser,
     createUser,
     getUserID
 }

@@ -87,8 +87,31 @@ const createSession = async (req, res) => {
     }
 }
 
+// Create an athlete profile
+const createUser = async (req, res) => {
+    const {userFirstName, userLastName, email, password, status } = req.body;
+    const fullName = userFirstName + ' ' + userLastName;
+    console.log(userFirstName, userLastName,  email, password, status);
+
+    if (!userFirstName || !userLastName || !email ) {
+        return res.status(400).json( {error: "Missing information"} );
+    }
+
+    try {
+        const result = await pool.query(queries.createUser, [fullName, email, password, status]);
+        const newUser = result.rows[0]
+        res.status(201).json(newUser);
+        
+
+    } catch (error) {
+        console.error('Error creating user profile: ', error);
+        res.status(500).send( {error: 'Server error creating user profile'} );
+    }
+}
+
 module.exports = {
     getAllDataFromAthleteProfile,
     createAthleteProfile,
-    createSession
+    createSession,
+    createUser
 }
