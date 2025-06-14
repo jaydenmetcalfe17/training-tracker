@@ -27,15 +27,18 @@ passport.use(new GoogleStrategy({
 
                 user = {
                     userId: id.rows[0].user_id,
-                    username: account.name,
+                    userName: account.name,
+                    email: account.email,
                     // img: account.picture
+                    
                 }
 
             } else {
                 // user already exists
                 user = {
                     userId: currentUserQuery.rows[0].user_id,
-                    username: currentUserQuery.rows[0].username,
+                    userName: currentUserQuery.rows[0].name,
+                    email: currentUserQuery.rows[0].email,
                     // img: currentUserQuery.rows[0].img (but img is not a column in the database table yet)
                 }
             }

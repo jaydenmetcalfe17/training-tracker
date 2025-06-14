@@ -1,6 +1,19 @@
-const getAllDataFromAthleteProfile = "SELECT * FROM athletes WHERE athlete_id = $1";
-const getAllDataFromTrainingByDate = "SELECT * FROM sessions WHERE session_day = $1";
+// Just Athlete Queries 
 const createAthleteProfile = "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday) VALUES ($1, $2, $3) RETURNING *";
+const getAllDataFromAthleteProfile = "SELECT * FROM athletes WHERE athlete_id = $1";
+
+// EXAMPLE, to fill in with proper initial varibales later  
+const setUpAthleteProfilesTable = `CREATE TABLE IF NOT EXISTS athletes (
+    athlete_id SERIAL PRIMARY KEY,
+    athlete_first_name VARCHAR(100) NOT NULL,
+    athlete_last_name VARCHAR(100) NOT NULL,
+    birthday DATE
+);`
+
+
+
+// Just Session Queries 
+const getAllDataFromTrainingByDate = "SELECT * FROM sessions WHERE session_day = $1";
 
 const createSession = 
 `INSERT INTO sessions (
@@ -18,14 +31,6 @@ const createSession =
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
     RETURNING *`;
 
-// EXAMPLE, to fill in with proper initial varibales later  
-const setUpAthleteProfilesTable = `CREATE TABLE IF NOT EXISTS athletes (
-    athlete_id SERIAL PRIMARY KEY,
-    athlete_first_name VARCHAR(100) NOT NULL,
-    athlete_last_name VARCHAR(100) NOT NULL,
-    birthday DATE
-);`
-
 const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     session_id SERIAL PRIMARY KEY,
     session_day DATE,
@@ -41,22 +46,24 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
 );`
 
 
-// user and auth related queries: 
-
+// Just User and Auth Related Queries: 
 const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50),
+    name VARCHAR(250),
+    email VARCHAR (100) UNIQUE,
     password VARCHAR(50),
     status VARCHAR (50),
-	google_id TEXT NOT NULL UNIQUE
+	google_id TEXT UNIQUE
 );`
 
 const checkUserAuth = "SELECT * FROM users WHERE google_id = $1"
-const createUser = "INSERT INTO users (username, google_id) VALUES ($1, $2)"
+const createUser = "INSERT INTO users (name, google_id) VALUES ($1, $2)"
 const getUserID = "SELECT user_id FROM users WHERE google_id = $1"
 
 
-// separate table for sessions and attendance
+// Need separate table for Attendance as well 
+
+
 
 module.exports = {
     getAllDataFromAthleteProfile,
