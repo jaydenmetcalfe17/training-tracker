@@ -2,9 +2,50 @@
 
 const passport = require('passport');
 const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
+const {Strategy: LocalStrategy } = require('passport-local');
 require('dotenv').config(); 
 const pool = require('./database');
 const queries = require('../queries');
+const bcrypt = require('bcrypt');
+
+
+passport.use(new LocalStrategy ({
+    usernameField: "email",
+    passwordField: "password",
+},
+    async (email, password, done) => {
+        try {
+            const results = await pool.query(queries.findUserByEmail, [email]); 
+
+            if (results.rows.length > 0) {
+                // user exists
+                const user = results.rows[0];
+
+                // compare passwords
+                const isMatch = await bcrypt.compare(password, user.password)
+
+                if (isMatch) {
+                    return done(null, user);
+                } else {
+                    return done(null, false, {message: 'Incorrect password!'}); 
+                }
+
+            } else {
+                // no users found in database
+                return done(null, false, {message: 'No account associated with this email.'});
+            }
+        } catch (error) {
+            return done(error);
+        }
+    }
+));
+
+ 
+
+
+
+
+
 
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,

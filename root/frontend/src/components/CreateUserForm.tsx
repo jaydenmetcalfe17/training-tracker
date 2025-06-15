@@ -13,6 +13,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
         userLastName: '',
         email: '',
         password: '',
+        password2: '',
         status: '',
     });
 
@@ -23,7 +24,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    setFormData({ userFirstName: '', userLastName: '', email: '', password: '', status: '' });
+    setFormData({ userFirstName: '', userLastName: '', email: '', password: '', password2: '', status: '' });
   };
 
   return (
@@ -32,6 +33,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
         <input name="userLastName" placeholder="Last Name" value={formData.userLastName} onChange={handleChange}/>
         <input name="email" placeholder="Email" value={formData.email} onChange={handleChange}/>
         <input name="password" placeholder="Password" value={formData.password} onChange={handleChange}/>
+        <input name="password2" placeholder="Re-enter Password"/>  {/* need to check that passwords match! */}
         <select name="status" value={formData.status} onChange={handleChange}>
           <option value="" disabled>Select your status: </option>
           <option value="coach">Coach</option>

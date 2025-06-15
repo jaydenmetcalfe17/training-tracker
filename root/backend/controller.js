@@ -1,5 +1,6 @@
-const pool = require('./config/database')
-const queries = require('./queries')
+const pool = require('./config/database');
+const queries = require('./queries');
+const bcrypt = require('bcrypt');
 
 //encryption here???
 
@@ -87,26 +88,57 @@ const createSession = async (req, res) => {
     }
 }
 
-// Create an athlete profile
+// Create user profile
 const createUser = async (req, res) => {
-    const {userFirstName, userLastName, email, password, status } = req.body;
+    const {userFirstName, userLastName, email, password, password2, status } = req.body;
     const fullName = userFirstName + ' ' + userLastName;
     console.log(userFirstName, userLastName,  email, password, status);
 
-    if (!userFirstName || !userLastName || !email ) {
-        return res.status(400).json( {error: "Missing information"} );
+    let errors = [];
+
+    // Check that all fields were filled out: 
+    if (!userFirstName || !userLastName || !email || !password || !password2 || !status) {
+        errors.push({message: "Please fill out all fields"})
+        // return res.status(400).json( {error: "Missing information"} );
     }
 
+    // Password validation: 
+    if (!password.length < 6) {
+         errors.push({message: "Password should be at least 6 characters long"})
+        // return res.status(400).json( {error: "Missing information"} );
+    }
+
+    if (password != password2) {
+        errors.push({message: "Passwords do not match"})
+    }
+
+    // Display errors and restart registration attempts 
+    // if (errors.length > 0) {
+    //     res.render('registration', {errors}); 
+    // }
+
+    // Hashing password: 
+    let hashed = await bcrypt.hash(password, 10);
+    console.log("hashed: ", hashed);
+
+    
     try {
-        const result = await pool.query(queries.createUser, [fullName, email, password, status]);
-        const newUser = result.rows[0]
-        res.status(201).json(newUser);
-        
+        // Check if user exists first
+        const checkUserExists = await pool.query(queries.findUserByEmail, [email]);
+
+        if (checkUserExists.rows.length > 0) {
+            // console.error('User already exists!: ', error);
+            res.status(500).send( {error: 'User already exists.'} );
+        } else {
+            const result = await pool.query(queries.createUser, [fullName, email, hashed, status]);
+            const newUser = result.rows[0]
+            res.status(201).json(newUser);
+        }
 
     } catch (error) {
         console.error('Error creating user profile: ', error);
         res.status(500).send( {error: 'Server error creating user profile'} );
-    }
+    } 
 }
 
 module.exports = {

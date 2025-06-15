@@ -12,16 +12,20 @@ const LoginPage: React.FC = () => {
         
         fetch('/auth/login', {
 		// fetch('http://localhost:3000/auth/login', {    // for when the vite.config.ts file is not redirecting to localhost:3000
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(newLogin),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(newLogin),
 		  })
 		  .then((res) => res.json())
       .then((data) => {
-          console.log('User created:', data);
+        if (data.success) {
+          console.log('Login complete:', data);
           setLogins([...logins, newLogin]);
+          window.location.href = '/';
+        }
       })
       .catch((err) => console.error('Failed to login', err));
   };
