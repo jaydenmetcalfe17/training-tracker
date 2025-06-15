@@ -1,12 +1,15 @@
 // pages/LoginPage.tsx
 
-import { useState } from 'react';
 import type { Login } from '../types/Login';
 import LoginForm from '../components/LoginForm';
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
-    const [logins, setLogins] = useState<Login[]>([]);
+    const navigate = useNavigate();
+    const { login } = useContext(AuthContext);  
 
 	  const newLogin = (newLogin: Login) => {
         
@@ -21,10 +24,10 @@ const LoginPage: React.FC = () => {
 		  })
 		  .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
+        if (data.user) {
           console.log('Login complete:', data);
-          setLogins([...logins, newLogin]);
-          window.location.href = '/';
+          login(data.user);
+          navigate('/');
         }
       })
       .catch((err) => console.error('Failed to login', err));
@@ -37,6 +40,9 @@ const LoginPage: React.FC = () => {
       <Link to="/createUser">
         <button type="button">Create Account</button>
       </Link>
+      {/* <Link to="/auth/google">
+        <button type="button">Login with Google</button>
+      </Link> */}
     </div>
   );
 }

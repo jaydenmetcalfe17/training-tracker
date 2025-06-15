@@ -57,7 +57,7 @@ const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
 );`
 
 const checkUserAuth = "SELECT * FROM users WHERE google_id = $1"
-const createGoogleUser = "INSERT INTO users (name, google_id) VALUES ($1, $2) RETURNING *"
+const createGoogleUser = "INSERT INTO users (name, google_id, email) VALUES ($1, $2, $3) RETURNING *"
 const createUser = "INSERT INTO users (name, email, password, status) VALUES ($1, $2, $3, $4) RETURNING *"
 const getUserID = "SELECT user_id FROM users WHERE google_id = $1"
 const findUserByEmail = "SELECT * FROM users WHERE email = $1"
