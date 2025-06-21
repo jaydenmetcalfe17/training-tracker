@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = (userData: User) => {
+    console.log("Received userData in login:", userData);
     setUser(userData);
     console.log("User set: ", userData);
   };

@@ -24,10 +24,10 @@ const LoginPage: React.FC = () => {
 		  })
 		  .then((res) => res.json())
       .then((data) => {
-        if (data.user) {
+        if (data.success) {
           console.log('Login complete:', data);
-          login(data.user);
-          navigate('/');
+          login(data.safeUser);
+          navigate('/dashboard');
         }
       })
       .catch((err) => console.error('Failed to login', err));

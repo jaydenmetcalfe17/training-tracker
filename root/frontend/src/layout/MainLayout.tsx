@@ -1,13 +1,16 @@
-import Navbar from "../components/Navbar"
+import Header from "../components/Header"
 import { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
+// import Dashboard from "./Dashboard";
 
 
 const MainLayout: React.FC = () => {
   const { user, logout } = useContext(AuthContext);
 
   return (
-     <Navbar user={user} logout={logout} />
+     <>
+      <Header user={user} logout={logout} />
+    </>
   )
 }
 

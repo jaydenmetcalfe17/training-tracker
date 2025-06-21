@@ -3,6 +3,7 @@
 const { Router } = require('express');
 const controller = require('../controller'); //change to a different controller? auth one?
 const router = Router();
+const pool = require('../config/database');
 
 const passport = require('passport');
 
@@ -45,12 +46,31 @@ router.post('/login', (req, res, next) => {
         return next(error);
       }
       // Send user info or success message as JSON
-      return res.json({ success: true, user });
+      const safeUser = {
+        userId: user.user_id,
+        userFirstName: user.name,
+        email: user.email,
+        status: user.status
+      };
+      console.log("Safe user passed through: ", safeUser);
+      return res.json({ success: true, safeUser });
     });
   })(req, res, next);
 });
 
 // Example: POST /auth/registration // etc...
 router.post("/registration", controller.createUser);
+
+
+// Database test route:
+router.get('/testdb', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ connected: true, time: result.rows[0].now });
+  } catch (error) {
+    console.error('DB connection error:', error);
+    res.status(500).json({ connected: false, error: error.message });
+  }
+});
 
 module.exports = router;

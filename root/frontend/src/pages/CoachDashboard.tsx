@@ -1,7 +1,12 @@
+import CreateAthletePage from "./CreateAthletePage"
+import CreateSessionPage from "./CreateSessionPage"
 
-const CoachDashboard = () => {
+const CoachDashboard: React.FC = () => {
   return (
-    <div>CoachDashboard</div>
+    <div>
+      <CreateAthletePage />
+      <CreateSessionPage />
+    </div>
   )
 }
 

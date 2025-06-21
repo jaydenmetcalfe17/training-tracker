@@ -5,9 +5,7 @@ import CreateAthletePage from './pages/CreateAthletePage';
 import CreateSessionPage from './pages/CreateSessionPage';
 import CreateUserPage from './pages/CreateUserPage';
 import LoginPage from './pages/LoginPage';
-import CoachDashboard from './pages/CoachDashboard';
-import AthleteDashboard from './pages/AthleteDashboard';
-import ParentDashboard from './pages/ParentDashboard';
+import Dashboard from './layout/Dashboard';
 import NotFoundPage from './pages/NotFoundPage';
 
 
@@ -22,9 +20,7 @@ const App: React.FC = () => (
 	  <Route path="/createSession" element={<CreateSessionPage/>}/>
 	  <Route path="/createUser" element={<CreateUserPage/>}/>
 	  <Route path="/login" element={<LoginPage/>}/>
-	  <Route path="/coachDashboard" element={<CoachDashboard/>}/>
-	  <Route path="/athleteDashboard" element={<AthleteDashboard/>}/>
-	  <Route path="/parentDashboard" element={<ParentDashboard/>}/>
+	  <Route path="/dashboard" element={<Dashboard/>}/>
       {<Route path="*" element={<NotFoundPage/>}/>}
 		</Routes>
 	</BrowserRouter>
