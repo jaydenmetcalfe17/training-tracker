@@ -6,7 +6,7 @@ import SessionsList from '../components/SessionsList';
 import CreateSessionForm from '../components/CreateSessionForm';
 
 const CreateSessionPage: React.FC = () => {
-    const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
 
     // Create Session
 	const createSession = (newSession: Session) => {

@@ -12,6 +12,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
         athleteFirstName: '',
         athleteLastName: '',
         birthday: '',
+        gender: ''
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +22,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    setFormData({ athleteFirstName: '', athleteLastName: '', birthday: '' });
+    setFormData({ athleteFirstName: '', athleteLastName: '', birthday: '', gender: '' });
   };
 
   return (
@@ -29,6 +30,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
         <input name="athleteFirstName" placeholder="First Name" value={formData.athleteFirstName} onChange={handleChange}/>
         <input name="athleteLastName" placeholder="Last Name" value={formData.athleteLastName} onChange={handleChange}/>
         <input name="birthday" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
+        <input name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange}/>
         <button type="submit">Create Athlete Profile</button>
     </form>
   );

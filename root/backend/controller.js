@@ -4,14 +4,23 @@ const bcrypt = require('bcrypt');
 
 //encryption here???
 
+
 // Get all data from a specific athlete's profile
 const getAllDataFromAthleteProfile = async (req, res) => {
-    const athleteId = req.query.athleteId;
-    if (!athleteId) {
-        return res.status(400).json( {error: "Missing athlete ID in query."} );
-    }
+    const { athleteId, userId } = req.query;
+
     try {
-        const result = await pool.query(queries.getAllDataFromAthleteProfile, [athleteId]);
+        let result;
+
+        if (athleteId) {
+            result = await pool.query(queries.getAllDataFromAthleteProfileWithAthleteId, [athleteId]);
+        } else if (userId) {
+            result = await pool.query(queries.getAthleteDataWithUserId, [userId]);
+        } else {
+            result = await pool.query(queries.getAllAthletes);
+        }
+
+        
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "No training data found for this athlete"} );
         }
@@ -23,17 +32,18 @@ const getAllDataFromAthleteProfile = async (req, res) => {
     }
 };
 
+
 // Create an athlete profile
 const createAthleteProfile = async (req, res) => {
-    const {athleteFirstName, athleteLastName, birthday } = req.body;
-    console.log(athleteFirstName, athleteLastName, birthday);
+    const {athleteFirstName, athleteLastName, birthday, gender } = req.body;
+    console.log(athleteFirstName, athleteLastName, birthday, gender);
 
-    if (!athleteFirstName || !athleteLastName) {
-        return res.status(400).json( {error: "Missing first or last name"} );
+    if (!athleteFirstName || !athleteLastName || !birthday || !gender) {
+        return res.status(400).json( {error: "Missing information"} );
     }
 
     try {
-        const result = await pool.query(queries.createAthleteProfile, [athleteFirstName, athleteLastName, birthday]);
+        const result = await pool.query(queries.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender]);
         const newAthlete = result.rows[0]
         res.status(201).json(newAthlete);
         
@@ -43,6 +53,8 @@ const createAthleteProfile = async (req, res) => {
         res.status(500).send( {error: 'Server error creating athlete profile'} );
     }
 }
+
+
 
 
 // Create a new session
@@ -57,9 +69,11 @@ const createSession = async (req, res) => {
         numFreeskiRuns, 
         numDrillRuns, 
         numCourseRuns, 
-        generalComments} = req.body; //should I make this a type somewhere?? 
+        generalComments,
+        attendance} = req.body; 
 
     console.log(sessionDay, location, discipline);
+    console.log("Athletes in attendance: ", attendance[0]);
 
     if (!sessionDay) {
         return res.status(400).json( {error: "Missing session day"} );
@@ -79,6 +93,17 @@ const createSession = async (req, res) => {
             generalComments
         ]);
         const newSession = result.rows[0]
+        const sessionId = newSession.session_id;
+
+        console.log("Create session: ", sessionId);
+
+        // loop through athletes in attendance
+       for (const athlete of attendance) {
+            console.log("Adding athlete attendance: ", athlete);
+            await pool.query(queries.addAthleteAttendance, [athlete, sessionId]);
+        }
+        
+
         res.status(201).json(newSession);
         
 
@@ -87,6 +112,34 @@ const createSession = async (req, res) => {
         res.status(500).json({ error: error.message }); //
     }
 }
+
+// Get sessions
+const getSessions = async (req, res) => {
+    const { athleteId } = req.query;
+
+
+    if (!athleteId) {
+        return res.status(400).json( {error: "Missing ID in query."} );
+    }
+    try {
+        let result;
+
+        if (athleteId) {
+            result = await pool.query(queries.getAllAthleteSessionsFromAttendance, [athleteId]);
+        }
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "No sessions found for this athlete"} );
+        }
+        console.log('Sessions result rows:', result.rows);
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+        console.error('Error getting athlete sessions: ', error);
+        res.status(500).send({error: 'Server error retrieving athlete sessions'} );
+    }
+};
+
 
 // Create user profile
 const createUser = async (req, res) => {
@@ -145,5 +198,6 @@ module.exports = {
     getAllDataFromAthleteProfile,
     createAthleteProfile,
     createSession,
+    getSessions,
     createUser
 }

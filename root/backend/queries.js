@@ -1,15 +1,21 @@
 // Just Athlete Queries 
-const createAthleteProfile = "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday) VALUES ($1, $2, $3) RETURNING *";
-const getAllDataFromAthleteProfile = "SELECT * FROM athletes WHERE athlete_id = $1";
+const createAthleteProfile = "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday, gender) VALUES ($1, $2, $3, $4) RETURNING *";
+const getAllDataFromAthleteProfileWithAthleteId = "SELECT * FROM athletes WHERE athlete_id = $1";
+const getAllAthletes = "SELECT * FROM athletes";
+
 
 // EXAMPLE, to fill in with proper initial varibales later  
 const setUpAthleteProfilesTable = `CREATE TABLE IF NOT EXISTS athletes (
     athlete_id SERIAL PRIMARY KEY,
     athlete_first_name VARCHAR(100) NOT NULL,
     athlete_last_name VARCHAR(100) NOT NULL,
-    birthday DATE
+    birthday DATE,
+    gender VARCHAR(10) NOT NULL,
+    user_id INTEGER UNIQUE,
+    CONSTRAINT fk_athlete_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );`
 
+const getAthleteDataWithUserId = `SELECT * FROM athletes WHERE user_id = $1`
 
 
 // Just Session Queries 
@@ -45,6 +51,8 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     general_comments VARCHAR(250)
 );`
 
+const getAllAthleteSessionsFromAttendance = `SELECT * FROM attendance JOIN sessions ON attendance.session_id = sessions.session_id WHERE athlete_id = $1`;
+
 
 // Just User and Auth Related Queries: 
 const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
@@ -52,7 +60,7 @@ const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(250),
     email VARCHAR (100) UNIQUE,
     password VARCHAR(50),
-    status VARCHAR (50),
+    status TEXT CHECK (status IN ('coach', 'athlete', 'parent'))
 	google_id TEXT UNIQUE
 );`
 
@@ -64,21 +72,44 @@ const findUserByEmail = "SELECT * FROM users WHERE email = $1"
 
 
 // Need separate table for Attendance as well 
+const setUpAttendanceTable = `CREATE TABLE IF NOT EXISTS attendance (
+	attendance_id SERIAL PRIMARY KEY,
+	athlete_id INT,
+	session_id INT
+);`
+
+const addAthleteAttendance = `INSERT INTO attendance (athlete_id, session_id) VALUES ($1, $2) RETURNING *`
+
+// Connect a parent user's account to specific athletes and vice versa
+const setUpParentsAthletesTable = `CREATE TABLE athletes_parents (
+  athlete_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  PRIMARY KEY (athlete_id, user_id),
+  CONSTRAINT fk_athlete FOREIGN KEY (athlete_id) REFERENCES athletes(id) ON DELETE CASCADE,
+  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);`
 
 
 
 module.exports = {
-    getAllDataFromAthleteProfile,
+    getAllDataFromAthleteProfileWithAthleteId,
     getAllDataFromTrainingByDate,
     createAthleteProfile,
+    getAllAthletes,
     createSession,
 
     setUpAthleteProfilesTable,
+    getAthleteDataWithUserId,
     setUpSessionsTable,
+    getAllAthleteSessionsFromAttendance,
+
     setUpUsersTable,
     checkUserAuth,
     createGoogleUser,
     createUser,
     getUserID,
-    findUserByEmail
+    findUserByEmail,
+    setUpAttendanceTable,
+    addAthleteAttendance,
+    setUpParentsAthletesTable
 }
