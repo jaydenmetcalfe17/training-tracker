@@ -53,6 +53,28 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
 
 const getAllAthleteSessionsFromAttendance = `SELECT * FROM attendance JOIN sessions ON attendance.session_id = sessions.session_id WHERE athlete_id = $1`;
 
+const sessionsFilterSearch = `SELECT * FROM SESSIONS 
+    WHERE 
+        ($1::date IS NULL OR session_day >= $1) AND
+        ($2::date IS NULL or session_day <= $2) AND 
+        ($3::text IS NULL or location = $3) AND
+        ($4::text IS NULL or discipline = $4) AND
+        ($5::text IS NULL or snow_conditions = $5) AND 
+        ($6::text IS NULL or vis_conditions = $6) AND
+        ($7::text IS NULL or terrain_type = $7)`
+
+const oneAthleteSessionsFilterSearch = `SELECT sessions.*
+    FROM sessions
+    JOIN attendance ON attendance.session_id = sessions.session_id
+    WHERE attendance.athlete_id = $1
+        AND ($2::date IS NULL OR session_day >= $2)
+        AND ($3::date IS NULL or session_day <= $3) 
+        AND ($4::text IS NULL or location = $4)
+        AND ($5::text IS NULL or discipline = $5)
+        AND ($6::text IS NULL or snow_conditions = $6) 
+        AND ($7::text IS NULL or vis_conditions = $7)
+        AND ($8::text IS NULL or terrain_type = $8)`
+
 
 // Just User and Auth Related Queries: 
 const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
@@ -102,6 +124,8 @@ module.exports = {
     getAthleteDataWithUserId,
     setUpSessionsTable,
     getAllAthleteSessionsFromAttendance,
+    sessionsFilterSearch,
+    oneAthleteSessionsFilterSearch,
 
     setUpUsersTable,
     checkUserAuth,

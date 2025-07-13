@@ -17,7 +17,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
     .then(res => res.json())
     .then(data => {
       const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
-        id: athlete.athlete_id,
+        athleteId: athlete.athlete_id,
         athleteFirstName: athlete.athlete_first_name,
         athleteLastName: athlete.athlete_last_name,
         birthday: athlete.birthday,
@@ -67,7 +67,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
   };
 
 
-  
+  console.log('availableAthletes:', availableAthletes);
 
   return (
     <form onSubmit={handleSubmit}>

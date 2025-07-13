@@ -115,18 +115,34 @@ const createSession = async (req, res) => {
 
 // Get sessions
 const getSessions = async (req, res) => {
-    const { athleteId } = req.query;
+    const {
+        athleteId,
+        fromDate,
+        toDate,
+        location,
+        discipline,
+        snowConditions,
+        visConditions,
+        terrainType
+    } = req.query;
 
 
     if (!athleteId) {
         return res.status(400).json( {error: "Missing ID in query."} );
     }
     try {
-        let result;
+        const values = [
+            athleteId,
+            fromDate || null,
+            toDate || null,
+            location || null,
+            discipline || null,
+            snowConditions || null,
+            visConditions || null,
+            terrainType || null
+        ];
 
-        if (athleteId) {
-            result = await pool.query(queries.getAllAthleteSessionsFromAttendance, [athleteId]);
-        }
+        const result = await pool.query(queries.oneAthleteSessionsFilterSearch, values);
         
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found for this athlete"} );
