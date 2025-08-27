@@ -5,8 +5,8 @@ export interface User {
   userFirstName: string;
   userLastName: string;
   email: string;
-  password: string;
-  password2: string;
+  password?: string;
+  password2?: string;
   status: string;
 }
 

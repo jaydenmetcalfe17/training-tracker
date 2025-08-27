@@ -11,19 +11,18 @@ import NotFoundPage from './pages/NotFoundPage';
 
 const App: React.FC = () => (
 
-
-	<BrowserRouter>
+	// <BrowserRouter>
 		<Routes>
-      <Route path="/" element = {<MainLayout/>}/>
-			{/* <Route index element={<HomePage/>}/> */}
-      <Route path="/createAthlete" element={<CreateAthletePage/>}/>
-	  <Route path="/createSession" element={<CreateSessionPage/>}/>
-	  <Route path="/createUser" element={<CreateUserPage/>}/>
-	  <Route path="/login" element={<LoginPage/>}/>
-	  <Route path="/dashboard" element={<Dashboard/>}/>
-      {<Route path="*" element={<NotFoundPage/>}/>}
+			<Route path="/" element = {<MainLayout/>}/>
+					{/* <Route index element={<HomePage/>}/> */}
+			<Route path="/createAthlete" element={<CreateAthletePage/>}/>
+			<Route path="/createSession" element={<CreateSessionPage/>}/>
+			<Route path="/createUser" element={<CreateUserPage/>}/>
+			<Route path="/login" element={<LoginPage/>}/>
+			<Route path="/dashboard" element={<Dashboard/>}/>
+			{<Route path="*" element={<NotFoundPage/>}/>}
 		</Routes>
-	</BrowserRouter>
+	// </BrowserRouter>
 );
 
 export default App
