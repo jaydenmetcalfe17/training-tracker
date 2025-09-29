@@ -9,9 +9,6 @@ interface SessionListProps {
 
 const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
   return (
-
-
-    
     <div>
       <h2>All Sessions</h2>
       <table>

@@ -55,13 +55,13 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
               .split("T")[0],
             location: session.location,
             discipline: session.discipline,
-            snowConditions: session.snowconditions, // watch casing from DB!
-            visConditions: session.visconditions,
-            terrainType: session.terraintype,
-            numFreeskiRuns: session.numfreeskiruns,
-            numDrillRuns: session.numdrillruns,
-            numCourseRuns: session.numcourseruns,
-            generalComments: session.generalcomments,
+            snowConditions: session.snow_conditions, // watch casing from DB!
+            visConditions: session.vis_conditions,
+            terrainType: session.terrain_type,
+            numFreeskiRuns: session.num_freeski_runs,
+            numDrillRuns: session.num_drill_runs,
+            numCourseRuns: session.num_course_runs,
+            generalComments: session.general_comments,
           }));
 
           setSessions(mappedSessions);
@@ -74,7 +74,7 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
 
   return (
     <>
-      Athlete's Sessions
+      <h2>Athlete's Sessions</h2>
         {/* FILTER FORM --- TURN INTO A COMPONENT OR SOMETHING LATER!!!! */}
         <form onSubmit={(e) => {
                 e.preventDefault();

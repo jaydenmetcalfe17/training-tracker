@@ -205,6 +205,14 @@ const createUser = async (req, res) => {
         } else {
             const result = await pool.query(queries.createUser, [userFirstName, userLastName, email, hashed, status]);
             const newUser = result.rows[0]
+
+            console.log("NEW USER: ", newUser);
+
+            if (newUser.status == 'athlete') {
+                const updated = await pool.query(queries.addUserIDtoAthlete, [newUser.user_id, userFirstName, userLastName]);
+                console.log("Successfully updated with userID: ", updated);
+            }
+
             res.status(201).json(newUser);
         }
 

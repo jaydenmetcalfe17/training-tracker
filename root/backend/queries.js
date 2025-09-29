@@ -91,6 +91,12 @@ const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
 const checkUserAuth = "SELECT * FROM users WHERE google_id = $1"
 const createGoogleUser = "INSERT INTO users (name, google_id, email) VALUES ($1, $2, $3) RETURNING *" //NEED TO SEPARATE FIRST/LAST NAME!!!
 const createUser = "INSERT INTO users (first_name, last_name, email, password, status) VALUES ($1, $2, $3, $4, $5) RETURNING *"
+const addUserIDtoAthlete = `UPDATE athletes
+    SET user_id = $1
+    WHERE athlete_first_name = $2 AND athlete_last_name = $3
+    RETURNING *;
+`;
+
 const getUserID = "SELECT user_id FROM users WHERE google_id = $1" 
 const findUserByEmail = "SELECT * FROM users WHERE email = $1"
 
@@ -134,6 +140,7 @@ module.exports = {
     checkUserAuth,
     createGoogleUser,
     createUser,
+    addUserIDtoAthlete,
     getUserID,
     findUserByEmail,
     setUpAttendanceTable,
