@@ -71,12 +71,45 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-        <input name="sessionDay" placeholder="Session Date" value={formData.sessionDay} onChange={handleChange}/>
+        <input name="sessionDay" type="date" placeholder="Session Date" value={formData.sessionDay} onChange={handleChange}/>
         <input name="location" placeholder="Location" value={formData.location} onChange={handleChange}/>
-        <input name="discipline" placeholder="Discipline" value={formData.discipline} onChange={handleChange}/> {/* Turn into a dropdown menu! */}
-        <input name="snowConditions" placeholder="Snow Conditions" value={formData.snowConditions} onChange={handleChange}/> {/* Turn into a dropdown menu! */}
-        <input name="visConditions" placeholder="Visibility Conditions " value={formData.visConditions} onChange={handleChange}/> {/* Turn into a dropdown menu! */}
-        <input name="terrainType" placeholder="Terrain Type" value={formData.terrainType} onChange={handleChange}/>  {/* Turn into a dropdown menu! */}
+        <input name="discipline" list="discipline" placeholder="Discipline" value={formData.discipline} onChange={handleChange}/>
+        <datalist id="discipline">
+          <option value="SL"></option>
+          <option value="GS"></option>
+          <option value="SG"></option>
+          <option value="DH"></option>
+          <option value="Other"></option>
+        </datalist>
+        <input name="snowConditions" list="snowConditions" placeholder="Snow Conditions" value={formData.snowConditions} onChange={handleChange}/>
+        <datalist id="snowConditions">
+          <option value="Soft"></option>
+          <option value="Compact-soft"></option>
+          <option value="Hard grippy"></option>
+          <option value="Ice"></option>
+          <option value="Wet"></option>
+          <option value="Salted"></option>
+          <option value="Non-groomed"></option>
+          <option value="Ball bearings"></option>
+          <option value="Powder"></option>
+        </datalist>
+        <input name="visConditions" list="visConditions" placeholder="Visibility Conditions " value={formData.visConditions} onChange={handleChange}/> 
+        <datalist id="visConditions">
+          <option value="Sunny"></option>
+          <option value="Flat light"></option>
+          <option value="Fog"></option>
+          <option value="Snowing"></option>
+          <option value="Variable"></option>
+          <option value="Rain"></option>
+        </datalist>
+        <input name="terrainType" list="terrainType" placeholder="Terrain Type" value={formData.terrainType} onChange={handleChange}/>  
+        <datalist id="terrainType">
+          <option value="Flat"></option>
+          <option value="Medium"></option>
+          <option value="Steep"></option>
+          <option value="Rolly"></option>
+          <option value="Mixed"></option>
+        </datalist>
         <input name="numFreeskiRuns" placeholder="Number of Freeski Runs" value={formData.numFreeskiRuns} onChange={handleChange}/>
         <input name="numDrillRuns" placeholder="Number of Drill Runs" value={formData.numDrillRuns} onChange={handleChange}/>
         <input name="numCourseRuns" placeholder="Number of Course Runs" value={formData.numCourseRuns} onChange={handleChange}/>

@@ -29,7 +29,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
     <form onSubmit={handleSubmit}>
         <input name="athleteFirstName" placeholder="First Name" value={formData.athleteFirstName} onChange={handleChange}/>
         <input name="athleteLastName" placeholder="Last Name" value={formData.athleteLastName} onChange={handleChange}/>
-        <input name="birthday" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
+        <input name="birthday" type="date" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
         <input name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange}/>
         <button type="submit">Create Athlete Profile</button>
     </form>

@@ -54,8 +54,8 @@ export const AuthProvider = ({ children }: Props) => {
           console.log(data.safeUser);
           const userObj: User = {
             email: data.safeUser.email,
-            userFirstName: data.safeUser.userFirstName.split(' ')[0],
-            userLastName: data.safeUser.userFirstName.split(' ')[1],
+            userFirstName: data.safeUser.userFirstName,
+            userLastName: data.safeUser.userLastName,
             userId: data.safeUser.userId,
             status: data.safeUser.status,
           }

@@ -127,9 +127,6 @@ const getSessions = async (req, res) => {
     } = req.query;
 
 
-    if (!athleteId) {
-        return res.status(400).json( {error: "Missing ID in query."} );
-    }
     try {
         const values = [
             athleteId,
@@ -142,17 +139,24 @@ const getSessions = async (req, res) => {
             terrainType || null
         ];
 
-        const result = await pool.query(queries.oneAthleteSessionsFilterSearch, values);
+        let result;
+
+        if (athleteId) {
+            result = await pool.query(queries.oneAthleteSessionsFilterSearch, values);
+        } else {  //getting all sessions
+            result = await pool.query(queries.getAllSessions);
+        }
+
         
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No sessions found for this athlete"} );
+            return res.status(404).json({ error: "No sessions found"} );
         }
         console.log('Sessions result rows:', result.rows);
         res.status(200).json(result.rows);
 
     } catch (error) {
-        console.error('Error getting athlete sessions: ', error);
-        res.status(500).send({error: 'Server error retrieving athlete sessions'} );
+        console.error('Error getting sessions: ', error);
+        res.status(500).send({error: 'Server error retrieving sessions'} );
     }
 };
 
@@ -160,7 +164,7 @@ const getSessions = async (req, res) => {
 // Create user profile
 const createUser = async (req, res) => {
     const {userFirstName, userLastName, email, password, password2, status } = req.body;
-    const fullName = userFirstName + ' ' + userLastName;
+    // const fullName = userFirstName + ' ' + userLastName;
     console.log(userFirstName, userLastName,  email, password, status);
 
     let errors = [];
@@ -199,7 +203,7 @@ const createUser = async (req, res) => {
             // console.error('User already exists!: ', error);
             res.status(500).send( {error: 'User already exists.'} );
         } else {
-            const result = await pool.query(queries.createUser, [fullName, email, hashed, status]);
+            const result = await pool.query(queries.createUser, [userFirstName, userLastName, email, hashed, status]);
             const newUser = result.rows[0]
             res.status(201).json(newUser);
         }

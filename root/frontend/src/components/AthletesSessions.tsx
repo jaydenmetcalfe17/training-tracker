@@ -156,7 +156,7 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
                     }
                 /> 
             </label>
-            <button type="submit">Apply Filters</button><button type="submit">Apply Filters</button>
+            <button type="submit">Apply Filters</button>
         </form>
 
       <SessionsList sessions={sessions} />

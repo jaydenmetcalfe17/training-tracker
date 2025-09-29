@@ -19,6 +19,7 @@ const getAthleteDataWithUserId = `SELECT * FROM athletes WHERE user_id = $1`
 
 
 // Just Session Queries 
+const getAllSessions = "SELECT * FROM sessions";
 const getAllDataFromTrainingByDate = "SELECT * FROM sessions WHERE session_day = $1";
 
 const createSession = 
@@ -79,17 +80,18 @@ const oneAthleteSessionsFilterSearch = `SELECT sessions.*
 // Just User and Auth Related Queries: 
 const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
-    name VARCHAR(250),
+    first_name VARCHAR(250),
+	last_name VARCHAR(250),
     email VARCHAR (100) UNIQUE,
-    password VARCHAR(50),
-    status TEXT CHECK (status IN ('coach', 'athlete', 'parent'))
+    password VARCHAR(200),
+    status TEXT CHECK (status IN ('coach', 'athlete', 'parent')),
 	google_id TEXT UNIQUE
 );`
 
 const checkUserAuth = "SELECT * FROM users WHERE google_id = $1"
-const createGoogleUser = "INSERT INTO users (name, google_id, email) VALUES ($1, $2, $3) RETURNING *"
-const createUser = "INSERT INTO users (name, email, password, status) VALUES ($1, $2, $3, $4) RETURNING *"
-const getUserID = "SELECT user_id FROM users WHERE google_id = $1"
+const createGoogleUser = "INSERT INTO users (name, google_id, email) VALUES ($1, $2, $3) RETURNING *" //NEED TO SEPARATE FIRST/LAST NAME!!!
+const createUser = "INSERT INTO users (first_name, last_name, email, password, status) VALUES ($1, $2, $3, $4, $5) RETURNING *"
+const getUserID = "SELECT user_id FROM users WHERE google_id = $1" 
 const findUserByEmail = "SELECT * FROM users WHERE email = $1"
 
 
@@ -103,12 +105,12 @@ const setUpAttendanceTable = `CREATE TABLE IF NOT EXISTS attendance (
 const addAthleteAttendance = `INSERT INTO attendance (athlete_id, session_id) VALUES ($1, $2) RETURNING *`
 
 // Connect a parent user's account to specific athletes and vice versa
-const setUpParentsAthletesTable = `CREATE TABLE athletes_parents (
+const setUpParentsAthletesTable = `CREATE TABLE parents (
   athlete_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   PRIMARY KEY (athlete_id, user_id),
-  CONSTRAINT fk_athlete FOREIGN KEY (athlete_id) REFERENCES athletes(id) ON DELETE CASCADE,
-  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  CONSTRAINT fk_athlete FOREIGN KEY (athlete_id) REFERENCES athletes(athlete_id) ON DELETE CASCADE,
+  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );`
 
 
@@ -122,6 +124,7 @@ module.exports = {
 
     setUpAthleteProfilesTable,
     getAthleteDataWithUserId,
+    getAllSessions,
     setUpSessionsTable,
     getAllAthleteSessionsFromAttendance,
     sessionsFilterSearch,

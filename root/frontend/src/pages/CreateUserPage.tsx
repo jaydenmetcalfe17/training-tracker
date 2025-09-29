@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import type { User } from '../types/User';
 import CreateUserForm from '../components/CreateUserForm';
+import { useNavigate } from 'react-router-dom';
 
 const CreateUserPage: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
+    const navigate = useNavigate();
 
     // Create User Profile
 	  const createUser = (newUser: User) => {
@@ -22,6 +24,7 @@ const CreateUserPage: React.FC = () => {
       .then((data) => {
           console.log('User created:', data);
           setUsers([...users, newUser]);
+          navigate("/login");
       })
       .catch((err) => console.error('Failed to create user', err));
   };

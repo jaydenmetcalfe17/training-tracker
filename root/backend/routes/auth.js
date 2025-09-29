@@ -48,7 +48,8 @@ router.post('/login', (req, res, next) => {
       // Send user info or success message as JSON
       const safeUser = {
         userId: user.user_id,
-        userFirstName: user.name,
+        userFirstName: user.first_name,
+        userLastName: user.last_name,
         email: user.email,
         status: user.status
       };
