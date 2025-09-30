@@ -2,16 +2,24 @@ import AthletesSessions from "../components/AthletesSessions"
 import { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import type { Athlete } from "../types/Athlete";
+import { useParams } from "react-router-dom";
 
 
 const AthleteDashboard: React.FC = () => {
   const { user } = useContext(AuthContext);
+  const params = useParams()
 
   const [athlete, setAthlete] = useState<Athlete | null>(null);
 
   useEffect(() => {
-    if (user?.userId) {
-      fetch(`/api/athlete?userId=${user.userId}`, {
+    let insert = ''
+    if (user?.status == 'coach') {
+      insert = `athleteId=${params.athleteId}`
+    } else if (user?.status == 'athlete') {
+      insert = `userId=${user?.userId}`
+    }
+
+    fetch(`/api/athlete?${insert}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +44,6 @@ const AthleteDashboard: React.FC = () => {
           console.log('Athlete found:', mappedAthlete);
       })
         .catch((err) => console.log('Unable to find athlete: ', err));
-    }
   }, [user]);
 
 

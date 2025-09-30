@@ -24,6 +24,7 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
   useEffect(() => {
     console.log("Athletesessions athlete: ", athlete);
     if (athlete?.athleteId) {
+      console.log("WOOHOO");
       const params = new URLSearchParams();
       params.append("athleteId", athlete.athleteId.toString());
 
@@ -74,7 +75,11 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
 
   return (
     <>
-      <h2>Athlete's Sessions</h2>
+      { 
+        (athlete != null)
+          ? <h2>{athlete.athleteFirstName}'s Sessions</h2>
+          : <h2>Athlete's Sessions</h2>
+      }
         {/* FILTER FORM --- TURN INTO A COMPONENT OR SOMETHING LATER!!!! */}
         <form onSubmit={(e) => {
                 e.preventDefault();
