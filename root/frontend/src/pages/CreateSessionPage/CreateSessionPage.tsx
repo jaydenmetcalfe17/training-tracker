@@ -1,9 +1,10 @@
 // pages/CreateSessionPage.tsx
 
+import "./CreateSessionPage.scss";
 import { useEffect, useState } from 'react';
-import type { Session } from '../types/Session';
-import SessionsList from '../components/SessionsList/SessionsList';
-import CreateSessionForm from '../components/CreateSessionForm';
+import type { Session } from '../../types/Session';
+import SessionsList from '../../components/SessionsList/SessionsList';
+import CreateSessionForm from '../../components/CreateSessionForm';
 
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -92,8 +93,7 @@ const CreateSessionPage: React.FC = () => {
 
 
   return (
-    <div>
-      <h1>Create Session</h1>
+    <div className="create-session-page">
       <CreateSessionForm onSubmit={createSession} />
       <SessionsList sessions={sessions} />
     </div>

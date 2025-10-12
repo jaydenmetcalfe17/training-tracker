@@ -29,7 +29,17 @@ h2 {
     background-color: #FFF8F8;
 }
 
+.box-h2-title {
+    margin-top: 0;
+}
+
 @font-face {
       font-family: 'Inter';
       src: url('../fonts/Inter-VariableFont.ttf') format('ttf');
     }
+
+form {
+    padding: 0.5rem;
+    display: grid;
+    gap: 0.25rem;
+}

@@ -1,9 +1,10 @@
 // pages/CreateAthletePage.tsx
 
+import "./CreateAthletePage.scss";
 import { useEffect, useState } from 'react';
-import type { Athlete } from '../types/Athlete';
-import AthletesList from '../components/AthletesList';
-import CreateAthleteForm from '../components/CreateAthleteForm';
+import type { Athlete } from '../../types/Athlete';
+import AthletesList from '../../components/AthletesList/AthletesList';
+import CreateAthleteForm from '../../components/CreateAthleteForm';
 
 const CreateAthletePage: React.FC = () => {
     const [athletes, setAthletes] = useState<Athlete[]>([]);
@@ -59,8 +60,7 @@ const CreateAthletePage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Create Athlete</h1>
+    <div className="create-athlete-page">
       <CreateAthleteForm onSubmit={createAthleteProfile} />
       <AthletesList athletes={athletes} />
     </div>

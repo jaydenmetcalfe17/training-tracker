@@ -1,12 +1,12 @@
 import type { FC } from 'react';
-import CoachDashboard from "../../pages/CoachDashboard";
+import "./Dashboard.scss";
+import CoachDashboard from "../../pages/CoachDashboard/CoachDashboard";
 import ParentDashboard from "../../pages/ParentDashboard";
 import AthleteDashboard from "../../pages/AthleteDashboard";
 import DashboardErrorPage from "../../pages/DashboardErrorPage";
 
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
-import Header from "../../components/Header/Header";
 
 
 const Dashboard: React.FC = () => {
@@ -40,9 +40,9 @@ const Dashboard: React.FC = () => {
 
 
   return (
-    <>
+    <div className="dashboard">
       <DashboardComponent/>
-    </>
+    </div>
   )
 }
 

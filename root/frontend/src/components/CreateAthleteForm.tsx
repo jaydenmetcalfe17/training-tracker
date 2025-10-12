@@ -26,13 +26,28 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-        <input name="athleteFirstName" placeholder="First Name" value={formData.athleteFirstName} onChange={handleChange}/>
-        <input name="athleteLastName" placeholder="Last Name" value={formData.athleteLastName} onChange={handleChange}/>
-        <input name="birthday" type="date" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
-        <input name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange}/>
-        <button type="submit">Create Athlete Profile</button>
-    </form>
+    <div className="create-athlete-box">
+      <div className="light-tan-box">
+        <h2 className="box-h2-title">Create Athlete</h2>
+        <div className="white-box">
+          <form onSubmit={handleSubmit}>
+            <label>First Name: </label>
+            <input name="athleteFirstName" value={formData.athleteFirstName} onChange={handleChange}/>
+            <label>Last Name: </label>
+            <input name="athleteLastName" value={formData.athleteLastName} onChange={handleChange}/>
+            <label>Birthday: </label>
+            <input name="birthday" type="date" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
+            <label>Gender: </label>
+            <input name="gender" list="gender" value={formData.gender} onChange={handleChange}/>
+            <datalist id="gender">
+                <option value="Male"></option>
+                <option value="Female"></option>
+              </datalist>
+            <button type="submit">Create Athlete Profile</button>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 
 };
