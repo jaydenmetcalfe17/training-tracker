@@ -1,3 +1,4 @@
+import "./Header.scss";
 import { Link } from "react-router-dom";
 import {Nav, Container, Navbar} from 'react-bootstrap';
 
@@ -13,8 +14,10 @@ const Header: React.FC<HeaderProps> = ({ user, logout }) => {
             <Container>
                 {user ? (
                     <Nav>
-                        <p>Welcome, {user.userFirstName}</p>
-                        <button onClick={logout}>Logout</button>
+                        <div className="header-box">
+                            <h1>TRAINING TRACKER</h1>
+                            <button className="logout-button" onClick={logout}>Logout</button>
+                        </div>
                     </Nav>
                 ) : (
                     <Link to="/login">Login</Link>

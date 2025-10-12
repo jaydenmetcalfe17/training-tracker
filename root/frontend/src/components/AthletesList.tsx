@@ -12,9 +12,9 @@ const AthletesList: React.FC<AthleteListProps> = ({ athletes }) => {
 
   const navigate = useNavigate();
 
-const handleRowClick = (athleteId: number | undefined) => {
-  navigate(`/athlete/${athleteId}`);
-};
+  const handleRowClick = (athleteId: number | undefined) => {
+    navigate(`/athlete/${athleteId}`);
+  };
 
 
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { Session } from "../types/Session";
 import type { Athlete } from '../types/Athlete';
+import MultiSelectEx from './Multiselect/Multiselect';
 
 
 interface SessionFormProps {
@@ -48,6 +49,10 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+   const handleAttendanceChange = (selectedIds: number[]) => {
+    setFormData({ ...formData, attendance: selectedIds });
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
@@ -115,24 +120,8 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         <input name="numCourseRuns" placeholder="Number of Course Runs" value={formData.numCourseRuns} onChange={handleChange}/>
         <input name="generalComments" placeholder="General Comments" value={formData.generalComments} onChange={handleChange}/>
         
-        <select
-          name="attendance"
-          multiple
-          value={formData.attendance?.map(String) || []}
-          onChange={(e) => {
-            const selected = Array.from(e.target.selectedOptions, (option) => Number(option.value));
-            setFormData({ ...formData, attendance: selected });
-          }}
-        >
-          {availableAthletes.map((athlete) => (
-            <option key={athlete.athleteId} value={athlete.athleteId}>
-              {athlete.athleteFirstName} {athlete.athleteLastName}
-            </option>
-          ))}
-        </select>
-        
-        
-        
+        <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange}></MultiSelectEx>
+
         <button type="submit">Create Session</button>
     </form>
   );

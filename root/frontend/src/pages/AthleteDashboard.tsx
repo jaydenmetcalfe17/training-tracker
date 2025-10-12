@@ -1,4 +1,4 @@
-import AthletesSessions from "../components/AthletesSessions"
+import AthletesSessions from "../components/AthletesSessions/AthletesSessions"
 import { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import type { Athlete } from "../types/Athlete";

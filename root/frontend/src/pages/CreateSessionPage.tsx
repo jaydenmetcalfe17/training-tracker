@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Session } from '../types/Session';
-import SessionsList from '../components/SessionsList';
+import SessionsList from '../components/SessionsList/SessionsList';
 import CreateSessionForm from '../components/CreateSessionForm';
 
 const CreateSessionPage: React.FC = () => {
