@@ -1,5 +1,5 @@
 // Just Athlete Queries 
-const createAthleteProfile = "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday, gender) VALUES ($1, $2, $3, $4) RETURNING *";
+const createAthleteProfile = "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday, gender, team, age_group) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *";
 const getAllDataFromAthleteProfileWithAthleteId = "SELECT * FROM athletes WHERE athlete_id = $1";
 const getAllAthletes = "SELECT * FROM athletes";
 
@@ -11,6 +11,8 @@ const setUpAthleteProfilesTable = `CREATE TABLE IF NOT EXISTS athletes (
     athlete_last_name VARCHAR(100) NOT NULL,
     birthday DATE,
     gender VARCHAR(10) NOT NULL,
+    team VARCHAR(255);
+	age_group VARCHAR(10);
     user_id INTEGER UNIQUE,
     CONSTRAINT fk_athlete_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );`

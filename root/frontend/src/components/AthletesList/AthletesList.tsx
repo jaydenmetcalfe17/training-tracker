@@ -2,7 +2,7 @@
 import "./AthletesList.scss"
 import type { Athlete } from "../../types/Athlete";
 import { useNavigate } from "react-router-dom";
-import Table from "../Table";
+// import Table from "../Table";
 
 interface AthleteListProps {
   athletes: Athlete[];
@@ -32,6 +32,8 @@ const AthletesList: React.FC<AthleteListProps> = ({ athletes }) => {
                 <th>Last Name</th>
                 <th>Birthday</th>
                 <th>Gender</th>
+                <th>Team</th>
+                <th>Age Group</th>
               </tr>
             </thead>
             
@@ -42,6 +44,8 @@ const AthletesList: React.FC<AthleteListProps> = ({ athletes }) => {
                   <td>{athlete.athleteLastName}</td>
                   <td>{athlete.birthday}</td>
                   <td>{athlete.gender}</td>
+                  <td>{athlete.team}</td>
+                  <td>{athlete.ageGroup}</td>
                 </tr>
               ))}
             </tbody>

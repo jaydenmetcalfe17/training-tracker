@@ -35,15 +35,15 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
 // Create an athlete profile
 const createAthleteProfile = async (req, res) => {
-    const {athleteFirstName, athleteLastName, birthday, gender } = req.body;
-    console.log(athleteFirstName, athleteLastName, birthday, gender);
+    const {athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
+    console.log(athleteFirstName, athleteLastName, birthday, gender, team, ageGroup);
 
-    if (!athleteFirstName || !athleteLastName || !birthday || !gender) {
+    if (!athleteFirstName || !athleteLastName || !birthday || !gender || !team || !ageGroup) {
         return res.status(400).json( {error: "Missing information"} );
     }
 
     try {
-        const result = await pool.query(queries.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender]);
+        const result = await pool.query(queries.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
         const newAthlete = result.rows[0]
         res.status(201).json(newAthlete);
         

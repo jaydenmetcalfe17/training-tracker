@@ -6,4 +6,6 @@ export interface Athlete {
   athleteLastName: string;
   birthday: string;
   gender: string; //can this be set to options?
+  team: string;
+	ageGroup: string;
 }

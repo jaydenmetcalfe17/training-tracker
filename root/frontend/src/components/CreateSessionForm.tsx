@@ -23,6 +23,8 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         athleteLastName: athlete.athlete_last_name,
         birthday: athlete.birthday,
         gender: athlete.gender,
+        team: athlete.team,
+        ageGroup: athlete.age_group,
       }));
       setAvailableAthletes(mappedAthletes);
     })

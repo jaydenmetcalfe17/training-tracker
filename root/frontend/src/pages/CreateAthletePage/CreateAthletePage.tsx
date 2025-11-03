@@ -31,7 +31,9 @@ const CreateAthletePage: React.FC = () => {
                   birthday: new Date(athlete.birthday)
                     .toISOString()
                     .split("T")[0],
-                  gender: athlete.gender
+                  gender: athlete.gender,
+                  team: athlete.team,
+                  ageGroup: athlete.age_group,
               }));
               setAthletes([...athletes, ...loadedAthletes]);
             })

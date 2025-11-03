@@ -84,7 +84,12 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
       <div className="athlete-sessions-box">
         { 
           (athlete != null)
-            ? <h2 className="athlete-name">{athlete.athleteFirstName.toUpperCase()} {athlete.athleteLastName.toUpperCase()}</h2>
+            ? <>
+                <h2 className="athlete-name">{athlete.athleteFirstName.toUpperCase()} {athlete.athleteLastName.toUpperCase()}</h2>
+                <h3>Birthday: {athlete.birthday.split("T")[0]}</h3>
+                <h3>Age Group: {athlete.ageGroup}</h3>
+                <h3>Team: {athlete.team}</h3>
+              </>
             : <h2 className="athlete-name">SESSIONS</h2>
         }
           {/* FILTER FORM --- TURN INTO A COMPONENT OR SOMETHING LATER!!!! */}

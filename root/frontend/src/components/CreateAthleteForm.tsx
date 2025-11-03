@@ -12,7 +12,9 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
         athleteFirstName: '',
         athleteLastName: '',
         birthday: '',
-        gender: ''
+        gender: '',
+        team: '',
+        ageGroup: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +24,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    setFormData({ athleteFirstName: '', athleteLastName: '', birthday: '', gender: '' });
+    setFormData({ athleteFirstName: '', athleteLastName: '', birthday: '', gender: '', team: '', ageGroup: ''});
   };
 
   return (
@@ -42,6 +44,20 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
             <datalist id="gender">
                 <option value="Male"></option>
                 <option value="Female"></option>
+              </datalist>
+            <label>Team: </label>
+            <input name="team" list="team" value={formData.team} onChange={handleChange}/>
+            <datalist id="team">
+                <option value="Whistler Mountain Ski Club"></option>
+              </datalist>
+            <label>Age Group: </label>
+            <input name="ageGroup" list="ageGroup" value={formData.ageGroup} onChange={handleChange}/>
+            <datalist id="ageGroup">
+                <option value="U10"></option>
+                <option value="U12"></option>
+                <option value="U14"></option>
+                <option value="U16"></option>
+                <option value="FIS"></option>
               </datalist>
             <button type="submit">Create Athlete Profile</button>
           </form>

@@ -39,6 +39,8 @@ const AthleteDashboard: React.FC = () => {
             athleteLastName: data[0].athlete_last_name,
             birthday: data[0].birthday,
             gender: data[0].gender,
+            team: data[0].team,
+            ageGroup: data[0].age_group,
           };
           setAthlete(mappedAthlete);
           console.log('Athlete found:', mappedAthlete);
