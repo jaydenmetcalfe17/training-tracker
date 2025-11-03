@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Athlete } from "../../types/Athlete";
 import type { Session } from "../../types/Session";
 import SessionsList from "../SessionsList/SessionsList";
+import EditAthleteForm from '../EditAthleteForm';
 
 interface AthletesProps {
   athlete: Athlete | null;
@@ -79,6 +80,35 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
     }
   }, [athlete, filters]);
 
+  //edit/update athlete profile info
+  const [showPopup, setShowPopup] = useState(false);
+  const toggleEditPopup = () => {
+    setShowPopup(!showPopup);
+  };
+
+  const editAthleteProfile = (updatedAthlete: Athlete) => {
+    console.log("updated: ", updatedAthlete);
+      if (!updatedAthlete) return; 
+      if (!athlete) return;  
+
+      fetch(`/api/athlete/${athlete.athleteId}`, {
+		// fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(updatedAthlete),
+		  })
+		  .then((res) => res.json())
+      .then((data) => {
+          console.log('Athlete updated:', data);
+      })
+      .catch((err) => console.error('Failed to update athlete profile', err));
+
+      toggleEditPopup();
+  };
+
+
   return (
     <div className="light-blue-box">
       <div className="athlete-sessions-box">
@@ -92,6 +122,17 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
               </>
             : <h2 className="athlete-name">SESSIONS</h2>
         }
+        <div>
+          <button className="edit-athlete-button" onClick={toggleEditPopup}>Edit Athlete</button>
+          {showPopup && (
+            <div className="popup-overlay">
+              <div className="popup-content">
+                <EditAthleteForm athlete={athlete} onSubmit={editAthleteProfile}/>
+                {/* <button onClick={toggleEditPopup}>Edit Athlete</button> */}
+              </div>
+            </div>
+          )}
+        </div>
           {/* FILTER FORM --- TURN INTO A COMPONENT OR SOMETHING LATER!!!! */}
         <div className="search-sessions-list-box">
             <form onSubmit={(e) => {

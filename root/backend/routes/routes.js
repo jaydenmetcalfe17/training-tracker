@@ -11,6 +11,9 @@ router.get("/athlete", controller.getAllDataFromAthleteProfile);
 // Example: POST /api/athlete// last name, bday 
 router.post("/athlete", controller.createAthleteProfile);
 
+// Example: PUT /api/athlete/?athleteId=1 // etc...
+router.put("/athlete/:athleteId", controller.updateAthleteProfile);
+
 // Example: POST /api/session // etc...
 router.post("/session", controller.createSession);
 

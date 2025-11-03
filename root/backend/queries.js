@@ -131,6 +131,15 @@ const setUpParentsAthletesTable = `CREATE TABLE parents (
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );`
 
+const updateAthleteProfile = `UPDATE athletes
+    SET athlete_first_name = $2,
+        athlete_last_name = $3,
+        birthday = $4,
+        gender = $5,
+        team = $6, 
+	    age_group = $7
+    WHERE athlete_id = $1
+    RETURNING *;`
 
 
 module.exports = {
@@ -157,5 +166,7 @@ module.exports = {
     findUserByEmail,
     setUpAttendanceTable,
     addAthleteAttendance,
-    setUpParentsAthletesTable
+    setUpParentsAthletesTable,
+    
+    updateAthleteProfile,
 }

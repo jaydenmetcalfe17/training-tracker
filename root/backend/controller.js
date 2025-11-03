@@ -54,6 +54,32 @@ const createAthleteProfile = async (req, res) => {
     }
 }
 
+const updateAthleteProfile = async (req, res) => {
+    const athleteId = req.params.athleteId;
+    const { athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
+
+
+    console.log("Values for update query:", [
+        athleteId,
+        athleteFirstName,
+        athleteLastName,
+        birthday,
+        gender,
+        ageGroup,
+        team
+     ]);
+    try {
+        const result = await pool.query(queries.updateAthleteProfile, [athleteId, athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
+        const updatedAthlete = result.rows[0]
+        res.status(201).json(updatedAthlete);
+        
+
+    } catch (error) {
+        console.error('Error updating athlete profile: ', error);
+        res.status(500).send( {error: 'Server error updating athlete profile'} );
+    }
+}
+
 
 
 
@@ -235,6 +261,7 @@ const createUser = async (req, res) => {
 module.exports = {
     getAllDataFromAthleteProfile,
     createAthleteProfile,
+    updateAthleteProfile,
     createSession,
     getSessions,
     createUser
