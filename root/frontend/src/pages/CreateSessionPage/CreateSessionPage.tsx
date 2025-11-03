@@ -57,7 +57,12 @@ const CreateSessionPage: React.FC = () => {
               terrainType: session.terrain_type,
               numFreeskiRuns: session.num_freeski_runs,
               numDrillRuns: session.num_drill_runs,
-              numCourseRuns: session.num_course_runs,
+              numEducationalCourseRuns: session.num_educational_course_runs,
+              numGatesEducationalCourse: session.num_gates_educational_course,
+              numRaceTrainingCourseRuns: session.num_race_training_course_runs,
+              numGatesRaceTrainingCourse: session.num_gates_race_training_course,
+              numRaceRuns: session.num_race_runs,
+              numGatesRace: session.num_gates_race,
               generalComments: session.general_comments,
             }));
             setSessions([...sessions, ...loadedSessions]);

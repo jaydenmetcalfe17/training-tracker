@@ -32,10 +32,15 @@ const createSession =
     terrain_type, 
     num_freeski_runs,
     num_drill_runs,
-    num_course_runs,
+    num_educational_course_runs,
+    num_gates_educational_course,
+    num_race_training_course_runs,
+    num_gates_race_training_course,
+    num_race_runs,
+    num_gates_race,
     general_comments
     ) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) 
     RETURNING *`;
 
 const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
@@ -48,7 +53,12 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     terrain_type VARCHAR(50),
     num_freeski_runs INT,
     num_drill_runs INT,
-    num_course_runs INT,
+    num_educational_course_runs INT,
+    num_gates_educational_course INT,
+    num_race_training_course_runs INT,
+    num_gates_race_training_course INT,
+    num_race_runs INT,
+    num_gates_race INT,
     general_comments VARCHAR(250)
 );`
 

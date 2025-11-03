@@ -40,7 +40,12 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         terrainType: '',
         numFreeskiRuns: 0,
         numDrillRuns: 0,
-        numCourseRuns: 0,
+        numEducationalCourseRuns: 0, 
+        numGatesEducationalCourse: 0, 
+        numRaceTrainingCourseRuns: 0,
+        numGatesRaceTrainingCourse: 0,
+        numRaceRuns: 0,
+        numGatesRace: 0,
         generalComments: '',
         attendance: []
     });
@@ -65,7 +70,12 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         terrainType: '',
         numFreeskiRuns: 0,
         numDrillRuns: 0,
-        numCourseRuns: 0,
+        numEducationalCourseRuns: 0, 
+        numGatesEducationalCourse: 0, 
+        numRaceTrainingCourseRuns: 0,
+        numGatesRaceTrainingCourse: 0,
+        numRaceRuns: 0,
+        numGatesRace: 0,
         generalComments: '',
         attendance: []
     });
@@ -129,8 +139,18 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               <input name="numFreeskiRuns" value={formData.numFreeskiRuns} onChange={handleChange}/>
               <label># of Drill Runs: </label>
               <input name="numDrillRuns" value={formData.numDrillRuns} onChange={handleChange}/>
-              <label># of Course Runs: </label>
-              <input name="numCourseRuns" value={formData.numCourseRuns} onChange={handleChange}/>
+              <label># of Educational Course Runs: </label>
+              <input name="numEducationalCourseRuns" value={formData.numEducationalCourseRuns} onChange={handleChange}/>
+              <label># of Gates in Educational Course: </label>
+              <input name="numGatesEducationalCourse" value={formData.numGatesEducationalCourse} onChange={handleChange}/>
+              <label># of Race Training Course Runs: </label>
+              <input name="numRaceTrainingCourseRuns" value={formData.numRaceTrainingCourseRuns} onChange={handleChange}/>
+              <label># of Gates in Race Training Course: </label>
+              <input name="numGatesRaceTrainingCourse" value={formData.numGatesRaceTrainingCourse} onChange={handleChange}/>
+              <label># of Race Runs: </label>
+              <input name="numRaceRuns" value={formData.numRaceRuns} onChange={handleChange}/>
+              <label># of Gates in Race Course: </label>
+              <input name="numGatesRace" value={formData.numGatesRace} onChange={handleChange}/>
               <label>General Comments: </label>
               <input name="generalComments" value={formData.generalComments} onChange={handleChange}/>
               

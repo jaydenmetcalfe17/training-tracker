@@ -68,7 +68,12 @@ const createSession = async (req, res) => {
         terrainType, 
         numFreeskiRuns, 
         numDrillRuns, 
-        numCourseRuns, 
+        numEducationalCourseRuns, 
+        numGatesEducationalCourse, 
+        numRaceTrainingCourseRuns,
+        numGatesRaceTrainingCourse,
+        numRaceRuns,
+        numGatesRace,
         generalComments,
         attendance} = req.body; 
 
@@ -89,8 +94,13 @@ const createSession = async (req, res) => {
             terrainType, 
             numFreeskiRuns, 
             numDrillRuns, 
-            numCourseRuns, 
-            generalComments
+            numEducationalCourseRuns, 
+            numGatesEducationalCourse, 
+            numRaceTrainingCourseRuns,
+            numGatesRaceTrainingCourse,
+            numRaceRuns,
+            numGatesRace,
+            generalComments,
         ]);
         const newSession = result.rows[0]
         const sessionId = newSession.session_id;

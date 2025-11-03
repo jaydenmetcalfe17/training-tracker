@@ -1,7 +1,7 @@
 // components/AthleteList.tsx
 import "./SessionsList.scss";
 import type { Session } from "../../types/Session";
-import Table from "../Table";
+// import Table from "../Table";
 
 interface SessionListProps {
   sessions: Session[];
@@ -25,7 +25,12 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
                 <th>Terrain Type</th>
                 <th># of Drill Runs</th>
                 <th># of Freeski Runs</th>
-                <th># of Course Runs</th>
+                <th># of Educational Course Runs</th>
+                <th># of Gates in Educational Course</th>
+                <th># of Race Training Course Runs</th>
+                <th># of Gates in Race Training Course</th>
+                <th># of Race Runs</th>
+                <th># of Gates in Race</th>
                 {/* <th>Athletes</th>   ------ only have this for coach dashboard*/} 
                 <th>General Comments</th>
               </tr>
@@ -42,7 +47,12 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
                   <td>{session.terrainType}</td>
                   <td>{session.numDrillRuns}</td>
                   <td>{session.numFreeskiRuns}</td>
-                  <td>{session.numCourseRuns}</td>
+                  <td>{session.numEducationalCourseRuns}</td>
+                  <td>{session.numGatesEducationalCourse}</td>
+                  <td>{session.numRaceTrainingCourseRuns}</td>
+                  <td>{session.numGatesRaceTrainingCourse}</td>
+                  <td>{session.numRaceRuns}</td>
+                  <td>{session.numGatesRace}</td>
                   <td>{session.generalComments}</td>
                 </tr>
               ))}

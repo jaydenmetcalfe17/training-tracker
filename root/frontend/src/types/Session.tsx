@@ -10,7 +10,12 @@ export interface Session {
   terrainType?: string;
   numFreeskiRuns?: number;
   numDrillRuns?: number;
-  numCourseRuns?: number;
+  numEducationalCourseRuns?: number; 
+  numGatesEducationalCourse?: number; 
+  numRaceTrainingCourseRuns?: number;
+  numGatesRaceTrainingCourse?: number;
+  numRaceRuns?: number;
+  numGatesRace?: number;
   generalComments?: string;
   attendance?: number[];
 }
