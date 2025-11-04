@@ -1,6 +1,7 @@
 // components/AthleteList.tsx
 import "./SessionsList.scss";
 import type { Session } from "../../types/Session";
+import { useNavigate } from "react-router-dom";
 // import Table from "../Table";
 
 interface SessionListProps {
@@ -9,6 +10,14 @@ interface SessionListProps {
 
 
 const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
+  console.log("found sessions: ", sessions);
+
+  const navigate = useNavigate();
+
+  const handleRowClick = (sessionId: number | undefined) => {
+    navigate(`/session/${sessionId}`);
+  };
+
   return (
     <div className="sessions-list-box">
       <div className="light-tan-box">
@@ -38,7 +47,7 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
             
             <tbody>
               {sessions.map((session, index) => (
-                <tr key={index}>
+                <tr key={index} onClick={() => handleRowClick(session.sessionId)}>
                   <td>{session.sessionDay}</td>
                   <td>{session.location}</td>
                   <td>{session.discipline}</td>

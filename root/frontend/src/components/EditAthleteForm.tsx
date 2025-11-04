@@ -43,7 +43,7 @@ const EditAthleteForm: React.FC<EditAthleteFormProps> = ({ athlete, onSubmit }) 
   };
 
   return (
-    <div className="create-athlete-box">
+    <div className="edit-athlete-box">
       <div className="light-tan-box">
         <h2 className="box-h2-title">Edit Athlete</h2>
         <div className="white-box">

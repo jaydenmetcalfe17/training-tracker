@@ -22,6 +22,7 @@ const getAthleteDataWithUserId = `SELECT * FROM athletes WHERE user_id = $1`
 
 // Just Session Queries 
 const getAllSessions = "SELECT * FROM sessions";
+const getSessionById = "SELECT * FROM sessions WHERE session_id = $1"
 const getAllDataFromTrainingByDate = "SELECT * FROM sessions WHERE session_day = $1";
 
 const createSession = 
@@ -88,6 +89,25 @@ const oneAthleteSessionsFilterSearch = `SELECT sessions.*
         AND ($7::text IS NULL or vis_conditions = $7)
         AND ($8::text IS NULL or terrain_type = $8)`
 
+const updateSession = `UPDATE sessions
+    SET session_day = $2,
+        location = $3,
+        discipline = $4,
+        snow_conditions = $5,
+        vis_conditions = $6,
+        terrain_type = $7,
+        num_freeski_runs = $8,
+        num_drill_runs = $9,
+        num_educational_course_runs = $10,
+        num_gates_educational_course = $11,
+        num_race_training_course_runs = $12,
+        num_gates_race_training_course = $13,
+        num_race_runs = $14,
+        num_gates_race = $15,
+        general_comments = $16
+    WHERE session_id = $1
+    RETURNING *;`
+
 
 // Just User and Auth Related Queries: 
 const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
@@ -117,7 +137,8 @@ const findUserByEmail = "SELECT * FROM users WHERE email = $1"
 const setUpAttendanceTable = `CREATE TABLE IF NOT EXISTS attendance (
 	attendance_id SERIAL PRIMARY KEY,
 	athlete_id INT,
-	session_id INT
+	session_id INT,
+    individual_comments VARCHAR(500)
 );`
 
 const addAthleteAttendance = `INSERT INTO attendance (athlete_id, session_id) VALUES ($1, $2) RETURNING *`
@@ -152,10 +173,12 @@ module.exports = {
     setUpAthleteProfilesTable,
     getAthleteDataWithUserId,
     getAllSessions,
+    getSessionById,
     setUpSessionsTable,
     getAllAthleteSessionsFromAttendance,
     sessionsFilterSearch,
     oneAthleteSessionsFilterSearch,
+    updateSession,
 
     setUpUsersTable,
     checkUserAuth,

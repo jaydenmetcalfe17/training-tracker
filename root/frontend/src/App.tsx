@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './layout/Dashboard/Dashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import AthleteDashboard from './pages/AthleteDashboard';
+import SessionPage from './pages/SessionPage';
 
 
 const App: React.FC = () => (
@@ -21,6 +22,7 @@ const App: React.FC = () => (
 				<Route path="/login" element={<LoginPage/>}/>
 				<Route index path="/dashboard" element={<Dashboard/>}/>
 				<Route path="/athlete/:athleteId" element={<AthleteDashboard/>}/>
+				<Route path="/session/:sessionId" element={<SessionPage/>}/>
 				{<Route path="*" element={<NotFoundPage/>}/>}
 			</Route>
 		</Routes>

@@ -123,7 +123,7 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
             : <h2 className="athlete-name">SESSIONS</h2>
         }
         <div>
-          <button className="edit-athlete-button" onClick={toggleEditPopup}>Edit Athlete</button>
+          <button className="edit-button" onClick={toggleEditPopup}>Edit Athlete</button>
           {showPopup && (
             <div className="popup-overlay">
               <div className="popup-content">

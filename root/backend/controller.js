@@ -151,7 +151,10 @@ const createSession = async (req, res) => {
 
 // Get sessions
 const getSessions = async (req, res) => {
+    console.log("ENTERED");
+
     const {
+        sessionId,
         athleteId,
         fromDate,
         toDate,
@@ -179,6 +182,8 @@ const getSessions = async (req, res) => {
 
         if (athleteId) {
             result = await pool.query(queries.oneAthleteSessionsFilterSearch, values);
+        } else if (sessionId) { //getting session by specific session ID
+            result = await pool.query(queries.getSessionById, [sessionId]);
         } else {  //getting all sessions
             result = await pool.query(queries.getAllSessions);
         }
@@ -195,6 +200,76 @@ const getSessions = async (req, res) => {
         res.status(500).send({error: 'Server error retrieving sessions'} );
     }
 };
+
+const updateSession = async (req, res) => {
+    const sessionId = req.params.sessionId;
+    const { 
+        sessionDay, 
+        location,
+        discipline, 
+        snowConditions, 
+        visConditions, 
+        terrainType, 
+        numFreeskiRuns, 
+        numDrillRuns, 
+        numEducationalCourseRuns, 
+        numGatesEducationalCourse, 
+        numRaceTrainingCourseRuns,
+        numGatesRaceTrainingCourse,
+        numRaceRuns,
+        numGatesRace,
+        generalComments,
+     } = req.body;
+
+
+    console.log("Values for update query:", [
+        sessionId,
+        sessionDay, 
+        location,
+        discipline, 
+        snowConditions, 
+        visConditions, 
+        terrainType, 
+        numFreeskiRuns, 
+        numDrillRuns, 
+        numEducationalCourseRuns, 
+        numGatesEducationalCourse, 
+        numRaceTrainingCourseRuns,
+        numGatesRaceTrainingCourse,
+        numRaceRuns,
+        numGatesRace,
+        generalComments,
+     ]);
+    try {
+        const result = await pool.query(queries.updateSession, [
+            sessionId,
+            sessionDay, 
+            location,
+            discipline, 
+            snowConditions, 
+            visConditions, 
+            terrainType, 
+            numFreeskiRuns, 
+            numDrillRuns, 
+            numEducationalCourseRuns, 
+            numGatesEducationalCourse, 
+            numRaceTrainingCourseRuns,
+            numGatesRaceTrainingCourse,
+            numRaceRuns,
+            numGatesRace,
+            generalComments,
+        ]);
+        const updatedSession = result.rows[0]
+        res.status(201).json(updatedSession);
+        
+
+    } catch (error) {
+        console.error('Error updating session: ', error);
+        res.status(500).send( {error: 'Server error updating session'} );
+    }
+}
+
+
 
 
 // Create user profile
@@ -264,5 +339,6 @@ module.exports = {
     updateAthleteProfile,
     createSession,
     getSessions,
+    updateSession,
     createUser
 }

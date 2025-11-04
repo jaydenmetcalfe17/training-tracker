@@ -52,7 +52,7 @@ const CreateSessionPage: React.FC = () => {
                 .split("T")[0],
               location: session.location,
               discipline: session.discipline,
-              snowConditions: session.snow_conditions, // watch casing from DB!
+              snowConditions: session.snow_conditions,
               visConditions: session.vis_conditions,
               terrainType: session.terrain_type,
               numFreeskiRuns: session.num_freeski_runs,
