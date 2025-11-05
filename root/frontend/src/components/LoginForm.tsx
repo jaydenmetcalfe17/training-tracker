@@ -1,6 +1,6 @@
 // components/LoginForm.tsx
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Login } from '../types/Login';
 
 interface LoginFormProps {
@@ -23,10 +23,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     setFormData({ email: '', password: ''});
   };
 
+  const passwordRef = useRef<HTMLInputElement>(null);
+    
+  const revealPassword = () => {
+    if (passwordRef.current) {
+      const type = passwordRef.current.type === "password" ? "text" : "password";
+      passwordRef.current.type = type;
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit}>
         <input name="email" placeholder="Email" value={formData.email} onChange={handleChange}/>
-        <input name="password" placeholder="Password" value={formData.password} onChange={handleChange}/>
+        <input name="password" ref={passwordRef} type="password" placeholder="Password" value={formData.password} onChange={handleChange}/>
+        <label>Show Password</label>
+        <input type="checkbox" onClick={revealPassword}/>
         <button type="submit">Log In</button>
     </form>
   );
