@@ -18,4 +18,5 @@ export interface Session {
   numGatesRace?: number;
   generalComments?: string;
   attendance?: number[];
+  createdBy?: number;
 }

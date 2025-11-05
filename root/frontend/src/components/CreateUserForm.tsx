@@ -70,17 +70,17 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-        <input name="userFirstName" type="text" placeholder="First Name" value={formData.userFirstName} onChange={handleChange}/>
-        <input name="userLastName" type="text" placeholder="Last Name" value={formData.userLastName} onChange={handleChange}/>
-        <input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange}/>
+        <input name="userFirstName" required type="text" placeholder="First Name" value={formData.userFirstName} onChange={handleChange}/>
+        <input name="userLastName" required type="text" placeholder="Last Name" value={formData.userLastName} onChange={handleChange}/>
+        <input name="email"required  type="email" placeholder="Email" value={formData.email} onChange={handleChange}/>
         {errors.email && <p className="error-text">{errors.email}</p>}
-        <input name="password" ref={passwordRef} type="password" placeholder="Password" value={formData.password} onChange={handleChange}/>
+        <input name="password" required ref={passwordRef} type="password" placeholder="Password" value={formData.password} onChange={handleChange}/>
         {errors.password && <p className="error-text">{errors.password}</p>}
-        <input name="password2" ref={password2Ref} type="password" placeholder="Re-enter Password" onChange={handleChange}/>  {/* need to check that passwords match! */}
+        <input name="password2" required ref={password2Ref} type="password" placeholder="Re-enter Password" onChange={handleChange}/>  {/* need to check that passwords match! */}
         {errors.password2 && <p className="error-text">{errors.password2}</p>}
         <label>Show Password</label>
         <input type="checkbox" onClick={revealPassword}/>
-        <select name="status" value={formData.status} onChange={handleChange}>
+        <select name="status" required value={formData.status} onChange={handleChange}>
           <option value="" disabled>Select your status: </option>
           <option value="coach">Coach</option>
           <option value="athlete">Athlete</option>

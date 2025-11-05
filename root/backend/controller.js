@@ -133,6 +133,7 @@ const createSession = async (req, res) => {
         numRaceRuns,
         numGatesRace,
         generalComments,
+        createdBy,
         attendance} = req.body; 
 
     console.log(sessionDay, location, discipline);
@@ -159,6 +160,7 @@ const createSession = async (req, res) => {
             numRaceRuns,
             numGatesRace,
             generalComments,
+            createdBy
         ]);
         const newSession = result.rows[0]
         const sessionId = newSession.session_id;

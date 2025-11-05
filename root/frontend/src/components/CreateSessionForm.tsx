@@ -1,9 +1,10 @@
 // components/SessionForm.tsx
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import type { Session } from "../types/Session";
 import type { Athlete } from '../types/Athlete';
 import MultiSelectEx from './Multiselect/Multiselect';
+import AuthContext from '../context/AuthContext';
 
 
 interface SessionFormProps {
@@ -11,6 +12,10 @@ interface SessionFormProps {
 }
 
 const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
+
+  const { user } = useContext(AuthContext);
+
+
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
 
   useEffect(() => {
@@ -49,7 +54,8 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         numRaceRuns: 0,
         numGatesRace: 0,
         generalComments: '',
-        attendance: []
+        attendance: [],
+        createdBy: user?.userId,
     });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -116,7 +122,8 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         numRaceRuns: 0,
         numGatesRace: 0,
         generalComments: '',
-        attendance: []
+        attendance: [],
+        createdBy: user?.userId,
     });
   };
 

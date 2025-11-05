@@ -41,9 +41,10 @@ const createSession =
     num_gates_race_training_course,
     num_race_runs,
     num_gates_race,
-    general_comments
+    general_comments,
+    created_by
     ) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) 
     RETURNING *`;
 
 const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
@@ -62,7 +63,8 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     num_gates_race_training_course INT,
     num_race_runs INT,
     num_gates_race INT,
-    general_comments VARCHAR(250)
+    general_comments VARCHAR(250),
+    created_by INT
 );`
 
 const getAllAthleteSessionsFromAttendance = `SELECT * FROM attendance JOIN sessions ON attendance.session_id = sessions.session_id WHERE athlete_id = $1`;
