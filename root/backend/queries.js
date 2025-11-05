@@ -162,6 +162,22 @@ const updateAthleteProfile = `UPDATE athletes
     WHERE athlete_id = $1
     RETURNING *;`
 
+const deleteSession = `DELETE FROM sessions
+    WHERE session_id = $1
+    RETURNING *;`
+
+const deleteAllAttendanceForSession = `DELETE FROM attendance
+    WHERE session_id = $1
+    RETURNING *;`
+
+const deleteAthleteProfile = `DELETE FROM athletes
+    WHERE athlete_id = $1
+    RETURNING *;`
+
+const deleteAllAttendanceForAthlete = `DELETE FROM attendance
+    WHERE athlete_id = $1
+    RETURNING *;`
+
 
 module.exports = {
     getAllDataFromAthleteProfileWithAthleteId,
@@ -192,4 +208,8 @@ module.exports = {
     setUpParentsAthletesTable,
     
     updateAthleteProfile,
+    deleteSession,
+    deleteAllAttendanceForSession,
+    deleteAthleteProfile,
+    deleteAllAttendanceForAthlete,
 }

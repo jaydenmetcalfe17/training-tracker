@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { Session } from '../types/Session';
 import SessionsList from '../components/SessionsList/SessionsList';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import EditSessionForm from '../components/EditSessionForm';
 
 
 const SessionPage: React.FC = () => {
+  const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
   const [session, setSession] = useState<Session | null>(null);
   
@@ -53,9 +54,9 @@ const SessionPage: React.FC = () => {
   }, []);
 
   //edit/update session
-    const [showPopup, setShowPopup] = useState(false);
+    const [showEditPopup, setShowEditPopup] = useState(false);
     const toggleEditPopup = () => {
-      setShowPopup(!showPopup);
+      setShowEditPopup(!showEditPopup);
     };
   
     const editSession = (updatedSession: Session) => {
@@ -80,12 +81,48 @@ const SessionPage: React.FC = () => {
         toggleEditPopup();
     };
 
+    // delete session functionality
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
+    const toggleDeletePopup = () => {
+      setShowDeletePopup(!showDeletePopup);
+    };
+
+    const deleteSession = () => {
+        if (!session) return;  
+  
+        fetch(`/api/session/${session.sessionId}`, {
+      // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(session),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log('Session deleted:', data);
+        })
+        .catch((err) => console.error('Failed to delete session', err));
+        
+        navigate(`/dashboard`);
+    };
+
+    
+    // navigation back to dashboard
+    const handleBackClick = () => {
+      navigate(`/dashboard`);
+    };
+
+
 
   return (
     <div>
       <div>
-          <button className="edit-button" onClick={toggleEditPopup}>Edit Session</button>
-          {showPopup && (
+        <button className="back-button" onClick={() => handleBackClick()}>Back to Dashboard</button> {/* make this only for coach POV */}
+      </div>
+      <div>
+        <button className="edit-button" onClick={toggleEditPopup}>Edit Session</button>
+          {showEditPopup && (
             <div className="popup-overlay">
               <div className="popup-content">
                 <EditSessionForm session={session} onSubmit={editSession}/>
@@ -93,10 +130,22 @@ const SessionPage: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
-        <div>
-          <SessionsList sessions = {sessions}/>  {/* Turn this into a Single Session Component */}
-        </div>
+      </div>
+      <div>
+        <button className="delete-button" onClick={toggleDeletePopup}>Delete Session</button>
+          {showDeletePopup && (
+            <div className="popup-overlay">
+              <div className="popup-content">
+                <h3>Are you sure you want to delete this session?</h3>
+                <button onClick={deleteSession}>Yes, delete the session</button>
+                <button onClick={toggleDeletePopup}>No, keep the session</button>
+              </div>
+            </div>
+          )}
+      </div>
+      <div>
+        <SessionsList sessions = {sessions}/>  {/* Turn this into a Single Session Component */}
+      </div>
     </div>
   )
 }

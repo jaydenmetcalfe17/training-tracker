@@ -14,6 +14,9 @@ router.post("/athlete", controller.createAthleteProfile);
 // Example: PUT /api/athlete/?athleteId=1 // etc...
 router.put("/athlete/:athleteId", controller.updateAthleteProfile);
 
+// Example: DELETE /api/athlete/?athleteId=1 // etc...
+router.delete("/athlete/:athleteId", controller.deleteAthleteProfile);
+
 // Example: POST /api/session // etc...
 router.post("/session", controller.createSession);
 
@@ -22,6 +25,9 @@ router.get("/session", controller.getSessions)
 
 // Example: PUT /api/session/?sessionId=1 // etc...
 router.put("/session/:sessionId", controller.updateSession);
+
+// Example: DELETE /api/session/?sessionId=1 // etc...
+router.delete("/session/:sessionId", controller.deleteSession);
 
 
 module.exports = router;

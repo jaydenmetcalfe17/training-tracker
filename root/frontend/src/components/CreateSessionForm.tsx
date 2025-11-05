@@ -52,8 +52,45 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         attendance: []
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // input validation 
+      let isValid = true;
+      let errorMessage = "";
+
+      if (e.target.name == "discipline") {
+        const allowedDisciplines = ["SL", "GS", "SG", "DH", "Other"];
+        if (!allowedDisciplines.includes(e.target.value)) { // if invalid input
+          isValid = false;
+          errorMessage = "Please choose valid discipline.";
+        }
+      } else if (e.target.name == "snowConditions") {
+          const allowedSnowConditions = ["Soft", "Compact-soft", "Hard grippy", "Ice", "Wet", "Salted", "Non-groomed", "Ball bearings", "Powder"];
+          if (!allowedSnowConditions.includes(e.target.value)) { // if invalid input
+            isValid = false;
+            errorMessage = "Please choose valid snow conditions."
+          }
+      } else if (e.target.name == "visConditions") {
+          const allowedVisConditions = ["Sunny", "Flat light", "Fog", "Snowing", "Variable", "Rain"];
+          if (!allowedVisConditions.includes(e.target.value)) { // if invalid input
+            isValid = false;
+            errorMessage = "Please choose valid visibility conditions."
+          }
+       }  else if (e.target.name == "terrainType") {
+          const allowedTerrainType = ["Flat", "Medium", "Steep", "Rolly", "Mixed"];
+          if (!allowedTerrainType.includes(e.target.value)) { // if invalid input
+            isValid = false;
+            errorMessage = "Please choose valid terrain type."
+          }
+       } 
+      setErrors((prev) => ({ ...prev, [e.target.name]: errorMessage }));
+      
+      if (isValid = true) {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+      } else {
+        console.error("Invalid input. Please try again.");
+      }
   };
 
    const handleAttendanceChange = (selectedIds: number[]) => {
@@ -93,11 +130,11 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         <div className="white-box">
           <form onSubmit={handleSubmit}>
               <label>Session Date: </label>
-              <input name="sessionDay" type="date"value={formData.sessionDay} onChange={handleChange}/>
+              <input required name="sessionDay" type="date"value={formData.sessionDay} onChange={handleChange}/>
               <label>Location: </label>
-              <input name="location" value={formData.location} onChange={handleChange}/>
+              <input type="text" required name="location" value={formData.location} onChange={handleChange}/>
               <label>Discipline: </label>
-              <input name="discipline" list="discipline" value={formData.discipline} onChange={handleChange}/>
+              <input type="text" required name="discipline" list="discipline" value={formData.discipline} onChange={handleChange}/>
               <datalist id="discipline">
                 <option value="SL"></option>
                 <option value="GS"></option>
@@ -105,8 +142,9 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <option value="DH"></option>
                 <option value="Other"></option>
               </datalist>
+              {errors.discipline && <p className="error-text">{errors.discipline}</p>}
               <label>Snow Conditions: </label>
-              <input name="snowConditions" list="snowConditions" value={formData.snowConditions} onChange={handleChange}/>
+              <input type="text" required name="snowConditions" list="snowConditions" value={formData.snowConditions} onChange={handleChange}/>
               <datalist id="snowConditions">
                 <option value="Soft"></option>
                 <option value="Compact-soft"></option>
@@ -118,8 +156,9 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <option value="Ball bearings"></option>
                 <option value="Powder"></option>
               </datalist>
+              {errors.snowConditions && <p className="error-text">{errors.snowConditions}</p>}
               <label>Visibility Conditions: </label>
-              <input name="visConditions" list="visConditions" value={formData.visConditions} onChange={handleChange}/> 
+              <input type="text" required name="visConditions" list="visConditions" value={formData.visConditions} onChange={handleChange}/> 
               <datalist id="visConditions">
                 <option value="Sunny"></option>
                 <option value="Flat light"></option>
@@ -128,8 +167,9 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <option value="Variable"></option>
                 <option value="Rain"></option>
               </datalist>
+              {errors.visConditions && <p className="error-text">{errors.visConditions}</p>}
               <label>Terrain Type: </label>
-              <input name="terrainType" list="terrainType" value={formData.terrainType} onChange={handleChange}/>  
+              <input type="text" required name="terrainType" list="terrainType" value={formData.terrainType} onChange={handleChange}/>  
               <datalist id="terrainType">
                 <option value="Flat"></option>
                 <option value="Medium"></option>
@@ -137,24 +177,25 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <option value="Rolly"></option>
                 <option value="Mixed"></option>
               </datalist>
+              {errors.terrainType && <p className="error-text">{errors.terrainType}</p>}
               <label># of Freeski Runs: </label>
-              <input name="numFreeskiRuns" value={formData.numFreeskiRuns} onChange={handleChange}/>
+              <input type="number" required name="numFreeskiRuns" value={formData.numFreeskiRuns} onChange={handleChange}/>
               <label># of Drill Runs: </label>
-              <input name="numDrillRuns" value={formData.numDrillRuns} onChange={handleChange}/>
+              <input type="number" required name="numDrillRuns" value={formData.numDrillRuns} onChange={handleChange}/>
               <label># of Educational Course Runs: </label>
-              <input name="numEducationalCourseRuns" value={formData.numEducationalCourseRuns} onChange={handleChange}/>
+              <input type="number" required name="numEducationalCourseRuns" value={formData.numEducationalCourseRuns} onChange={handleChange}/>
               <label># of Gates in Educational Course: </label>
-              <input name="numGatesEducationalCourse" value={formData.numGatesEducationalCourse} onChange={handleChange}/>
+              <input type="number" required name="numGatesEducationalCourse" value={formData.numGatesEducationalCourse} onChange={handleChange}/>
               <label># of Race Training Course Runs: </label>
-              <input name="numRaceTrainingCourseRuns" value={formData.numRaceTrainingCourseRuns} onChange={handleChange}/>
+              <input type="number" required name="numRaceTrainingCourseRuns" value={formData.numRaceTrainingCourseRuns} onChange={handleChange}/>
               <label># of Gates in Race Training Course: </label>
-              <input name="numGatesRaceTrainingCourse" value={formData.numGatesRaceTrainingCourse} onChange={handleChange}/>
+              <input type="number" required name="numGatesRaceTrainingCourse" value={formData.numGatesRaceTrainingCourse} onChange={handleChange}/>
               <label># of Race Runs: </label>
-              <input name="numRaceRuns" value={formData.numRaceRuns} onChange={handleChange}/>
+              <input type="number" required name="numRaceRuns" value={formData.numRaceRuns} onChange={handleChange}/>
               <label># of Gates in Race Course: </label>
-              <input name="numGatesRace" value={formData.numGatesRace} onChange={handleChange}/>
+              <input type="number" required name="numGatesRace" value={formData.numGatesRace} onChange={handleChange}/>
               <label>General Comments: </label>
-              <input name="generalComments" value={formData.generalComments} onChange={handleChange}/>
+              <input type="text" name="generalComments" value={formData.generalComments} onChange={handleChange}/>
               
               <label>Attendance: </label>
               <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange}></MultiSelectEx>

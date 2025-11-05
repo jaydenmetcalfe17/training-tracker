@@ -80,6 +80,38 @@ const updateAthleteProfile = async (req, res) => {
     }
 }
 
+//delete an athlete's profile and everything related to them in attendance table
+
+const deleteAthleteProfile = async (req, res) => {
+    console.log("ENTERED to Delete athlete");
+
+    const {athleteId} = req.params;
+    
+    try {
+
+        const attendanceDelete = await pool.query(queries.deleteAllAttendanceForAthlete, [athleteId]);
+        
+        if (attendanceDelete.rows.length === 0) {
+            return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
+        } 
+        console.log('Athlete attendance result rows:', attendanceDelete.rows);
+        res.status(200).json(attendanceDelete.rows);
+
+
+        const athleteDelete = await pool.query(queries.deleteAthleteProfile, [athleteId]);
+        
+        if (athleteDelete.rows.length === 0) {
+            return res.status(404).json({ error: "No athleteId found"} );
+        } 
+        console.log('Athletes result rows:', athleteDelete.rows);
+        res.status(200).json(athleteDelete.rows);
+
+    } catch (error) {
+        console.error('Error deleting athlete: ', error);
+        res.status(500).send({error: 'Server error deleting athlete'} );
+    }
+};
+
 
 
 
@@ -269,6 +301,37 @@ const updateSession = async (req, res) => {
     }
 }
 
+const deleteSession = async (req, res) => {
+    console.log("ENTERED to Delete");
+
+    const {sessionId} = req.params;
+
+    try {
+
+        const attendanceDelete = await pool.query(queries.deleteAllAttendanceForSession, [sessionId]);
+
+        if (attendanceDelete.rows.length === 0) {
+            return res.status(404).json({ error: "No sessions found"} );
+        }
+        console.log('Sessions result rows:', attendanceDelete.rows);
+        res.status(200).json(attendanceDelete.rows);
+
+
+        const sessionDelete = await pool.query(queries.deleteSession, [sessionId]);
+
+        if (sessionDelete.rows.length === 0) {
+            return res.status(404).json({ error: "No sessions found"} );
+        }
+        console.log('Sessions result rows:', sessionDelete.rows);
+        res.status(200).json(sessionDelete.rows);
+
+
+    } catch (error) {
+        console.error('Error deleting session: ', error);
+        res.status(500).send({error: 'Server error deleting session'} );
+    }
+};
+
 
 
 
@@ -337,8 +400,10 @@ module.exports = {
     getAllDataFromAthleteProfile,
     createAthleteProfile,
     updateAthleteProfile,
+    deleteAthleteProfile,
     createSession,
     getSessions,
     updateSession,
+    deleteSession,
     createUser
 }
