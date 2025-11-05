@@ -221,13 +221,35 @@ const getSessions = async (req, res) => {
         } else {  //getting all sessions
             result = await pool.query(queries.getAllSessions);
         }
-
         
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );
         }
-        console.log('Sessions result rows:', result.rows);
-        res.status(200).json(result.rows);
+
+        const attendance = await pool.query(queries.getAllAthletesAttendanceFromSession, [sessionId]);
+
+        const sessionsWithAttendance = result.rows.map((session) => ({
+            ...session,
+            attendance: attendance.rows
+                .filter(att => att.session_id === session.session_id)
+                .map(att => ({
+                    attendanceId: att.attendance_id,
+                    individualComments: att.individual_comments,
+                    athlete: {
+                        athleteId: att.athlete_id,
+                        athleteFirstName: att.athlete_first_name,
+                        athleteLastName: att.athlete_last_name,
+                        birthday: att.birthday,
+                        gender: att.gender,
+                        userId: att.user_id,
+                        team: att.team,
+                        ageGroup: att.age_group,
+                    },
+                })),
+        }));
+
+        res.status(200).json(sessionsWithAttendance);
+
 
     } catch (error) {
         console.error('Error getting sessions: ', error);

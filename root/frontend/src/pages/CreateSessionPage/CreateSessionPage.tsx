@@ -46,6 +46,7 @@ const CreateSessionPage: React.FC = () => {
           })
           .then((data) => {
             console.log("Sessions pre-mapping: ", data);
+
             const loadedSessions: Session[] = data.map((session: any) => ({
               sessionId: session.session_id,
               sessionDay: new Date(session.session_day)

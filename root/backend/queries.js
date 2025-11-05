@@ -69,6 +69,8 @@ const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
 
 const getAllAthleteSessionsFromAttendance = `SELECT * FROM attendance JOIN sessions ON attendance.session_id = sessions.session_id WHERE athlete_id = $1`;
 
+const getAllAthletesAttendanceFromSession = `SELECT * FROM attendance JOIN athletes on attendance.athlete_id = athletes.athlete_id WHERE session_id = $1`;
+
 const sessionsFilterSearch = `SELECT * FROM SESSIONS 
     WHERE 
         ($1::date IS NULL OR session_day >= $1) AND
@@ -194,6 +196,7 @@ module.exports = {
     getSessionById,
     setUpSessionsTable,
     getAllAthleteSessionsFromAttendance,
+    getAllAthletesAttendanceFromSession,
     sessionsFilterSearch,
     oneAthleteSessionsFilterSearch,
     updateSession,

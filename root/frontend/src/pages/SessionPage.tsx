@@ -4,6 +4,7 @@ import SessionsList from '../components/SessionsList/SessionsList';
 import { useNavigate, useParams } from 'react-router-dom';
 import EditSessionForm from '../components/EditSessionForm';
 import AuthContext from '../context/AuthContext';
+import AttendanceList from '../components/AttendanceList';
 
 
 const SessionPage: React.FC = () => {
@@ -37,24 +38,41 @@ const SessionPage: React.FC = () => {
         })
        .then((data) => {
           console.log("DATA: ", data);
+          const sessionData = Array.isArray(data) ? data[0] : data;
+
           const mappedSession: Session = {
-            sessionId: data[0].session_id,
-            sessionDay: new Date(data[0].session_day).toISOString().split("T")[0],
-            location: data[0].location,
-            discipline: data[0].discipline,
-            snowConditions: data[0].snow_conditions,
-            visConditions: data[0].vis_conditions,
-            terrainType: data[0].terrain_type,
-            numFreeskiRuns: data[0].num_freeski_runs,
-            numDrillRuns: data[0].num_drill_runs,
-            numEducationalCourseRuns: data[0].num_educational_course_runs,
-            numGatesEducationalCourse: data[0].num_gates_educational_course,
-            numRaceTrainingCourseRuns: data[0].num_race_training_course_runs,
-            numGatesRaceTrainingCourse: data[0].num_gates_race_training_course,
-            numRaceRuns: data[0].num_race_runs,
-            numGatesRace: data[0].num_gates_race,
-            generalComments: data[0].general_comments,
+            sessionId: sessionData.session_id,
+            sessionDay: new Date(sessionData.session_day).toISOString().split("T")[0],
+            location: sessionData.location,
+            discipline: sessionData.discipline,
+            snowConditions: sessionData.snow_conditions,
+            visConditions: sessionData.vis_conditions,
+            terrainType: sessionData.terrain_type,
+            numFreeskiRuns: sessionData.num_freeski_runs,
+            numDrillRuns: sessionData.num_drill_runs,
+            numEducationalCourseRuns: sessionData.num_educational_course_runs,
+            numGatesEducationalCourse: sessionData.num_gates_educational_course,
+            numRaceTrainingCourseRuns: sessionData.num_race_training_course_runs,
+            numGatesRaceTrainingCourse: sessionData.num_gates_race_training_course,
+            numRaceRuns: sessionData.num_race_runs,
+            numGatesRace: sessionData.num_gates_race,
+            generalComments: sessionData.general_comments,
+            receivedAttendance: sessionData.attendance.map((a: any) => ({
+              attendanceId: a.attendanceId,
+              individualComments: a.individualComments,
+              athlete: {
+                  athleteId: a.athlete.athleteId,
+                  athleteFirstName: a.athlete.athleteFirstName,
+                  athleteLastName: a.athlete.athleteLastName,
+                  birthday: a.athlete.birthday,
+                  gender: a.athlete.gender,
+                  userId: a.athlete.userId,
+                  team: a.athlete.team,
+                  ageGroup: a.athlete.ageGroup,
+                },
+            })),
           };
+          console.log("RECEIVED ATTENDANCE: ", mappedSession.receivedAttendance);
           setSession(mappedSession);
           console.log('Session found:', mappedSession);
       })
@@ -153,6 +171,7 @@ const SessionPage: React.FC = () => {
       </div>
       <div>
         <SessionsList sessions = {sessions}/>  {/* Turn this into a Single Session Component */}
+        <AttendanceList attendance={session?.receivedAttendance} />
       </div>
     </div>
   )
