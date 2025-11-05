@@ -1,18 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import type { Session } from '../types/Session';
 import SessionsList from '../components/SessionsList/SessionsList';
 import { useNavigate, useParams } from 'react-router-dom';
 import EditSessionForm from '../components/EditSessionForm';
+import AuthContext from '../context/AuthContext';
 
 
 const SessionPage: React.FC = () => {
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
   const [session, setSession] = useState<Session | null>(null);
+  const { user } = useContext(AuthContext);
+  const [isVisible, setIsVisible] = useState(true);
+ 
   
   let sessions: Session[] = session ? [session] : [];
 
   useEffect(() => {
+     if (user?.status == 'athlete'){
+      setIsVisible(!isVisible);
+    }
+
     if (!sessionId) return;   
 
     fetch(`/api/session?sessionId=${sessionId}`, {
@@ -121,7 +129,7 @@ const SessionPage: React.FC = () => {
         <button className="back-button" onClick={() => handleBackClick()}>Back to Dashboard</button> {/* make this only for coach POV */}
       </div>
       <div>
-        <button className="edit-button" onClick={toggleEditPopup}>Edit Session</button>
+        {isVisible && <button className="edit-button" onClick={toggleEditPopup}>Edit Session</button>}
           {showEditPopup && (
             <div className="popup-overlay">
               <div className="popup-content">
@@ -132,7 +140,7 @@ const SessionPage: React.FC = () => {
           )}
       </div>
       <div>
-        <button className="delete-button" onClick={toggleDeletePopup}>Delete Session</button>
+        {isVisible && <button className="delete-button" onClick={toggleDeletePopup}>Delete Session</button>}
           {showDeletePopup && (
             <div className="popup-overlay">
               <div className="popup-content">

@@ -185,7 +185,7 @@ const createSession = async (req, res) => {
 
 // Get sessions
 const getSessions = async (req, res) => {
-    console.log("ENTERED");
+    console.log("ENTERED to find sessions");
 
     const {
         sessionId,

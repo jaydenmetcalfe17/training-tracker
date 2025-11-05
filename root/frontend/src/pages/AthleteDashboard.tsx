@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import type { Athlete } from "../types/Athlete";
 import { useNavigate, useParams } from "react-router-dom";
+import EditAthleteForm from "../components/EditAthleteForm";
 
 
 const AthleteDashboard: React.FC = () => {
@@ -11,6 +12,7 @@ const AthleteDashboard: React.FC = () => {
   const params = useParams()
 
   const [athlete, setAthlete] = useState<Athlete | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     let insert = ''
@@ -18,6 +20,7 @@ const AthleteDashboard: React.FC = () => {
       insert = `athleteId=${params.athleteId}`
     } else if (user?.status == 'athlete') {
       insert = `userId=${user?.userId}`
+      setIsVisible(!isVisible);
     }
 
     fetch(`/api/athlete?${insert}`, {
@@ -48,6 +51,35 @@ const AthleteDashboard: React.FC = () => {
       })
         .catch((err) => console.log('Unable to find athlete: ', err));
   }, [user]);
+
+
+   //edit/update athlete profile info
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const toggleEditPopup = () => {
+    setShowEditPopup(!showEditPopup);
+  };
+
+  const editAthleteProfile = (updatedAthlete: Athlete) => {
+    console.log("updated: ", updatedAthlete);
+      if (!updatedAthlete) return; 
+      if (!athlete) return;  
+
+      fetch(`/api/athlete/${athlete.athleteId}`, {
+		// fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(updatedAthlete),
+		  })
+		  .then((res) => res.json())
+      .then((data) => {
+          console.log('Athlete updated:', data);
+      })
+      .catch((err) => console.error('Failed to update athlete profile', err));
+
+      toggleEditPopup();
+  };
 
   // delete athlete 
     const [showDeletePopup, setShowDeletePopup] = useState(false);
@@ -81,13 +113,15 @@ const AthleteDashboard: React.FC = () => {
   };
 
 
+
+
   return (
     <div>
       <div>
-        <button className="back-button" onClick={() => handleClick()}>Back to Dashboard</button> {/* make this only for coach POV */}
+        {isVisible && <button className="back-button" onClick={() => handleClick()}>Back to Dashboard</button> }
       </div>
       <div>
-        <button className="delete-button" onClick={toggleDeletePopup}>Delete Athlete</button>
+        {isVisible && <button className="delete-button" onClick={toggleDeletePopup}>Delete Athlete</button> }
           {showDeletePopup && (
             <div className="popup-overlay">
               <div className="popup-content">
@@ -98,6 +132,16 @@ const AthleteDashboard: React.FC = () => {
             </div>
           )}
       </div>
+      <div>
+          {isVisible && <button className="edit-button" onClick={toggleEditPopup}>Edit Athlete</button>}
+          {showEditPopup && (
+            <div className="popup-overlay">
+              <div className="popup-content">
+                <EditAthleteForm athlete={athlete} onSubmit={editAthleteProfile}/>
+              </div>
+            </div>
+          )}
+        </div>
       <AthletesSessions athlete = {athlete}/>
     </div>
   )
