@@ -37,7 +37,6 @@ const SessionPage: React.FC = () => {
           return res.json();
         })
        .then((data) => {
-          console.log("DATA: ", data);
           const sessionData = Array.isArray(data) ? data[0] : data;
 
           const mappedSession: Session = {
@@ -82,6 +81,7 @@ const SessionPage: React.FC = () => {
   //edit/update session
     const [showEditPopup, setShowEditPopup] = useState(false);
     const toggleEditPopup = () => {
+      console.log("p;laying around: ", session);
       setShowEditPopup(!showEditPopup);
     };
   
@@ -170,8 +170,14 @@ const SessionPage: React.FC = () => {
           )}
       </div>
       <div>
-        <SessionsList sessions = {sessions}/>  {/* Turn this into a Single Session Component */}
-        <AttendanceList attendance={session?.receivedAttendance} />
+        {session ? (
+          <>
+            <SessionsList sessions={[session]} />
+            {isVisible && <AttendanceList session={session} />}
+          </>
+          ) : (
+            <p>Loading session...</p>
+          )}
       </div>
     </div>
   )

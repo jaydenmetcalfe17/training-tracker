@@ -146,6 +146,7 @@ const setUpAttendanceTable = `CREATE TABLE IF NOT EXISTS attendance (
 );`
 
 const addAthleteAttendance = `INSERT INTO attendance (athlete_id, session_id) VALUES ($1, $2) RETURNING *`
+const deleteAthleteAttendanceSingleSession = `DELETE FROM attendance WHERE athlete_id = $1 AND session_id = $2`
 
 // Connect a parent user's account to specific athletes and vice versa
 const setUpParentsAthletesTable = `CREATE TABLE parents (
@@ -210,6 +211,7 @@ module.exports = {
     findUserByEmail,
     setUpAttendanceTable,
     addAthleteAttendance,
+    deleteAthleteAttendanceSingleSession,
     setUpParentsAthletesTable,
     
     updateAthleteProfile,

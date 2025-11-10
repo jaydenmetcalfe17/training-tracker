@@ -21,7 +21,7 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
   return (
     <div className="sessions-list-box">
       <div className="light-tan-box">
-        <h2 className="box-h2-title">All Sessions</h2>
+        {/* <h2 className="box-h2-title">All Sessions</h2> */}
         <div className="white-box" id="sessions-white-box">
           <table>
             <thead>

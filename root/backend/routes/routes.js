@@ -29,5 +29,12 @@ router.put("/session/:sessionId", controller.updateSession);
 // Example: DELETE /api/session/?sessionId=1 // etc...
 router.delete("/session/:sessionId", controller.deleteSession);
 
+// Example: DELETE /api/attendance/:athleteId/:sessionId
+router.delete("/attendance/:athleteId/:sessionId", controller.deleteAthleteAttendanceSingleSession);
+
+// Example: PUT /api/attendance/
+router.put("/attendance/", controller.addAthletesToAttendance);
+
+
 
 module.exports = router;

@@ -1,3 +1,4 @@
+const { session } = require('passport');
 const pool = require('./config/database');
 const queries = require('./queries');
 const bcrypt = require('bcrypt');
@@ -113,6 +114,52 @@ const deleteAthleteProfile = async (req, res) => {
 };
 
 
+// delete athlete from attendance of a single session 
+const deleteAthleteAttendanceSingleSession = async (req, res) => {
+    const {athleteId, sessionId} = req.params;
+    
+    try {
+
+        const attendanceDelete = await pool.query(queries.deleteAthleteAttendanceSingleSession, [athleteId, sessionId]);
+        
+        if (attendanceDelete.rows.length === 0) {
+            return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
+        } 
+        console.log('Athlete attendance result rows:', attendanceDelete.rows);
+        res.status(200).json(attendanceDelete.rows);
+
+    } catch (error) {
+        console.error('Error deleting athlete attendance: ', error);
+        res.status(500).send({error: 'Server error deleting athlete attendance'} );
+    } 
+};
+
+
+const addAthletesToAttendance = async (req, res) => {
+    const {athleteIds, sessionId} = req.body;
+    console.log(athleteIds);
+    
+    try {
+       const check = await pool.query(queries.getAllAthletesAttendanceFromSession, [sessionId])
+       const attendingIds = check.rows.map(row => row.athlete_id)
+        // loop through athletes in attendance
+       for (const athlete of athleteIds) {
+            if (attendingIds.includes(athlete)){
+                console.error('Error adding athletes to attendance: ', error);
+                res.status(500).send({error: 'Cannot add athlete to a session more than once'} );
+            } else {
+                console.log("Adding athlete attendance: ", athlete);
+                await pool.query(queries.addAthleteAttendance, [athlete, sessionId]);
+            }
+        }
+        // res.status(200).json(attendanceDelete.rows);
+
+    } catch (error) {
+        console.error('Error adding athletes to attendance: ', error);
+        res.status(500).send({error: 'Server error adding athletes to attendance'} );
+    } 
+};
+
 
 
 // Create a new session
@@ -185,7 +232,6 @@ const createSession = async (req, res) => {
 
 // Get sessions
 const getSessions = async (req, res) => {
-    console.log("ENTERED to find sessions");
 
     const {
         sessionId,
@@ -425,6 +471,8 @@ module.exports = {
     createAthleteProfile,
     updateAthleteProfile,
     deleteAthleteProfile,
+    deleteAthleteAttendanceSingleSession,
+    addAthletesToAttendance,
     createSession,
     getSessions,
     updateSession,
