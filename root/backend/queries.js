@@ -9,7 +9,7 @@ const setUpAthleteProfilesTable = `CREATE TABLE IF NOT EXISTS athletes (
     athlete_id SERIAL PRIMARY KEY,
     athlete_first_name VARCHAR(100) NOT NULL,
     athlete_last_name VARCHAR(100) NOT NULL,
-    birthday DATE,
+    birthday DATE NOT NULL,
     gender VARCHAR(10) NOT NULL,
     team VARCHAR(255);
 	age_group VARCHAR(10);
@@ -49,12 +49,12 @@ const createSession =
 
 const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     session_id SERIAL PRIMARY KEY,
-    session_day DATE,
-    location VARCHAR(50),
-    discipline VARCHAR(20),
-    snow_conditions VARCHAR(50),
-    vis_conditions VARCHAR(50),
-    terrain_type VARCHAR(50),
+    session_day DATE NOT NULL,
+    location VARCHAR(50) NOT NULL,
+    discipline VARCHAR(20) NOT NULL,
+    snow_conditions VARCHAR(50) NOT NULL,
+    vis_conditions VARCHAR(50 NOT NULL,
+    terrain_type VARCHAR(50) NOT NULL,
     num_freeski_runs INT,
     num_drill_runs INT,
     num_educational_course_runs INT,
@@ -115,12 +115,12 @@ const updateSession = `UPDATE sessions
 
 // Just User and Auth Related Queries: 
 const setUpUsersTable = `CREATE TABLE IF NOT EXISTS users (
-    user_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(250),
-	last_name VARCHAR(250),
-    email VARCHAR (100) UNIQUE,
-    password VARCHAR(200),
-    status TEXT CHECK (status IN ('coach', 'athlete', 'parent')),
+    user_id SERIAL PRIMARY KEY NOT NULL,
+    first_name VARCHAR(250) NOT NULL,
+	last_name VARCHAR(250) NOT NULL,
+    email VARCHAR (100) UNIQUE NOT NULL,
+    password VARCHAR(200) NOT NULL,
+    status TEXT CHECK (status IN ('coach', 'athlete', 'parent')) NOT NULL,
 	google_id TEXT UNIQUE
 );`
 
@@ -139,9 +139,9 @@ const findUserByEmail = "SELECT * FROM users WHERE email = $1"
 
 // Need separate table for Attendance as well 
 const setUpAttendanceTable = `CREATE TABLE IF NOT EXISTS attendance (
-	attendance_id SERIAL PRIMARY KEY,
-	athlete_id INT,
-	session_id INT,
+	attendance_id SERIAL PRIMARY KEY NOT NULL,
+	athlete_id INT NOT NULL,
+	session_id INT NOT NULL,
     individual_comments VARCHAR(500)
 );`
 

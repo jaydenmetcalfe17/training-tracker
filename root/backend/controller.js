@@ -2,6 +2,7 @@ const { session } = require('passport');
 const pool = require('./config/database');
 const queries = require('./queries');
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 
 //encryption here???
 
@@ -39,9 +40,62 @@ const createAthleteProfile = async (req, res) => {
     const {athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
     console.log(athleteFirstName, athleteLastName, birthday, gender, team, ageGroup);
 
-    if (!athleteFirstName || !athleteLastName || !birthday || !gender || !team || !ageGroup) {
-        return res.status(400).json( {error: "Missing information"} );
+    //server side input validation
+     let errors = [];
+
+    //validation:
+    if (validator.isEmpty(athleteFirstName)) {
+      errors.push({athleteFirstName:'Must enter a first name'});
     }
+
+    if (!validator.isAlpha(athleteFirstName)) {
+      errors.push({athleteFirstName:'First name can only be letters'});
+    }
+
+    if (validator.isEmpty(athleteLastName)) {
+      errors.push({athleteLastName:'Must enter a last name'});
+    }
+
+     if (!validator.isAlpha(athleteLastName)) {
+      errors.push({athleteFirstName:'Last name can only be letters'});
+    }
+
+    if (validator.isEmpty(birthday)) {
+      errors.push({birthday:'Must enter a birthday'});
+    }
+
+    // add: is year of birth greater than current date?
+    if (!validator.isDate(birthday)) {
+      errors.push({birthday:'Birthday must be format YYYY-MM-DD'});
+    }
+
+    if (validator.isEmpty(gender)) {
+      errors.push({gender:'Must choose a gender'});
+    }
+
+    if (!['Male', 'Female'].includes(gender)){
+        errors.push({gender:'Gender can only be Male or Female'});
+    }
+
+    if (validator.isEmpty(team)) {
+      errors.push({team:'Must choose a team'});
+    }
+
+    if (validator.isEmpty(ageGroup)) {
+      errors.push({ageGroup:'Must choose an age group'});
+    }
+
+    if (!['U10', 'U12', 'U14', 'U16', 'FIS'].includes(ageGroup)) {
+      errors.push({ageGroup:'Must choose a valid age group'});
+    }
+
+
+    // if any errors:
+     if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+
 
     try {
         const result = await pool.query(queries.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
@@ -58,6 +112,62 @@ const createAthleteProfile = async (req, res) => {
 const updateAthleteProfile = async (req, res) => {
     const athleteId = req.params.athleteId;
     const { athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
+
+    //server side input validation
+     let errors = [];
+
+    //validation:
+    if (validator.isEmpty(athleteFirstName)) {
+      errors.push({athleteFirstName:'Must enter a first name'});
+    }
+
+    if (!validator.isAlpha(athleteFirstName)) {
+      errors.push({athleteFirstName:'First name can only be letters'});
+    }
+
+    if (validator.isEmpty(athleteLastName)) {
+      errors.push({athleteLastName:'Must enter a last name'});
+    }
+
+     if (!validator.isAlpha(athleteLastName)) {
+      errors.push({athleteFirstName:'Last name can only be letters'});
+    }
+
+    if (validator.isEmpty(birthday)) {
+      errors.push({birthday:'Must enter a birthday'});
+    }
+
+    // add: is year of birth greater than current date?
+    if (!validator.isDate(birthday)) {
+      errors.push({birthday:'Birthday must be format YYYY-MM-DD'});
+    }
+
+    if (validator.isEmpty(gender)) {
+      errors.push({gender:'Must choose a gender'});
+    }
+
+    if (!['Male', 'Female'].includes(gender)){
+        errors.push({gender:'Gender can only be Male or Female'});
+    }
+
+    if (validator.isEmpty(team)) {
+      errors.push({team:'Must choose a team'});
+    }
+
+    if (validator.isEmpty(ageGroup)) {
+      errors.push({ageGroup:'Must choose an age group'});
+    }
+
+    if (!['U10', 'U12', 'U14', 'U16', 'FIS'].includes(ageGroup)) {
+      errors.push({ageGroup:'Must choose a valid age group'});
+    }
+
+
+    // if any errors:
+     if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
 
 
     console.log("Values for update query:", [
@@ -185,6 +295,94 @@ const createSession = async (req, res) => {
 
     console.log(sessionDay, location, discipline);
     console.log("Athletes in attendance: ", attendance[0]);
+
+    //backend validation
+    let errors = [];
+
+    if (validator.isEmpty(sessionDay)) {
+      errors.push({sessionDay:'Session must have a date'});
+    }
+
+    if (!validator.isDate(sessionDay)) {
+      errors.push({sessionDay:'Session must be of format YYYY-MM-DD'});
+    }
+
+    if (validator.isEmpty(location)) {
+      errors.push({location:'Session must have a location'});
+    }
+
+    if (validator.isEmpty(discipline)) {
+      errors.push({discipline:'Session must have a discipline'});
+    }
+
+    if (!['SL', 'GS', 'SG', 'DH', 'Other'].includes(discipline)) {
+      errors.push({discipline:'Must choose a valid discipline'});
+    }
+
+    if (validator.isEmpty(snowConditions)) {
+      errors.push({snowConditions:'Session must have snow conditions'});
+    }
+
+    if (!['Soft', 'Compact-soft', 'Hard grippy', 'Ice', 'Wet', 'Salted', 'Non-groomed', 'Ball bearings', 'Powder'].includes(snowConditions)) {
+      errors.push({snowConditions:'Must choose valid snow conditions'});
+    }
+
+    if (validator.isEmpty(visConditions)) {
+      errors.push({visConditions:'Session must have a vis conditions'});
+    }
+
+    if (!['Sunny', 'Flat light', 'Fog', 'Snowing', 'Variable', 'Rain'].includes(visConditions)) {
+      errors.push({visConditions:'Must choose valid snow conditions'});
+    }
+
+    if (validator.isEmpty(terrainType)) {
+      errors.push({terrainType:'Session must have terrain type'});
+    }
+
+    if (!['Flat', 'Medium', 'Steep', 'Rolly', 'Mixed'].includes(terrainType)) {
+      errors.push({terrainType:'Must choose valid snow conditions'});
+    }
+
+    // number validation 
+    // FOR NOW: isNumeric checks if a STRING is all numbers... doesn't check if type is a number
+    // if (validator.isNumeric(numFreeskiRuns)) {
+    //   errors.push({numFreeskiRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numDrillRuns)) {
+    //   errors.push({numDrillRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numEducationalCourseRuns)) {
+    //   errors.push({numEducationalCourseRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numGatesEducationalCourse)) {
+    //   errors.push({numGatesEducationalCourse:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numRaceTrainingCourseRuns)) {
+    //   errors.push({numRaceTrainingCourseRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numGatesRaceTrainingCourse)) {
+    //   errors.push({numGatesRaceTrainingCourse:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numRaceRuns)) {
+    //   errors.push({numRaceRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numGatesRace)) {
+    //   errors.push({numGatesRace:'Must be a number'});
+    // }
+
+
+    // if any errors:
+     if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
 
     if (!sessionDay) {
         return res.status(400).json( {error: "Missing session day"} );
@@ -323,6 +521,94 @@ const updateSession = async (req, res) => {
         generalComments,
      } = req.body;
 
+    //backend validation
+    let errors = [];
+
+    if (validator.isEmpty(sessionDay)) {
+      errors.push({sessionDay:'Session must have a date'});
+    }
+
+    if (!validator.isDate(sessionDay)) {
+      errors.push({sessionDay:'Session must be of format YYYY-MM-DD'});
+    }
+
+    if (validator.isEmpty(location)) {
+      errors.push({location:'Session must have a location'});
+    }
+
+    if (validator.isEmpty(discipline)) {
+      errors.push({discipline:'Session must have a discipline'});
+    }
+
+    if (!['SL', 'GS', 'SG', 'DH', 'Other'].includes(discipline)) {
+      errors.push({discipline:'Must choose a valid discipline'});
+    }
+
+    if (validator.isEmpty(snowConditions)) {
+      errors.push({snowConditions:'Session must have snow conditions'});
+    }
+
+    if (!['Soft', 'Compact-soft', 'Hard grippy', 'Ice', 'Wet', 'Salted', 'Non-groomed', 'Ball bearings', 'Powder'].includes(snowConditions)) {
+      errors.push({snowConditions:'Must choose valid snow conditions'});
+    }
+
+    if (validator.isEmpty(visConditions)) {
+      errors.push({visConditions:'Session must have a vis conditions'});
+    }
+
+    if (!['Sunny', 'Flat light', 'Fog', 'Snowing', 'Variable', 'Rain'].includes(visConditions)) {
+      errors.push({visConditions:'Must choose valid snow conditions'});
+    }
+
+    if (validator.isEmpty(terrainType)) {
+      errors.push({terrainType:'Session must have terrain type'});
+    }
+
+    if (!['Flat', 'Medium', 'Steep', 'Rolly', 'Mixed'].includes(terrainType)) {
+      errors.push({terrainType:'Must choose valid snow conditions'});
+    }
+
+    // number validation
+    // FOR NOW: isNumeric checks if a STRING is all numbers... doesn't check if type is a number
+    // if (validator.isNumeric(numFreeskiRuns)) {
+    //   errors.push({numFreeskiRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numDrillRuns)) {
+    //   errors.push({numDrillRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numEducationalCourseRuns)) {
+    //   errors.push({numEducationalCourseRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numGatesEducationalCourse)) {
+    //   errors.push({numGatesEducationalCourse:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numRaceTrainingCourseRuns)) {
+    //   errors.push({numRaceTrainingCourseRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numGatesRaceTrainingCourse)) {
+    //   errors.push({numGatesRaceTrainingCourse:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numRaceRuns)) {
+    //   errors.push({numRaceRuns:'Must be a number'});
+    // }
+
+    // if (validator.isNumeric(numGatesRace)) {
+    //   errors.push({numGatesRace:'Must be a number'});
+    // }
+
+
+    // if any errors:
+     if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+
 
     console.log("Values for update query:", [
         sessionId,
@@ -413,20 +699,41 @@ const createUser = async (req, res) => {
 
     let errors = [];
 
-    // Check that all fields were filled out: 
-    if (!userFirstName || !userLastName || !email || !password || !password2 || !status) {
-        errors.push({message: "Please fill out all fields"})
-        // return res.status(400).json( {error: "Missing information"} );
+    if (validator.isEmpty(userFirstName)) {
+      errors.push({userFirstName:'Must enter a first name'});
+    }
+
+    if (validator.isEmpty(userLastName)) {
+      errors.push({userLastName: 'Must enter a last name'});
+    }
+
+    if (validator.isEmpty(email)) {
+      errors.push({email: 'Must enter an email'});
+    }
+
+    if (validator.isEmpty(password)) {
+      errors.push({password: 'Must enter a password'});
+    }
+
+    if (validator.isEmpty(password2)) {
+      errors.push({password2: 'Must re-enter password'});
+    }
+
+    if (validator.isEmpty(status)) {
+      errors.push({status: 'Must select status'});
     }
 
     // Password validation: 
-    if (!password.length < 6) {
-         errors.push({message: "Password should be at least 6 characters long"})
-        // return res.status(400).json( {error: "Missing information"} );
+    if (!validator.isLength(password, { min: 8 , max: 24})) {
+      errors.push({password: "Password should be between 8-24 characters long"});
     }
 
     if (password != password2) {
-        errors.push({message: "Passwords do not match"})
+        errors.push({password2: "Passwords do not match"})
+    }
+
+    if (!validator.isEmail(email)) {
+        errors.push({email: 'Please enter a valid email address'});
     }
 
     // Display errors and restart registration attempts 
@@ -437,6 +744,10 @@ const createUser = async (req, res) => {
     // Hashing password: 
     let hashed = await bcrypt.hash(password, 10);
     console.log("hashed: ", hashed);
+
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
 
     
     try {

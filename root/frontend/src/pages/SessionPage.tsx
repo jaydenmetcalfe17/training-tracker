@@ -15,7 +15,7 @@ const SessionPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
  
   
-  let sessions: Session[] = session ? [session] : [];
+  // let sessions: Session[] = session ? [session] : [];
 
   useEffect(() => {
      if (user?.status == 'athlete'){
