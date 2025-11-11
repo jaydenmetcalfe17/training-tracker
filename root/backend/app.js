@@ -8,12 +8,16 @@ const cors = require('cors');
 const passport = require('passport');
 require('./config/auth');
 require('dotenv').config();
+const pythonRoutes = require("./routes/pythonRoutes");
+
 
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+
+app.use("/api/python", pythonRoutes);
 
 app.use(cors({
     credentials: true,
