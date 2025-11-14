@@ -42,6 +42,8 @@ const SessionPage: React.FC = () => {
           const mappedSession: Session = {
             sessionId: sessionData.session_id,
             sessionDay: new Date(sessionData.session_day).toISOString().split("T")[0],
+            startTime: sessionData.startTime,
+            endTime: sessionData.endTime,
             location: sessionData.location,
             discipline: sessionData.discipline,
             snowConditions: sessionData.snow_conditions,
@@ -110,6 +112,23 @@ const SessionPage: React.FC = () => {
     // delete session functionality
     const [showDeletePopup, setShowDeletePopup] = useState(false);
     const toggleDeletePopup = () => {
+
+
+      //testing
+      fetch("http://localhost:8000/api/python/summary", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log('Session pulled:', data);
+        })
+        .catch((err) => console.error('Failed to update session', err));
+      // testing
+
+
       setShowDeletePopup(!showDeletePopup);
     };
 

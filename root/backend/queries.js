@@ -28,6 +28,8 @@ const getAllDataFromTrainingByDate = "SELECT * FROM sessions WHERE session_day =
 const createSession = 
 `INSERT INTO sessions (
     session_day, 
+    start_time,
+    end_time,
     location, 
     discipline,
     snow_conditions, 
@@ -44,12 +46,14 @@ const createSession =
     general_comments,
     created_by
     ) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) 
     RETURNING *`;
 
 const setUpSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     session_id SERIAL PRIMARY KEY,
     session_day DATE NOT NULL,
+    start_time VARCHAR(50) NOT NULL,
+    end_time VARCHAR(50) NOT NULL,
     location VARCHAR(50) NOT NULL,
     discipline VARCHAR(20) NOT NULL,
     snow_conditions VARCHAR(50) NOT NULL,
@@ -95,20 +99,22 @@ const oneAthleteSessionsFilterSearch = `SELECT sessions.*
 
 const updateSession = `UPDATE sessions
     SET session_day = $2,
-        location = $3,
-        discipline = $4,
-        snow_conditions = $5,
-        vis_conditions = $6,
-        terrain_type = $7,
-        num_freeski_runs = $8,
-        num_drill_runs = $9,
-        num_educational_course_runs = $10,
-        num_gates_educational_course = $11,
-        num_race_training_course_runs = $12,
-        num_gates_race_training_course = $13,
-        num_race_runs = $14,
-        num_gates_race = $15,
-        general_comments = $16
+        start_time = $3,
+        end_time = $4
+        location = $5,
+        discipline = $6,
+        snow_conditions = $7,
+        vis_conditions = $8,
+        terrain_type = $9,
+        num_freeski_runs = $10,
+        num_drill_runs = $11,
+        num_educational_course_runs = $12,
+        num_gates_educational_course = $13,
+        num_race_training_course_runs = $14,
+        num_gates_race_training_course = $15,
+        num_race_runs = $16,
+        num_gates_race = $17,
+        general_comments = $18
     WHERE session_id = $1
     RETURNING *;`
 

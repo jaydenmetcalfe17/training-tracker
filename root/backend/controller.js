@@ -277,6 +277,8 @@ const createSession = async (req, res) => {
     const {
         sessionDay, 
         location,
+        startTime,
+        endTime,
         discipline, 
         snowConditions, 
         visConditions, 
@@ -305,6 +307,16 @@ const createSession = async (req, res) => {
 
     if (!validator.isDate(sessionDay)) {
       errors.push({sessionDay:'Session must be of format YYYY-MM-DD'});
+    }
+
+    // make this a time (version of type Date?)
+    if (validator.isEmpty(startTime)) {
+      errors.push({startTime:'Session must have a start time'});
+    }
+
+    // make this a time (version of type Date? then turn into string for database entry?)
+    if (validator.isEmpty(endTime)) {
+      errors.push({endTime:'Session must have an end time'});
     }
 
     if (validator.isEmpty(location)) {
@@ -391,6 +403,8 @@ const createSession = async (req, res) => {
     try {
         const result = await pool.query(queries.createSession, [
             sessionDay, 
+            startTime,
+            endTime,
             location,
             discipline, 
             snowConditions, 
@@ -505,6 +519,8 @@ const updateSession = async (req, res) => {
     const sessionId = req.params.sessionId;
     const { 
         sessionDay, 
+        startTime,
+        endTime,
         location,
         discipline, 
         snowConditions, 
@@ -531,6 +547,17 @@ const updateSession = async (req, res) => {
     if (!validator.isDate(sessionDay)) {
       errors.push({sessionDay:'Session must be of format YYYY-MM-DD'});
     }
+
+    // make this a time (version of type Date?)
+    if (validator.isEmpty(startTime)) {
+      errors.push({startTime:'Session must have a start time'});
+    }
+
+    // make this a time (version of type Date? then turn into string for database entry?)
+    if (validator.isEmpty(endTime)) {
+      errors.push({endTime:'Session must have an end time'});
+    }
+
 
     if (validator.isEmpty(location)) {
       errors.push({location:'Session must have a location'});
@@ -613,6 +640,8 @@ const updateSession = async (req, res) => {
     console.log("Values for update query:", [
         sessionId,
         sessionDay, 
+        startTime,
+        endTime,
         location,
         discipline, 
         snowConditions, 
@@ -632,6 +661,8 @@ const updateSession = async (req, res) => {
         const result = await pool.query(queries.updateSession, [
             sessionId,
             sessionDay, 
+            startTime,
+            endTime,
             location,
             discipline, 
             snowConditions, 

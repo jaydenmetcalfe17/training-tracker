@@ -71,6 +71,8 @@ const SessionFilter: React.FC<FilterSessionsProps>= ( {athlete} ) => {
             sessionDay: new Date(session.session_day)
               .toISOString()
               .split("T")[0],
+            startTime: session.startTime,
+            endTime: session.endTime,
             location: session.location,
             discipline: session.discipline,
             snowConditions: session.snow_conditions, 

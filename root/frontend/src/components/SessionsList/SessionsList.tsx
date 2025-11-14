@@ -27,6 +27,8 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
             <thead>
               <tr>
                 <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
                 <th>Location</th>
                 <th>Discipline</th>
                 <th>Snow Conditions</th>
@@ -49,6 +51,8 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
               {sessions.map((session, index) => (
                 <tr key={index} onClick={() => handleRowClick(session.sessionId)}>
                   <td>{session.sessionDay}</td>
+                  <td>{session.startTime}</td>
+                  <td>{session.endTime}</td>
                   <td>{session.location}</td>
                   <td>{session.discipline}</td>
                   <td>{session.snowConditions}</td>

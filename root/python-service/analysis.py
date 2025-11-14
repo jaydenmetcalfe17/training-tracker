@@ -1,3 +1,4 @@
+# analysis.py
 import pandas as pd
 from config.database import engine
 
@@ -14,4 +15,6 @@ def session_summary():
     sessions = load_sessions_df()
     attendance = load_attendance_df()
     summary = attendance.groupby("session_id").size()
-    return summary
+    return sessions
+
+print (session_summary())

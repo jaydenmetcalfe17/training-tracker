@@ -36,6 +36,8 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({ session, onSubmit }) 
 
     const [formData, setFormData] = useState<Session>({
         sessionDay: '',
+        startTime: '',
+        endTime: '',
         location: '',
         discipline: '',
         snowConditions: '',
@@ -57,6 +59,8 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({ session, onSubmit }) 
     if (session) {
       setFormData({
         sessionDay: session.sessionDay ? new Date(session.sessionDay).toISOString().slice(0, 10) : "",
+        startTime: session.startTime,
+        endTime: session.endTime,
         location: session.location,
         discipline: session.discipline,
         snowConditions: session.snowConditions,
@@ -101,6 +105,10 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({ session, onSubmit }) 
           <form onSubmit={handleSubmit}>
               <label>Session Date: </label>
               <input name="sessionDay" type="date"value={formData.sessionDay} onChange={handleChange}/>
+              <label>Start Time: </label>
+              <input type="text" placeholder="0:00" required name="startTime" value={formData.startTime} onChange={handleChange}/>
+              <label>End Time: </label>
+              <input type="text" required placeholder="0:00" name="endTime" value={formData.endTime} onChange={handleChange}/>
               <label>Location: </label>
               <input name="location" value={formData.location} onChange={handleChange}/>
               <label>Discipline: </label>

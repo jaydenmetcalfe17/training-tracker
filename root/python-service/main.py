@@ -1,3 +1,4 @@
+# main.py
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from routes import router as sessions_router
@@ -6,7 +7,8 @@ from routes import router as sessions_router
 app = FastAPI()
 
 origins = [
-        "http://localhost:3000",  # React app's URL
+        "http://localhost:5173",
+        "http://localhost:3000", 
     ]
 
 app.add_middleware(
@@ -17,7 +19,7 @@ app.add_middleware(
         allow_headers=["*"],
     )
 
-app.include_router(sessions_router, prefix="/sessions")
+app.include_router(sessions_router)
 
 if __name__ == "__main__":
     import uvicorn
