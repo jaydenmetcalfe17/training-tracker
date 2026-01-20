@@ -1,6 +1,6 @@
 const { session } = require('passport');
 const pool = require('./config/database');
-const queries = require('./queries');
+const queries = require('./queries.json');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 
@@ -15,11 +15,11 @@ const getAllDataFromAthleteProfile = async (req, res) => {
         let result;
 
         if (athleteId) {
-            result = await pool.query(queries.getAllDataFromAthleteProfileWithAthleteId, [athleteId]);
+            result = await pool.query(queries.athletes.getAllDataFromAthleteProfileWithAthleteId, [athleteId]);
         } else if (userId) {
-            result = await pool.query(queries.getAthleteDataWithUserId, [userId]);
+            result = await pool.query(queries.athletes.getAthleteDataWithUserId, [userId]);
         } else {
-            result = await pool.query(queries.getAllAthletes);
+            result = await pool.query(queries.athletes.getAllAthletes);
         }
 
         
@@ -98,7 +98,7 @@ const createAthleteProfile = async (req, res) => {
 
 
     try {
-        const result = await pool.query(queries.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
+        const result = await pool.query(queries.athletes.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
         const newAthlete = result.rows[0]
         res.status(201).json(newAthlete);
         
@@ -180,7 +180,7 @@ const updateAthleteProfile = async (req, res) => {
         team
      ]);
     try {
-        const result = await pool.query(queries.updateAthleteProfile, [athleteId, athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
+        const result = await pool.query(queries.athletes.updateAthleteProfile, [athleteId, athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
         const updatedAthlete = result.rows[0]
         res.status(201).json(updatedAthlete);
         
@@ -200,7 +200,7 @@ const deleteAthleteProfile = async (req, res) => {
     
     try {
 
-        const attendanceDelete = await pool.query(queries.deleteAllAttendanceForAthlete, [athleteId]);
+        const attendanceDelete = await pool.query(queries.attendance.deleteAllAttendanceForAthlete, [athleteId]);
         
         if (attendanceDelete.rows.length === 0) {
             return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
@@ -209,7 +209,7 @@ const deleteAthleteProfile = async (req, res) => {
         res.status(200).json(attendanceDelete.rows);
 
 
-        const athleteDelete = await pool.query(queries.deleteAthleteProfile, [athleteId]);
+        const athleteDelete = await pool.query(queries.athletes.deleteAthleteProfile, [athleteId]);
         
         if (athleteDelete.rows.length === 0) {
             return res.status(404).json({ error: "No athleteId found"} );
@@ -230,7 +230,7 @@ const deleteAthleteAttendanceSingleSession = async (req, res) => {
     
     try {
 
-        const attendanceDelete = await pool.query(queries.deleteAthleteAttendanceSingleSession, [athleteId, sessionId]);
+        const attendanceDelete = await pool.query(queries.attendance.deleteAthleteAttendanceSingleSession, [athleteId, sessionId]);
         
         if (attendanceDelete.rows.length === 0) {
             return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
@@ -250,7 +250,7 @@ const addAthletesToAttendance = async (req, res) => {
     console.log(athleteIds);
     
     try {
-       const check = await pool.query(queries.getAllAthletesAttendanceFromSession, [sessionId])
+       const check = await pool.query(queries.sessions.getAllAthletesAttendanceFromSession, [sessionId])
        const attendingIds = check.rows.map(row => row.athlete_id)
         // loop through athletes in attendance
        for (const athlete of athleteIds) {
@@ -259,7 +259,7 @@ const addAthletesToAttendance = async (req, res) => {
                 res.status(500).send({error: 'Cannot add athlete to a session more than once'} );
             } else {
                 console.log("Adding athlete attendance: ", athlete);
-                await pool.query(queries.addAthleteAttendance, [athlete, sessionId]);
+                await pool.query(queries.attendance.addAthleteAttendance, [athlete, sessionId]);
             }
         }
         // res.status(200).json(attendanceDelete.rows);
@@ -401,7 +401,7 @@ const createSession = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(queries.createSession, [
+        const result = await pool.query(queries.sessions.createSession, [
             sessionDay, 
             startTime,
             endTime,
@@ -429,7 +429,7 @@ const createSession = async (req, res) => {
         // loop through athletes in attendance
        for (const athlete of attendance) {
             console.log("Adding athlete attendance: ", athlete);
-            await pool.query(queries.addAthleteAttendance, [athlete, sessionId]);
+            await pool.query(queries.attendance.addAthleteAttendance, [athlete, sessionId]);
         }
         
 
@@ -473,18 +473,18 @@ const getSessions = async (req, res) => {
         let result;
 
         if (athleteId) {
-            result = await pool.query(queries.oneAthleteSessionsFilterSearch, values);
+            result = await pool.query(queries.sessions.oneAthleteSessionsFilterSearch, values);
         } else if (sessionId) { //getting session by specific session ID
-            result = await pool.query(queries.getSessionById, [sessionId]);
+            result = await pool.query(queries.sessions.getSessionById, [sessionId]);
         } else {  //getting all sessions
-            result = await pool.query(queries.getAllSessions);
+            result = await pool.query(queries.sessions.getAllSessions);
         }
         
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );
         }
 
-        const attendance = await pool.query(queries.getAllAthletesAttendanceFromSession, [sessionId]);
+        const attendance = await pool.query(queries.sessions.getAllAthletesAttendanceFromSession, [sessionId]);
 
         const sessionsWithAttendance = result.rows.map((session) => ({
             ...session,
@@ -658,7 +658,7 @@ const updateSession = async (req, res) => {
         generalComments,
      ]);
     try {
-        const result = await pool.query(queries.updateSession, [
+        const result = await pool.query(queries.sessions.updateSession, [
             sessionId,
             sessionDay, 
             startTime,
@@ -695,7 +695,7 @@ const deleteSession = async (req, res) => {
 
     try {
 
-        const attendanceDelete = await pool.query(queries.deleteAllAttendanceForSession, [sessionId]);
+        const attendanceDelete = await pool.query(queries.sessions.deleteAllAttendanceForSession, [sessionId]);
 
         if (attendanceDelete.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );
@@ -704,7 +704,7 @@ const deleteSession = async (req, res) => {
         res.status(200).json(attendanceDelete.rows);
 
 
-        const sessionDelete = await pool.query(queries.deleteSession, [sessionId]);
+        const sessionDelete = await pool.query(queries.sessions.deleteSession, [sessionId]);
 
         if (sessionDelete.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );
@@ -783,19 +783,19 @@ const createUser = async (req, res) => {
     
     try {
         // Check if user exists first
-        const checkUserExists = await pool.query(queries.findUserByEmail, [email]);
+        const checkUserExists = await pool.query(queries.users.findUserByEmail, [email]);
 
         if (checkUserExists.rows.length > 0) {
             // console.error('User already exists!: ', error);
             res.status(500).send( {error: 'User already exists.'} );
         } else {
-            const result = await pool.query(queries.createUser, [userFirstName, userLastName, email, hashed, status]);
+            const result = await pool.query(queries.users.createUser, [userFirstName, userLastName, email, hashed, status]);
             const newUser = result.rows[0]
 
             console.log("NEW USER: ", newUser);
 
             if (newUser.status == 'athlete') {
-                const updated = await pool.query(queries.addUserIDtoAthlete, [newUser.user_id, userFirstName, userLastName]);
+                const updated = await pool.query(queries.athletes.addUserIDtoAthlete, [newUser.user_id, userFirstName, userLastName]);
                 console.log("Successfully updated with userID: ", updated);
             }
 

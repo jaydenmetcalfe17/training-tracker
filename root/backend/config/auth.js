@@ -5,7 +5,7 @@ const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const {Strategy: LocalStrategy } = require('passport-local');
 require('dotenv').config(); 
 const pool = require('./database');
-const queries = require('../queries');
+const queries = require('../queries.json');
 const bcrypt = require('bcrypt');
 
 
@@ -15,7 +15,7 @@ passport.use(new LocalStrategy ({
 },
     async (email, password, done) => {
         try {
-            const results = await pool.query(queries.findUserByEmail, [email]); 
+            const results = await pool.query(queries.users.findUserByEmail, [email]); 
 
             if (results.rows.length > 0) {
                 // user exists
@@ -60,11 +60,11 @@ passport.use(new GoogleStrategy({
 
         console.log(account);
         try {
-            const currentUserQuery = await pool.query(queries.checkUserAuth, [account.sub.toString()]);
+            const currentUserQuery = await pool.query(queries.users.checkUserAuth, [account.sub.toString()]);
             if (currentUserQuery.rows.length === 0) {
                 // create user
-                await pool.query(queries.createGoogleUser, [account.name, account.sub.toString(), account.email]); //option to do img which would be account.picture
-                const id = await pool.query(queries.getUserID, [account.sub.toString()]);
+                await pool.query(queries.users.createGoogleUser, [account.name, account.sub.toString(), account.email]); //option to do img which would be account.picture
+                const id = await pool.query(queries.users.getUserID, [account.sub.toString()]);
 
                 user = {
                     userId: id.rows[0].user_id,
