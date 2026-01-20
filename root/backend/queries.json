@@ -33,6 +33,7 @@
     "addUserIDtoAthlete": "UPDATE athletes SET user_id = $1 WHERE athlete_first_name = $2 AND athlete_last_name = $3 RETURNING *;"
   },
   "attendance": {
+    "getAllAttendance": "SELECT * FROM attendance;",
     "setUpAttendanceTable": "CREATE TABLE IF NOT EXISTS attendance (attendance_id SERIAL PRIMARY KEY NOT NULL, athlete_id INT NOT NULL, session_id INT NOT NULL, individual_comments VARCHAR(500));",
     "addAthleteAttendance": "INSERT INTO attendance (athlete_id, session_id) VALUES ($1, $2) RETURNING *",
     "deleteAthleteAttendanceSingleSession": "DELETE FROM attendance WHERE athlete_id = $1 AND session_id = $2"
