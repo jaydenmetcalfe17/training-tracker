@@ -1,105 +1,67 @@
-import React from 'react'
-import type { Session } from '../types/Session';
-import type { Athlete } from '../types/Athlete';
+import React, { useMemo, useState} from 'react'
 
-interface SortableTableProps {
-  headers: string[]
-  data: Session[] | Athlete[]
+interface SortableTableProps<T extends object> {
+  headers: { key: keyof T; label: string }[]
+  data: T[]
+  onRowClick?: (row: T) => void
 }
 
-type Data = typeof SortableTableProps.data
-type SortKeys = keyof Data[];
 type SortOrder = "ascn" | "desc";
 
-
-const SortableTable: React.FC<SortableTableProps> = ({ sessions }) => {
-  console.log("found sessions: ", sessions);
- 
-
-  const [sortKey, setSortKey] = useState<SortKeys>("sessionDay");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("ascn");
-
-  function sortData({tableData, sortKey, reverse}:{
-    tableData: Session[];
-    sortKey: SortKeys;
-    reverse: boolean;
-  }){
-    const sorted = [...tableData].sort((a, b) => {
-      const aVal = a[sortKey];
-      const bVal = b[sortKey];
-
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-
-      if (aVal > bVal) return 1;
-      if (aVal < bVal) return -1;
-      return 0;
-    });
-
-  return reverse ? sorted.reverse() : sorted;
-}
-
-function SortButton({
-  sortOrder,
-  columnKey,
-  sortKey,
-  onClick,
-}: {
-  sortOrder: SortOrder;
-  columnKey: SortKeys;
-  sortKey: SortKeys;
-  onClick: MouseEventHandler<HTMLButtonElement>;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`${
-        sortKey === columnKey && sortOrder === "desc"
-          ? "sort-button sort-reverse"
-          : "sort-button"
-      }`}
-    >
-      ▲
-    </button>
-  );
-}
-
-  const sortedData = useCallback(
-    () => sortData({tableData: sessions, sortKey, reverse: sortOrder === "desc"}), 
-    [sessions, sortKey, sortOrder]
-  );
-
-  function changeSort(key: SortKeys) {
-    setSortOrder(sortOrder === "ascn" ? "desc" : "ascn");
-    setSortKey(key);
+function SortButton<T extends object>({
+    sortOrder,
+    columnKey,
+    sortKey,
+    onClick,
+  }: {
+    sortOrder: SortOrder;
+    columnKey: keyof T;
+    sortKey: keyof T | null;
+    onClick: React.MouseEventHandler<HTMLButtonElement>;
+  }) {
+    return (
+      <button
+        onClick={onClick}
+        className={
+          sortKey === columnKey && sortOrder === "desc"
+            ? "sort-button sort-reverse"
+            : "sort-button"
+        }
+      >
+        ▲
+      </button>
+    );
   }
 
 
-  const navigate = useNavigate();
+function SortableTable<T extends object>(
+  { headers, data, onRowClick }: SortableTableProps<T>
+) {
+  const [sortKey, setSortKey] = useState<keyof T | null>(null)
+  const [sortOrder, setSortOrder] = useState<SortOrder>("ascn")
 
-  const handleRowClick = (sessionId: number | undefined) => {
-    navigate(`/session/${sessionId}`);
+  const sortedData = useMemo(() => {
+    if (!sortKey) return data
+
+    return [...data].sort((a, b) => {
+      const aVal = a[sortKey]
+      const bVal = b[sortKey]
+
+      if (aVal == null || bVal == null) return 0
+      if (aVal > bVal) return sortOrder === "ascn" ? 1 : -1
+      if (aVal < bVal) return sortOrder === "ascn" ? -1 : 1
+      return 0
+    })
+  }, [data, sortKey, sortOrder])
+
+
+  const changeSort = (key: keyof T) => {
+    setSortOrder(prev =>
+      sortKey === key && prev === "ascn" ? "desc" : "ascn"
+    );
+    setSortKey(key);
   };
 
-  const headers: { key: keyof Session; label: string }[] = [
-    {key: "sessionDay", label: "Date"},
-    {key: "startTime", label: "Start Time"},
-    {key: "endTime", label: "End Time"},
-    {key: "location", label: "Location"},
-    {key: "discipline", label: "Discipline"},
-    {key: "snowConditions", label: "Snow Conditions"},
-    {key: "visConditions", label: "Visibility Conditions"},
-    {key: "terrainType", label: "Terrain Type"},
-    {key: "numDrillRuns", label: "# of Drill Runs"},
-    {key: "numFreeskiRuns", label: "# of Freeski Runs"},
-    {key: "numEducationalCourseRuns", label: "# of Educational Course Runs"},
-    {key: "numGatesEducationalCourse", label: "# of Gates in Educational Course"},
-    {key: "numRaceTrainingCourseRuns", label: "# of Training Course Runs"},
-    {key: "numGatesRaceTrainingCourse", label: "# of Gates in Training Course"},
-    {key: "numRaceRuns", label: "# of Race Runs"},
-    {key: "numGatesRace", label: "# of Gates in Race"},
-    {key: "generalComments", label: "General Comments"},
-  ];
 
   return (
     <div className="sessions-list-box">
@@ -109,43 +71,39 @@ function SortButton({
           <table>
             <thead>
               <tr>
-                {headers.map((row) => {
-                  return (
-                    <td key={row.key}>{row.label}{" "}
-                    <SortButton
-                      columnKey={row.key}
-                      onClick={() => changeSort(row.key)}
-                      {...{
-                        sortOrder,
-                        sortKey,
-                      }}
+                {headers.map(h => (
+                  <th key={String(h.key)}>
+                    {h.label}
+                    <SortButton<T>
+                      columnKey={h.key}
+                      sortKey={sortKey}
+                      sortOrder={sortOrder}
+                      onClick={() => changeSort(h.key)}
                     />
-                  </td>
-                  );
-                })}
+                  </th>
+                ))}
               </tr>
             </thead>
             
             <tbody>
-              {sortedData().map((session, index) => (
-                <tr key={index} onClick={() => handleRowClick(session.sessionId)}>
-                  <td>{session.sessionDay}</td>
-                  <td>{session.startTime}</td>
-                  <td>{session.endTime}</td>
-                  <td>{session.location}</td>
-                  <td>{session.discipline}</td>
-                  <td>{session.snowConditions}</td>
-                  <td>{session.visConditions}</td>
-                  <td>{session.terrainType}</td>
-                  <td>{session.numDrillRuns}</td>
-                  <td>{session.numFreeskiRuns}</td>
-                  <td>{session.numEducationalCourseRuns}</td>
-                  <td>{session.numGatesEducationalCourse}</td>
-                  <td>{session.numRaceTrainingCourseRuns}</td>
-                  <td>{session.numGatesRaceTrainingCourse}</td>
-                  <td>{session.numRaceRuns}</td>
-                  <td>{session.numGatesRace}</td>
-                  <td>{session.generalComments}</td>
+              {sortedData.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  onClick={() => onRowClick?.(row)}
+                >
+                  {headers.map((h) => {
+                    const value = row[h.key];
+
+                    return (
+                      <td key={String(h.key)}>
+                        {value == null
+                          ? ""
+                          : value instanceof Date
+                          ? value.toLocaleDateString()
+                          : String(value)}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>
