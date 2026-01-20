@@ -1,19 +1,18 @@
-// components/AthleteList.tsx
-import "./SessionsList.scss";
-import type { Session } from "../../types/Session";
-import { useNavigate } from "react-router-dom";
-import { useCallback, useState, type MouseEventHandler } from "react";
-// import Table from "../Table";
+import React from 'react'
+import type { Session } from '../types/Session';
+import type { Athlete } from '../types/Athlete';
 
-interface SessionListProps {
-  sessions: Session[];
-};
+interface SortableTableProps {
+  headers: string[]
+  data: Session[] | Athlete[]
+}
 
-type SortKeys = keyof Session;
+type Data = typeof SortableTableProps.data
+type SortKeys = keyof Data[];
 type SortOrder = "ascn" | "desc";
 
 
-const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
+const SortableTable: React.FC<SortableTableProps> = ({ sessions }) => {
   console.log("found sessions: ", sessions);
  
 
@@ -158,4 +157,4 @@ function SortButton({
   );
 };
 
-export default SessionsList
+export default SortableTable
