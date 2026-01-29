@@ -2,6 +2,7 @@
 // import "./SessionsList.scss";
 import type { Session } from "../types/Session";
 import { useNavigate } from "react-router-dom";
+import SortableTable from "./SortableTable";
 // import Table from "../Table";
 
 interface SessionListProps {
@@ -14,47 +15,18 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
 
   const navigate = useNavigate();
 
-  const handleRowClick = (sessionId: number | undefined) => {
-    navigate(`/session/${sessionId}`);
-  };
+   const headers: { key: keyof Session; label: string }[] = [
+    {key: "sessionDay", label: "Date"},
+    {key: "location", label: "Location"},
+    {key: "discipline", label: "Discipline"},
+    {key: "snowConditions", label: "Snow Conditions"},
+    {key: "visConditions", label: "Visibility Conditions"},
+    {key: "terrainType", label: "Terrain Type"},
+    {key: "generalComments", label: "General Comments"},
+  ];
 
   return (
-    <div className="sessions-list-box">
-      <div className="light-tan-box">
-        <h2 className="box-h2-title">All Sessions</h2>
-        <div className="white-box" id="sessions-white-box">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Discipline</th>
-                <th>Snow Conditions</th>
-                <th>Visibility Conditions</th>
-                <th>Terrain Type</th>
-                <th>General Comments</th>
-                {/* coaches present */}
-              </tr>
-            </thead>
-            
-            <tbody>
-              {sessions.map((session, index) => (
-                <tr key={index} onClick={() => handleRowClick(session.sessionId)}>
-                  <td>{session.sessionDay}</td>
-                  <td>{session.location}</td>
-                  <td>{session.discipline}</td>
-                  <td>{session.snowConditions}</td>
-                  <td>{session.visConditions}</td>
-                  <td>{session.terrainType}</td>
-                  <td>{session.generalComments}</td>
-                </tr>
-              ))}
-            </tbody>
-
-          </table>
-         </div>
-      </div>
-    </div>
+    <SortableTable<Session> headers={headers} data={sessions} onRowClick={(session) => navigate(`/session/${session.sessionId}`)} />
   );
 };
 
