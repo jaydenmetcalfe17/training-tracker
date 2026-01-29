@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Session } from '../types/Session';
 import SessionsList from './SessionsList/SessionsList';
 import type { Athlete } from '../types/Athlete';
@@ -59,6 +59,11 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
       })
       .catch(console.error);
   };
+
+  useEffect(() => {
+    fetchSessions();
+  }, [athlete]); 
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
