@@ -13,7 +13,9 @@
     "deleteSession": "DELETE FROM sessions WHERE session_id = $1 RETURNING *;",
     "deleteAllAttendanceForSession": "DELETE FROM attendance WHERE session_id = $1 RETURNING *;",
     "getSingleColumnDataSessions": "SELECT {{column}}, COUNT(*) AS count FROM sessions GROUP BY {{column}};",
-    "getSingleAthleteSingleColumnDataSessions": "SELECT {{column}}, COUNT(*) AS count FROM sessions JOIN attendance ON sessions.session_id = attendance.session_id WHERE attendance.athlete_id = $1 GROUP BY {{column}};"
+    "getSingleAthleteSingleColumnDataSessions": "SELECT {{column}}, COUNT(*) AS count FROM sessions JOIN attendance ON sessions.session_id = attendance.session_id WHERE attendance.athlete_id = $1 GROUP BY {{column}};",
+    "getRunColumnData": "SELECT SUM(num_drill_runs) AS drill_runs, SUM(num_freeski_runs) AS freeski_runs, SUM(num_race_runs) AS race_runs, SUM(num_educational_course_runs) AS educational_course_runs FROM sessions;",
+    "getSingleAthleteRunColumnData": "SELECT SUM(num_drill_runs) AS drill_runs, SUM(num_freeski_runs) AS freeski_runs, SUM(num_race_runs) AS race_runs, SUM(num_educational_course_runs) AS educational_course_runs FROM sessions JOIN attendance ON sessions.session_id = attendance.session_id WHERE attendance.athlete_id = $1;"
   },
   "users": {
     "setUpUsersTable": "CREATE TABLE IF NOT EXISTS users (user_id SERIAL PRIMARY KEY NOT NULL, first_name VARCHAR(250) NOT NULL, last_name VARCHAR(250) NOT NULL, email VARCHAR(100) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL, status TEXT CHECK (status IN ('coach', 'athlete', 'parent')) NOT NULL, google_id TEXT UNIQUE);",

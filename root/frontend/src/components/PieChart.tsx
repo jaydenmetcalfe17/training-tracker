@@ -18,6 +18,7 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
             { label: "Snow Conditions", value: "snowConditions" },
             { label: "Visibility Conditions", value: "visConditions" },
             { label: "Terrain Type", value: "terrainType" },
+            { label: "Run Count", value: "runColumn"}
         ];
     } else if (selection = "athletes") {
         availableColumns = [
@@ -34,10 +35,17 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
 
     ChartJS.register(ArcElement, Tooltip, Legend);
 
+    const labelMap: Record<string, string> = {
+        drill_runs: "Drill Runs",
+        freeski_runs: "Freeski Runs",
+        race_runs: "Race Runs",
+        educational_course_runs: "Educational Course Runs",
+    };
+
 
     useEffect(() => {
         console.log("Current loaded athleteId:", athleteId);
-        
+
         const url = athleteId 
             ? `/api/data/${athleteId}/${selectedColumn}`
             : `/api/data/${selectedColumn}`;
@@ -50,9 +58,11 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
                 return res.json();
             })
             .then((data) => {
-                console.log('LOCATION DATA:', data);
+                console.log('this is the DATA:', data);
 
-                setLabels(data.labels);
+                const mappedLabels = data.labels.map((l: string | number) => labelMap[l] || l);
+
+                setLabels(mappedLabels);
                 setValues(data.values);
             })
             .catch((err) => {
@@ -60,11 +70,12 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
             });
     }, [selectedColumn, athleteId]);
 
+
     const data = {
         labels,
         datasets: [
             {
-            label: '# of Sessions',
+            label: '#',
             data: values,
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',

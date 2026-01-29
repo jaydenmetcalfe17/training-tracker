@@ -5,7 +5,6 @@ TO DO:
 * In controller: push errors. Then in frontend: use and display errors when appropriate
 
 <!-- For Data Analysis: -->
-* Pie charts for sessions 
 
 <!-- Login Page -->
 * Create Forgot Password option. sends you email with your password 
@@ -34,15 +33,11 @@ TO DO:
 * Redirect to login/create account/dashboard pages where applicable (after logging in/creating an account, etc) -> in controller.js
 * Reduce repetetive code by using React 
     * useEffect calls for getting sessions for coach vs athlete dashboards?
-    * Create Table component for displaying sessions and athletes 
 
 <!-- To Create: Individual Athlete Pages -->
-* Include other stats and whatnot (pie charts)
-    * research loading athletes/sessions info from databased into Python/pandas dataframe to use for analysis with libraries
 * Ensure that athletes/parents can only access their specific pages 
 
 <!-- To Create: Individual Sessions Pages -->
-* Assign coaches to a session? (would need to make a coach profile and link it to users)
 
 <!-- To Create: Team Page -->
 * Can see average stats for a team or all athletes associated with a team and specific age categories 

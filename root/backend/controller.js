@@ -529,6 +529,7 @@ const getPieChartData = async(req, res) => {
       snowConditions: "snow_conditions",
       visConditions: "vis_conditions",
       terrainType: "terrain_type",
+      runColumn: "run_column"
   };
 
   db_col = columnMap[column] || null;
@@ -540,19 +541,39 @@ const getPieChartData = async(req, res) => {
 
   try {
       if (athleteId) {
-        result = await pool.query(queries.sessions.getSingleAthleteSingleColumnDataSessions.replace(/{{column}}/g, db_col), [athleteId])
-      } else {
+        if (db_col == "run_column"){
+          result = await pool.query(queries.sessions.getSingleAthleteRunColumnData, [athleteId])
+        }
+        else {
+          result = await pool.query(queries.sessions.getSingleAthleteSingleColumnDataSessions.replace(/{{column}}/g, db_col), [athleteId])
+        }
+      } 
+      else if (db_col == "run_column"){
+        result = await pool.query(queries.sessions.getRunColumnData)
+      }
+      else {
         result = await pool.query(queries.sessions.getSingleColumnDataSessions.replace(/{{column}}/g, db_col))
       }
 
-    if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No sessions found"} );
-        }
+    let labels = [];
+    let values = [];
 
-    res.status(200).json({
-      labels: result.rows.map(r => r[db_col]),
-      values: result.rows.map(r => Number(r.count)),
-    });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "No data found" });
+    }
+
+
+    if (result.rows[0].drill_runs !== undefined) {
+      const row = result.rows[0];
+      labels = Object.keys(row);         
+      values = Object.values(row).map(Number); 
+    } else {
+
+      labels = result.rows.map(r => r[db_col]);
+      values = result.rows.map(r => Number(r.count));
+    }
+
+    res.status(200).json({ labels, values });
 
   } catch (error) {
         console.error('Error getting data from sessions: ', error);
