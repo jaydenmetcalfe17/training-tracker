@@ -34,7 +34,9 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
   ];
 
   return (
-    <SortableTable<Session> headers={headers} data={sessions} onRowClick={(session) => navigate(`/session/${session.sessionId}`)} />
+    <div>
+      <SortableTable<Session> headers={headers} data={sessions} onRowClick={(session) => navigate(`/session/${session.sessionId}`)} />
+    </div>
   );
 };
 

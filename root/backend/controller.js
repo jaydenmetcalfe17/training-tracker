@@ -519,7 +519,8 @@ const getPieChartData = async(req, res) => {
 
   // future: add athlete pie chart functionality so it doesn't just search sessions table in database -- need to change query or add new one here. pass through another param?
 
-  const {column} = req.params;
+  const {column, athleteId} = req.params;
+  console.log("athleteID to search: ", athleteId);
 
   const columnMap = {
       sessionDay: "session_day",
@@ -538,7 +539,11 @@ const getPieChartData = async(req, res) => {
   }
 
   try {
-      result = await pool.query(queries.sessions.getSingleColumnDataSessions.replace(/{{column}}/g, db_col))
+      if (athleteId) {
+        result = await pool.query(queries.sessions.getSingleAthleteSingleColumnDataSessions.replace(/{{column}}/g, db_col), [athleteId])
+      } else {
+        result = await pool.query(queries.sessions.getSingleColumnDataSessions.replace(/{{column}}/g, db_col))
+      }
 
     if (result.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );

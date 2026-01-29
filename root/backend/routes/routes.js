@@ -29,8 +29,11 @@ router.put("/session/:sessionId", controller.updateSession);
 // Example: DELETE /api/session/?sessionId=1 // etc...
 router.delete("/session/:sessionId", controller.deleteSession);
 
-// Example: GET /api/data/:column // etc...)
+// Pie chart data for all sessions
 router.get("/data/:column", controller.getPieChartData);
+
+// Pie chart data for specific athlete
+router.get("/data/:athleteId/:column", controller.getPieChartData);
 
 // Example: DELETE /api/attendance/:athleteId/:sessionId
 router.delete("/attendance/:athleteId/:sessionId", controller.deleteAthleteAttendanceSingleSession);

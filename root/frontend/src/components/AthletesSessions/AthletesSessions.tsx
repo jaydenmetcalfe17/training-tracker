@@ -1,6 +1,7 @@
 import './AthletesSessions.scss';
 import type { Athlete } from "../../types/Athlete";
 import SessionFilter from '../SessionFilter';
+import PieChart from '../PieChart';
 
 interface AthletesProps {
   athlete: Athlete | null;
@@ -23,6 +24,9 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
             : <h2 className="athlete-name">SESSIONS</h2>
         }
           <SessionFilter athlete={athlete} />
+          <div className="pie-chart">
+            <PieChart selection={"sessions"} athleteId={athlete?.athleteId}/>
+          </div>
         </div>
       </div>
   );

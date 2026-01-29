@@ -4,10 +4,11 @@ import { Pie } from 'react-chartjs-2';
 
 interface PieChartProps {
   selection: string;
+  athleteId?: number;
 }
 
 
-const PieChart: React.FC<PieChartProps> = ({selection}) => {
+const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
     let availableColumns: any[] = [];
 
     if (selection = "sessions"){
@@ -35,7 +36,13 @@ const PieChart: React.FC<PieChartProps> = ({selection}) => {
 
 
     useEffect(() => {
-        fetch(`/api/data/${selectedColumn}`)
+        console.log("Current loaded athleteId:", athleteId);
+        
+        const url = athleteId 
+            ? `/api/data/${athleteId}/${selectedColumn}`
+            : `/api/data/${selectedColumn}`;
+        
+        fetch(url)
             .then((res) => {
             if (!res.ok) {
                 throw new Error('Failed to load data');
@@ -51,7 +58,7 @@ const PieChart: React.FC<PieChartProps> = ({selection}) => {
             .catch((err) => {
                 console.error('Unable to load chart data:', err);
             });
-    }, [selectedColumn]);
+    }, [selectedColumn, athleteId]);
 
     const data = {
         labels,
