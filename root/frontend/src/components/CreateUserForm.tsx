@@ -1,13 +1,14 @@
 // components/CreateUserForm.tsx
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { User } from '../types/User';
 
 interface UserFormProps {
   onSubmit: (user: User) => void;
+  inviteToken?: string;
 }
 
-const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
+const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
   const [formData, setFormData] = useState<User>({
       userFirstName: '',
       userLastName: '',
@@ -15,14 +16,33 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
       password: '',
       password2: '',
       status: '',
+      athleteId: undefined,
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    if (inviteToken) {
+      fetch(`/api/invite/${inviteToken}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log("Role:", data.role);
+          setFormData(prev => ({
+            ...prev,
+            status: data.role, 
+            athleteId: data.athleteId || undefined
+          }));
+        });
+    }
+  }, [inviteToken]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     // input validation 
       let isValid = true;
       let errorMessage = "";
+
+      if (e.target.name === "status" && inviteToken) return;
 
       if (e.target.name == "password") {
         const pattern = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,24}$");
@@ -54,7 +74,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    setFormData({ userFirstName: '', userLastName: '', email: '', password: '', password2: '', status: '' });
+    setFormData({ userFirstName: '', userLastName: '', email: '', password: '', password2: '', status: '', athleteId: undefined });
   };
 
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -80,12 +100,17 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
         {errors.password2 && <p className="error-text">{errors.password2}</p>}
         <label>Show Password</label>
         <input type="checkbox" onClick={revealPassword}/>
-        <select name="status" required value={formData.status} onChange={handleChange}>
-          <option value="" disabled>Select your status: </option>
-          <option value="coach">Coach</option>
-          <option value="athlete">Athlete</option>
-          <option value="parent">Parent</option>
-        </select>
+        {!inviteToken && (
+          <select name="status" required value={formData.status} onChange={handleChange}>
+            <option value="" disabled>Select your status</option>
+            <option value="coach">Coach</option>
+            <option value="athlete">Athlete</option>
+            <option value="parent">Parent</option>
+          </select>
+        )}
+        {inviteToken && (
+          <p>Status: {formData.status}</p>
+        )}
          <button type="submit">Create Account</button>
     </form>
   );

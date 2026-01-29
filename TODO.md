@@ -10,7 +10,7 @@ TO DO:
 * Create Forgot Password option. sends you email with your password 
 
 <!-- Create Account Page -->
-* Send athletes/parents a direct email link (or code?) that automatically connects their created account to a specific athlete(s) profile(s)
+
 
 <!-- Athletes + Sessions -->
 * More info/filter options for athletes

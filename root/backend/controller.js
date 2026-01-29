@@ -3,6 +3,7 @@ const pool = require('./config/database');
 const queries = require('./queries.json');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const crypto = require ('crypto');
 
 //encryption here???
 
@@ -873,7 +874,48 @@ const createUser = async (req, res) => {
         console.error('Error creating user profile: ', error);
         res.status(500).send( {error: 'Server error creating user profile'} );
     } 
-}
+};
+
+const createInvite = async (req, res) => {
+  const { athleteId, role } = req.body;
+
+  if (!role || !["athlete", "parent", "coach"].includes(role)) {
+    return res.status(400).json({ error: "Invalid role" });
+  }
+
+  try {
+    // Generate a random token
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    // Save the token in DB with role and optional athlete link
+    await pool.query(queries.users.generateRegistrationToken, [athleteId, token, role, expiresAt]);
+
+    // Construct the link to send
+    const inviteLink = `${process.env.FRONTEND_URL}/register/${token}`;
+
+    res.status(201).json({ inviteLink });
+
+  } catch (err) {
+    console.error("Error generating invite", err);
+    res.status(500).json({ error: "Failed to generate invite link" });
+  }
+};
+
+const approveInvite = async (req, res) => {
+  const { token } = req.params;
+
+  const result = await pool.query(queries.users.updateRegistrationToken, [token]);
+
+  if (result.rowCount === 0) return res.status(404).json({ error: "Invalid or expired invite" });
+
+  const invite = result.rows[0];
+  res.json({
+    athleteId: invite.athlete_id,
+    role: invite.role
+  });
+};
 
 module.exports = {
     getAllDataFromAthleteProfile,
@@ -887,5 +929,7 @@ module.exports = {
     getPieChartData,
     updateSession,
     deleteSession,
-    createUser
+    createUser,
+    createInvite,
+    approveInvite
 }

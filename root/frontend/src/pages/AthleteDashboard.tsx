@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext';
 import type { Athlete } from "../types/Athlete";
 import { useNavigate, useParams } from "react-router-dom";
 import EditAthleteForm from "../components/EditAthleteForm";
+import GenerateInviteButton from "../components/GenerateInviteButton";
 
 
 const AthleteDashboard: React.FC = () => {
@@ -112,7 +113,7 @@ const AthleteDashboard: React.FC = () => {
     navigate(`/dashboard`);
   };
 
-
+  if (!athlete) return null;
 
 
   return (
@@ -120,6 +121,12 @@ const AthleteDashboard: React.FC = () => {
       <div>
         {isVisible && <button className="back-button" onClick={() => handleClick()}>Back to Dashboard</button> }
       </div>
+      {isVisible && <div className="generate-invite-button">
+        <h3>Invite an Athlete: </h3>
+        <GenerateInviteButton athleteId={athlete.athleteId} role="athlete"/>
+        <h3>Invite a Parent: </h3>
+        <GenerateInviteButton athleteId={athlete.athleteId} role="parent"/>
+      </div>}
       <div>
         {isVisible && <button className="delete-button" onClick={toggleDeletePopup}>Delete Athlete</button> }
           {showDeletePopup && (

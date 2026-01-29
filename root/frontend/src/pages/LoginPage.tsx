@@ -1,7 +1,7 @@
 // pages/LoginPage.tsx
 
 import LoginForm from '../components/LoginForm';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 
@@ -16,10 +16,11 @@ const LoginPage: React.FC = () => {
   return (
     <div>
       <h1>Log In</h1>
+      <h3>Follow link emailed by coach to create an account</h3>
       <LoginForm onSubmit={newLogin} />
-      <Link to="/createUser">
+      {/* <Link to="/register">
         <button type="button">Create Account</button>
-      </Link>
+      </Link> */}
       {/* <Link to="/auth/google">
         <button type="button">Login with Google</button>
       </Link> */}

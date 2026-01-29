@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import type { User } from '../types/User';
 import CreateUserForm from '../components/CreateUserForm';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const CreateUserPage: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
+    const { inviteToken } = useParams<{ inviteToken: string }>();
     const navigate = useNavigate();
+
+    console.log("token: ", inviteToken);
 
     // Create User Profile
 	  const createUser = (newUser: User) => {
@@ -32,7 +35,7 @@ const CreateUserPage: React.FC = () => {
   return (
     <div>
       <h1>Create Account</h1>
-      <CreateUserForm onSubmit={createUser} />
+      <CreateUserForm onSubmit={createUser} inviteToken={inviteToken}/>
     </div>
   );
 }

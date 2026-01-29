@@ -8,6 +8,7 @@ export interface User {
   password?: string;
   password2?: string;
   status: string;
+  athleteId?: number;
 }
 
 

@@ -195,7 +195,8 @@ const SessionPage: React.FC = () => {
             {isVisible && <AttendanceList session={session} />}
           </>
           ) : (
-            <p>Loading session...</p>
+            <p>You do not have access to this session</p> 
+            // change this to session does not exist? or you don't have access?
           )}
       </div>
     </div>

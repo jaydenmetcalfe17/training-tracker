@@ -25,16 +25,14 @@ export const AuthProvider = ({ children }: Props) => {
   const [isReady, setIsReady] = useState(false); 
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    // const token = localStorage.getItem("token");
-    if (user) { // potentially && token as well
-      setUser(JSON.parse(user));
-      // setToken(token);
-    } else {
-      navigate("/");
-    }
-    setIsReady(true);
-  }, [])
+  const user = localStorage.getItem("user");
+
+  if (user) {
+    setUser(JSON.parse(user));
+  }
+
+  setIsReady(true);
+}, []);
 
   //No feature for auto-login after user registration yet
   const newLogin = async (newLogin: Login) => {

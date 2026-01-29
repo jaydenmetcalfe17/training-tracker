@@ -41,6 +41,11 @@ router.delete("/attendance/:athleteId/:sessionId", controller.deleteAthleteAtten
 // Example: PUT /api/attendance/
 router.put("/attendance/", controller.addAthletesToAttendance);
 
+// POST /api/invite
+router.post("/invite", controller.createInvite);
+
+// GET /api/invite/:token
+router.get("/invite/:token", controller.approveInvite);
 
 
 module.exports = router;

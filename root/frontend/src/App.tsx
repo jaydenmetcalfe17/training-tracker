@@ -18,7 +18,7 @@ const App: React.FC = () => (
 			<Route path="/" element = {<MainLayout/>}>
 				<Route path="/createAthlete" element={<CreateAthletePage/>}/>
 				<Route path="/createSession" element={<CreateSessionPage/>}/>
-				<Route path="/createUser" element={<CreateUserPage/>}/>
+				<Route path="/register/:inviteToken" element={<CreateUserPage />} />
 				<Route path="/login" element={<LoginPage/>}/>
 				<Route index path="/dashboard" element={<Dashboard/>}/>
 				<Route path="/athlete/:athleteId" element={<AthleteDashboard/>}/>
