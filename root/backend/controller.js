@@ -515,6 +515,26 @@ const getSessions = async (req, res) => {
     }
 };
 
+const locationPieChart = async(req, res) => {
+  try {
+    result = await pool.query(queries.sessions.locationPieChart)
+
+    if (result.rows.length === 0) {
+            return res.status(404).json({ error: "No sessions found"} );
+        }
+
+    res.status(200).json({
+      labels: result.rows.map(r => r.location),
+      values: result.rows.map(r => r.count),
+    });
+
+  } catch (error) {
+        console.error('Error getting location data from sessions: ', error);
+        res.status(500).send({error: 'Server error retrieving sessions'} );
+    }
+
+};
+
 const updateSession = async (req, res) => {
     const sessionId = req.params.sessionId;
     const { 
@@ -817,6 +837,7 @@ module.exports = {
     addAthletesToAttendance,
     createSession,
     getSessions,
+    locationPieChart,
     updateSession,
     deleteSession,
     createUser

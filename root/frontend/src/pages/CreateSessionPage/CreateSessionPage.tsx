@@ -6,6 +6,7 @@ import type { Session } from '../../types/Session';
 // import SessionsList from '../../components/SessionsList/SessionsList';
 import CreateSessionForm from '../../components/CreateSessionForm';
 import PartialSessionsList from "../../components/PartialSessionsList";
+import PieChart from "../../components/PieChart";
 
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -105,6 +106,9 @@ const CreateSessionPage: React.FC = () => {
     <div className="create-session-page">
       <CreateSessionForm onSubmit={createSession} />
       <PartialSessionsList sessions={sessions} />
+      <div className="pie-chart">
+        <PieChart />
+      </div>
     </div>
   );
 }

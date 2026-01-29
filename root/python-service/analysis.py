@@ -1,5 +1,6 @@
 # analysis.py
 import pandas as pd
+import matplotlib.pyplot as plt
 from config.database import engine
 import json
 
@@ -20,6 +21,8 @@ def session_summary():
     sessions = load_sessions_df()
     attendance = load_attendance_df()
     summary = attendance.groupby("session_id").size()
+    counts = sessions['location'].value_counts()
     return sessions
+
 
 print (session_summary())
