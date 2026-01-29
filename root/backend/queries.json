@@ -12,7 +12,7 @@
     "updateSession": "UPDATE sessions SET session_day = $2, start_time = $3, end_time = $4, location = $5, discipline = $6, snow_conditions = $7, vis_conditions = $8, terrain_type = $9, num_freeski_runs = $10, num_drill_runs = $11, num_educational_course_runs = $12, num_gates_educational_course = $13, num_race_training_course_runs = $14, num_gates_race_training_course = $15, num_race_runs = $16, num_gates_race = $17, general_comments = $18 WHERE session_id = $1 RETURNING *;",
     "deleteSession": "DELETE FROM sessions WHERE session_id = $1 RETURNING *;",
     "deleteAllAttendanceForSession": "DELETE FROM attendance WHERE session_id = $1 RETURNING *;",
-    "locationPieChart": "SELECT location, COUNT(*) AS count FROM sessions GROUP BY location;"
+    "getSingleColumnDataSessions": "SELECT {{column}}, COUNT(*) AS count FROM sessions GROUP BY {{column}};"
   },
   "users": {
     "setUpUsersTable": "CREATE TABLE IF NOT EXISTS users (user_id SERIAL PRIMARY KEY NOT NULL, first_name VARCHAR(250) NOT NULL, last_name VARCHAR(250) NOT NULL, email VARCHAR(100) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL, status TEXT CHECK (status IN ('coach', 'athlete', 'parent')) NOT NULL, google_id TEXT UNIQUE);",

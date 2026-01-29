@@ -10,6 +10,7 @@ import PieChart from "../../components/PieChart";
 
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
+
   // const [filters, setFilters] = useState({
   //   startDate: "",
   //   endDate: "",
@@ -107,7 +108,7 @@ const CreateSessionPage: React.FC = () => {
       <CreateSessionForm onSubmit={createSession} />
       <PartialSessionsList sessions={sessions} />
       <div className="pie-chart">
-        <PieChart />
+        <PieChart selection={"sessions"}/>
       </div>
     </div>
   );

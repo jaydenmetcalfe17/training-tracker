@@ -515,21 +515,42 @@ const getSessions = async (req, res) => {
     }
 };
 
-const locationPieChart = async(req, res) => {
+const getPieChartData = async(req, res) => {
+
+  // future: add athlete pie chart functionality so it doesn't just search sessions table in database -- need to change query or add new one here. pass through another param?
+
+  const {column} = req.params;
+
+  const columnMap = {
+      sessionDay: "session_day",
+      location: "location",
+      discipline: "discipline",
+      snowConditions: "snow_conditions",
+      visConditions: "vis_conditions",
+      terrainType: "terrain_type",
+  };
+
+  db_col = columnMap[column] || null;
+
+
+  if (!db_col) {
+    return res.status(400).json({ error: "Invalid column" });
+  }
+
   try {
-    result = await pool.query(queries.sessions.locationPieChart)
+      result = await pool.query(queries.sessions.getSingleColumnDataSessions.replace(/{{column}}/g, db_col))
 
     if (result.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );
         }
 
     res.status(200).json({
-      labels: result.rows.map(r => r.location),
-      values: result.rows.map(r => r.count),
+      labels: result.rows.map(r => r[db_col]),
+      values: result.rows.map(r => Number(r.count)),
     });
 
   } catch (error) {
-        console.error('Error getting location data from sessions: ', error);
+        console.error('Error getting data from sessions: ', error);
         res.status(500).send({error: 'Server error retrieving sessions'} );
     }
 
@@ -837,7 +858,7 @@ module.exports = {
     addAthletesToAttendance,
     createSession,
     getSessions,
-    locationPieChart,
+    getPieChartData,
     updateSession,
     deleteSession,
     createUser
