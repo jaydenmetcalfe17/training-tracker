@@ -2,7 +2,7 @@
 import "./AthletesList.scss"
 import type { Athlete } from "../../types/Athlete";
 import { useNavigate } from "react-router-dom";
-import SortableTable from "../SortableTable";
+import SortableTable from "../SortableTable/SortableTable";
 // import Table from "../Table";
 
 interface AthleteListProps {

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import type { Session } from '../types/Session';
-import SessionsList from './SessionsList/SessionsList';
-import type { Athlete } from '../types/Athlete';
+import type { Session } from '../../types/Session';
+import SessionsList from '../SessionsList/SessionsList';
+import type { Athlete } from '../../types/Athlete';
+import PieChart from "../PieChart";
+import './SessionFilter.scss';
 
 interface FilterSessionsProps {
   athlete?: Athlete | null;
@@ -71,36 +73,71 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
   };
 
   return (
-    <div className="light-blue-box">
-      <div className="search-sessions-list-box">
-        <form onSubmit={handleSubmit}>
-          <label>Start Date: </label>
-          <input type="date" ref={startDateRef} />
+    <>
+    <div className="pie-filter-box">
+      <div className="details-filters-box">
+        { 
+            (athlete != null)
+              ? <>
+                  <h2 className="athlete-name">{athlete.athleteFirstName.toUpperCase()} {athlete.athleteLastName.toUpperCase()}</h2>
+                  <div className="athlete-info-box">
+                    <h3>Birthday: {athlete.birthday.split("T")[0]}</h3>
+                    <h3>Age Group: {athlete.ageGroup}</h3>
+                    <h3>Team: {athlete.team}</h3>
+                  </div>
+                </>
+              : <h2 className="athlete-name">SESSIONS</h2>
+          }
+          <div className="search-sessions-list-box">
+              <form className="filters-form" onSubmit={handleSubmit}>
+                <div className="filters-form-labels">
+                  <div className="filters-lab-in">
+                    <label>Start Date: </label>
+                    <input type="date" ref={startDateRef} />
+                  </div>
 
-          <label>End Date: </label>
-          <input type="date" ref={endDateRef} />
+                  <div className="filters-lab-in">
+                    <label>End Date: </label>
+                    <input type="date" ref={endDateRef} />
+                  </div>
 
-          <label>Location: </label>
-          <input type="text" ref={locationRef} />
+                  <div className="filters-lab-in">
+                    <label>Location: </label>
+                    <input type="text" ref={locationRef} />
+                  </div>
 
-          <label>Discipline: </label>
-          <input type="text" ref={disciplineRef} />
+                  <div className="filters-lab-in">
+                    <label>Discipline: </label>
+                    <input type="text" ref={disciplineRef} />
+                  </div>
 
-          <label>Snow Conditions: </label>
-          <input type="text" ref={snowConditionsRef} />
+                  <div className="filters-lab-in">
+                    <label>Snow Conditions: </label>
+                    <input type="text" ref={snowConditionsRef} />
+                  </div>
 
-          <label>Visibility Conditions: </label>
-          <input type="text" ref={visConditionsRef} />
+                  <div className="filters-lab-in">
+                    <label>Visibility Conditions: </label>
+                    <input type="text" ref={visConditionsRef} />
+                  </div>
 
-          <label>Terrain Type: </label>
-          <input type="text" ref={terrainTypeRef} />
+                  <div className="filters-lab-in">
+                    <label>Terrain Type: </label>
+                    <input type="text" ref={terrainTypeRef} />
+                  </div>
+                </div>
 
-          <button type="submit">Apply Filters</button>
-        </form>
+                <button type="submit">Apply Filters</button>
+              </form>
+            </div>
+          </div>
+          <div className="pie-chart">
+              <PieChart selection={"sessions"} athleteId={athlete?.athleteId}/>
+          </div>
+
       </div>
-
       <SessionsList sessions={filteredSessions} />
-    </div>
+    </>
   );
 };
 

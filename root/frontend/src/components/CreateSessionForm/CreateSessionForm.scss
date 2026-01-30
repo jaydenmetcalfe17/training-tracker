@@ -1,0 +1,24 @@
+.three-column-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* Creates two equal-width columns */
+    gap: 20px; /* Adds space between grid items */
+    max-width: 600px; /* Optional: sets a max width for the form */
+    margin: 0 auto; /* Centers the form on the page */
+    padding: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column; /* Stacks label and input vertically */
+}
+
+// .create-session-form {
+//     justify-items: center;
+// }
+
+.cr-form .create-session-box,
+.cr-form .light-tan-box {
+    flex: 1; /* stretch to fill parent height */
+    display: flex;
+    flex-direction: column;
+}

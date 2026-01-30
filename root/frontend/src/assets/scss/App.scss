@@ -18,6 +18,9 @@ h2 {
 
 .light-blue-box {
     background-color: #C6CFDC;
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
 }
 
 .light-tan-box {
@@ -42,4 +45,23 @@ form {
     padding: 0.5rem;
     display: grid;
     gap: 0.25rem;
+}
+
+button {
+    background-color: white;
+}
+
+label {
+    font-weight: bold;
+    font-size: 0.75rem;
+    margin-bottom: 5px;
+}
+
+.sessions-list-box {
+    display: flex;
+    align-items: flex-start;
+}
+
+table td {
+    padding: 0.5rem 1rem; /* top/bottom 0.5rem, left/right 1rem */
 }

@@ -10,8 +10,10 @@ const CoachDashboard: React.FC = () => {
         <h3>Invite a Coach</h3>
         <GenerateInviteButton role="coach" />
       </div>
-      <CreateAthletePage />
-      <CreateSessionPage />
+      <div className="athlete-session-box">
+        <CreateAthletePage />
+        <CreateSessionPage />
+      </div>
     </div>
   )
 }

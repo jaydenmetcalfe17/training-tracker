@@ -1,4 +1,5 @@
 import React, { useMemo, useState} from 'react'
+import "./SortableTable.scss";
 
 interface SortableTableProps<T extends object> {
   headers: { key: keyof T; label: string }[]

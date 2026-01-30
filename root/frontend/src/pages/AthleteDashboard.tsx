@@ -6,6 +6,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import EditAthleteForm from "../components/EditAthleteForm";
 import GenerateInviteButton from "../components/GenerateInviteButton";
 
+import Button from '@mui/material/Button';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 const AthleteDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -128,7 +131,7 @@ const AthleteDashboard: React.FC = () => {
         <GenerateInviteButton athleteId={athlete.athleteId} role="parent"/>
       </div>}
       <div>
-        {isVisible && <button className="delete-button" onClick={toggleDeletePopup}>Delete Athlete</button> }
+        {isVisible && <Button onClick={toggleDeletePopup} variant="outlined" size="small" startIcon={<DeleteIcon />}>  Delete Athlete</Button>}
           {showDeletePopup && (
             <div className="popup-overlay">
               <div className="popup-content">

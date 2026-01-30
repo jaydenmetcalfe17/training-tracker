@@ -4,36 +4,15 @@ import "./CreateSessionPage.scss";
 import { useEffect, useState } from 'react';
 import type { Session } from '../../types/Session';
 // import SessionsList from '../../components/SessionsList/SessionsList';
-import CreateSessionForm from '../../components/CreateSessionForm';
+import CreateSessionForm from '../../components/CreateSessionForm/CreateSessionForm';
 import PartialSessionsList from "../../components/PartialSessionsList";
 import PieChart from "../../components/PieChart";
 
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
 
-  // const [filters, setFilters] = useState({
-  //   startDate: "",
-  //   endDate: "",
-  //   location: "",
-  //   discipline: "",
-  //   snowConditions: "",
-  //   visConditions: "",
-  //   terrainType: "",
-  // });
-
 
     useEffect(() => {
-        // const params = new URLSearchParams();
-  
-        // if (filters.startDate) params.append("startDate", filters.startDate);
-        // if (filters.endDate) params.append("endDate", filters.endDate);
-        // if (filters.location) params.append("location", filters.location);
-        // if (filters.discipline) params.append("discipline", filters.discipline);
-        // if (filters.snowConditions) params.append("snowConditions", filters.snowConditions);
-        // if (filters.visConditions) params.append("visConditions", filters.visConditions);
-        // if (filters.terrainType) params.append("terrainType", filters.terrainType);
-  
-        // fetch(`/api/session?${params.toString()}`, {
         fetch(`/api/session`, {
           method: "GET",
           headers: {
@@ -76,7 +55,7 @@ const CreateSessionPage: React.FC = () => {
           })
   
           .catch((err) => console.log("Unable to find sessions: ", err));
-    // }, [filters]);
+
     }, []);
 
 
@@ -97,6 +76,8 @@ const CreateSessionPage: React.FC = () => {
         .then((data) => {
             console.log('Session created:', data);
             setSessions([...sessions, newSession]);
+
+            window.location.reload();
         })
         .catch((err) => console.error('Failed to create session', err));
   };
@@ -105,11 +86,16 @@ const CreateSessionPage: React.FC = () => {
 
   return (
     <div className="create-session-page">
-      <CreateSessionForm onSubmit={createSession} />
-      <PartialSessionsList sessions={sessions} />
-      <div className="pie-chart">
-        <PieChart selection={"sessions"}/>
+      <div className="upper-sessions-box">
+        <div className= "cr-form">
+          <CreateSessionForm onSubmit={createSession} />
+        </div>
+        <div className="light-tan-box" id="pie-chart">
+          <PieChart selection={"sessions"}/>
+        </div>
       </div>
+      
+      <PartialSessionsList sessions={sessions} />
     </div>
   );
 }

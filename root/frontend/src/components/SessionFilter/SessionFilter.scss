@@ -1,0 +1,30 @@
+
+
+.pie-filter-box{
+    display: flex;
+    justify-content: space-between;
+}
+
+.filters-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.filters-form-labels {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+}
+
+.details-filters-box{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.filters-lab-in {
+    display: flex;
+    flex-direction: column;
+}

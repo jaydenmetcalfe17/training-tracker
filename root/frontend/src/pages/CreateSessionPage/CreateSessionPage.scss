@@ -1,8 +1,17 @@
 .create-session-page {
     display: flex;
     gap: 1rem;
+    flex-direction: column;
 }
 
-.pie-chart {
-    size: 1rem;
+.upper-sessions-box {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch; /* <-- makes children the same height */
+}
+
+
+
+#pie-chart {
+    size: 2rem;
 }

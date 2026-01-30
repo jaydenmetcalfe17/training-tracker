@@ -57,6 +57,8 @@ const CreateAthletePage: React.FC = () => {
       .then((data) => {
           console.log('Athlete created:', data);
           setAthletes([...athletes, newAthlete]);
+
+          window.location.reload();
       })
       .catch((err) => console.error('Failed to create athlete', err));
   };
