@@ -1,9 +1,10 @@
 // pages/CreateUserPage.tsx
 
 import { useState } from 'react';
-import type { User } from '../types/User';
-import CreateUserForm from '../components/CreateUserForm';
+import type { User } from '../../types/User';
+import CreateUserForm from '../../components/CreateUserForm/CreateUserForm';
 import { useNavigate, useParams } from 'react-router-dom';
+import "./CreateUserPage.scss";
 
 const CreateUserPage: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -33,9 +34,11 @@ const CreateUserPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Create Account</h1>
-      <CreateUserForm onSubmit={createUser} inviteToken={inviteToken}/>
+    <div className="light-tan-box">
+      <div className="white-box">
+        <h1 className="create-account-text">Create Account</h1>
+        <CreateUserForm onSubmit={createUser} inviteToken={inviteToken}/>
+      </div>
     </div>
   );
 }

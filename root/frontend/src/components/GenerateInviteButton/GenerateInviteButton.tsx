@@ -1,4 +1,5 @@
 // components/GenerateInviteButton.tsx
+import "./GenerateInviteButton.scss";
 
 import { useState } from "react";
 
@@ -41,7 +42,7 @@ const GenerateInviteButton: React.FC<GenerateInviteButtonProps> = ({ athleteId, 
 
   return (
     <div>
-      <button onClick={handleClick} disabled={loading}>
+      <button className="generate-invite-button" onClick={handleClick} disabled={loading}>
         {loading ? "Generating..." : `Generate Invite`}
       </button>
 

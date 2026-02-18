@@ -1,9 +1,10 @@
 // components/AttendanceList.tsx
 import { useEffect, useState } from "react";
-import type { Session } from "../types/Session";
-import type { Athlete } from "../types/Athlete";
-import MultiSelectEx from "./Multiselect/Multiselect";
-// import Table from "../Table";
+import type { Session } from "../../types/Session";
+import type { Athlete } from "../../types/Athlete";
+import MultiSelectEx from "../Multiselect/Multiselect";
+import DeleteIcon from '@mui/icons-material/Delete';
+import './AttendanceList.scss';
 
 interface AttendanceListProps {
   session: Session | null;
@@ -103,7 +104,8 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
     <div className="attendance-list-box">
       <div className="light-tan-box">
         <h2 className="box-h2-title">Attendance</h2>
-        <button onClick={toggleEditPopup}>Add Athlete to Attendance</button>
+        <div className="white-box" id="attendance-white-box">
+        <button className="main-button" id="add-athlete-attendance-button" onClick={toggleEditPopup}>Add Athlete to Attendance</button>
         <div>
           {showEditPopup && (
             <div className="popup-overlay">
@@ -113,7 +115,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
             </div>
           )}
       </div>
-        <div className="white-box" id="attendance-white-box">
           <table>
             <thead>
               <tr>
@@ -131,7 +132,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                   <td>{attendance.athlete.athleteLastName}</td>
                   <td>{attendance.individualComments}</td>
                   <td>
-                    <button onClick={() => deleteAthleteAttendance(attendance.athlete.athleteId)}>X</button>
+                    <button className="main-button" id="delete-button" onClick={() => deleteAthleteAttendance(attendance.athlete.athleteId)}><DeleteIcon/></button>
                   </td>
                 </tr>
               ))}

@@ -1,14 +1,14 @@
 import { Route, BrowserRouter, Routes} from 'react-router-dom'
 import './assets/scss/App.scss'
-import MainLayout from './layout/MainLayout'
+import MainLayout from './layout/MainLayout/MainLayout'
 import CreateAthletePage from './pages/CreateAthletePage/CreateAthletePage';
 import CreateSessionPage from './pages/CreateSessionPage/CreateSessionPage';
-import CreateUserPage from './pages/CreateUserPage';
-import LoginPage from './pages/LoginPage';
+import CreateUserPage from './pages/CreateUserPage/CreateUserPage';
+import LoginPage from './pages/LoginPage/LoginPage';
 import Dashboard from './layout/Dashboard/Dashboard';
 import NotFoundPage from './pages/NotFoundPage';
-import AthleteDashboard from './pages/AthleteDashboard';
-import SessionPage from './pages/SessionPage';
+import AthleteDashboard from './pages/AthleteDashboard/AthleteDashboard';
+import SessionPage from './pages/SessionPage/SessionPage';
 
 
 const App: React.FC = () => (

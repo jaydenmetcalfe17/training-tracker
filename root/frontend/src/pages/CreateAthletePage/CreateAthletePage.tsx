@@ -4,7 +4,7 @@ import "./CreateAthletePage.scss";
 import { useEffect, useState } from 'react';
 import type { Athlete } from '../../types/Athlete';
 import AthletesList from '../../components/AthletesList/AthletesList';
-import CreateAthleteForm from '../../components/CreateAthleteForm';
+import CreateAthleteForm from '../../components/CreateAthleteForm/CreateAthleteForm';
 
 const CreateAthletePage: React.FC = () => {
     const [athletes, setAthletes] = useState<Athlete[]>([]);

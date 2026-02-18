@@ -1,0 +1,11 @@
+// components/AttendanceList.scss
+
+
+#attendance-white-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 1rem;
+    width: min-content;
+}

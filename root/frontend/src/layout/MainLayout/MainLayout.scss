@@ -1,0 +1,20 @@
+// layout/MainLayout.scss
+
+.main-app {
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;   
+  width: 100%;            
+}
+
+
+.main-app.centered-page .app-content {
+  display: flex;
+  justify-content: center;  /* center horizontally */
+  align-items: center;      /* center vertically */
+}
+

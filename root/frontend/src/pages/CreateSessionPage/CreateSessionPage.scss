@@ -8,6 +8,11 @@
     display: flex;
     gap: 1rem;
     align-items: stretch; /* <-- makes children the same height */
+
+    flex-direction: row; /* side by side */
+    width: 100%;
+    min-width: 0;       /* allow children to shrink */
+    overflow-x: hidden; /* prevent overflow */
 }
 
 

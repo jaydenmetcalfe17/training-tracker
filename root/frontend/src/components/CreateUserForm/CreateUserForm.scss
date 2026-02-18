@@ -1,0 +1,32 @@
+// components/CreateUserForm.scss
+
+#create-user-button {
+    background-color: #8DA2C2;
+    display: flex;
+    justify-content: center;
+}
+
+#create-user-button:hover {
+    background: #C6CFDC;
+}
+
+#create-user-button:active{
+    background: #C6CFDC;
+}
+
+.show-password-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+
+    label {
+        margin-bottom: 0;
+    }
+}
+
+.status-paragraph-text {
+    text-transform: capitalize;
+    color: #8DA2C2;
+    font-weight: bold;
+}

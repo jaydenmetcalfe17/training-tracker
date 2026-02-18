@@ -8,10 +8,10 @@ interface AthletesProps {
 }
 
 const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
-
+ 
 
   return (
-    <div className="light-blue-box">
+    <div >
       <div className="athlete-sessions-box">
           <SessionFilter athlete={athlete} />
         </div>

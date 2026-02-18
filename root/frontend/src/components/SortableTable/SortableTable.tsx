@@ -65,52 +65,54 @@ function SortableTable<T extends object>(
 
 
   return (
-    <div className="sessions-list-box">
+    <div className="table-scroll-wrapper">
       <div className="light-tan-box">
-        {/* <h2 className="box-h2-title">All Sessions</h2> */}
-        <div className="white-box" id="sessions-white-box">
-          <table>
-            <thead>
-              <tr>
-                {headers.map(h => (
-                  <th key={String(h.key)}>
-                    {h.label}
-                    <SortButton<T>
-                      columnKey={h.key}
-                      sortKey={sortKey}
-                      sortOrder={sortOrder}
-                      onClick={() => changeSort(h.key)}
-                    />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            
-            <tbody>
-              {sortedData.map((row, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  onClick={() => onRowClick?.(row)}
-                >
-                  {headers.map((h) => {
-                    const value = row[h.key];
-
-                    return (
-                      <td key={String(h.key)}>
-                        {value == null
-                          ? ""
-                          : value instanceof Date
-                          ? value.toLocaleDateString()
-                          : String(value)}
-                      </td>
-                    );
-                  })}
+        <div className="sessions-list-box">
+          {/* <h2 className="box-h2-title">All Sessions</h2> */}
+          <div className="white-box" id="sessions-white-box">
+            <table>
+              <thead>
+                <tr>
+                  {headers.map(h => (
+                    <th className="sortable" key={String(h.key)}>
+                      <span className="header-label">{h.label}</span>
+                      <SortButton<T>
+                        columnKey={h.key}
+                        sortKey={sortKey}
+                        sortOrder={sortOrder}
+                        onClick={() => changeSort(h.key)}
+                      />
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
+              </thead>
+              
+              <tbody>
+                {sortedData.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    onClick={() => onRowClick?.(row)}
+                  >
+                    {headers.map((h) => {
+                      const value = row[h.key];
 
-          </table>
-         </div>
+                      return (
+                        <td key={String(h.key)}>
+                          {value == null
+                            ? ""
+                            : value instanceof Date
+                            ? value.toLocaleDateString()
+                            : String(value)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

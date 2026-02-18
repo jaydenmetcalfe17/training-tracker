@@ -1,7 +1,8 @@
-// components/AthleteForm.tsx
+// components/CreateAthleteForm.tsx
 
 import { useState } from 'react';
-import type { Athlete } from "../types/Athlete";
+import type { Athlete } from "../../types/Athlete";
+import './CreateAthleteForm.scss';
 
 interface AthleteFormProps {
   onSubmit: (athlete: Athlete) => void;
@@ -87,7 +88,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
                 <option value="FIS"></option>
               </datalist>
               {errors.ageGroup && <p className="error-text">{errors.ageGroup}</p>}
-            <button type="submit">Create Athlete Profile</button>
+            <button type="submit" className="main-button" id="create-athlete-profile-button">Create Athlete Profile</button>
           </form>
         </div>
       </div>

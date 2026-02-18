@@ -1,0 +1,27 @@
+.generate-invite-button{
+    background: #8DA2C2;
+    color: #FFF8F8;
+    // border-radius: .25rem;
+    border: 0;
+    padding: .5rem;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 5px #999;
+}
+    
+.generate-invite-button:hover {
+    background: #274651;
+}
+
+.generate-invite-button:active{
+    background: #274651;
+    box-shadow: 0 3px #666;
+    transform: translateY(2px);
+}

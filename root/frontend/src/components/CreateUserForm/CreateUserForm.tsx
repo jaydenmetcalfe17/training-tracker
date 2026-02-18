@@ -1,7 +1,8 @@
 // components/CreateUserForm.tsx
 
 import { useEffect, useRef, useState } from 'react';
-import type { User } from '../types/User';
+import type { User } from '../../types/User';
+import './CreateUserForm.scss';
 
 interface UserFormProps {
   onSubmit: (user: User) => void;
@@ -98,8 +99,10 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
         {errors.password && <p className="error-text">{errors.password}</p>}
         <input name="password2" required ref={password2Ref} type="password" placeholder="Re-enter Password" onChange={handleChange}/>  {/* need to check that passwords match! */}
         {errors.password2 && <p className="error-text">{errors.password2}</p>}
-        <label>Show Password</label>
-        <input type="checkbox" onClick={revealPassword}/>
+        <div className="show-password-box">
+          <label>Show Password</label>
+          <input type="checkbox" onClick={revealPassword}/>
+        </div>
         {!inviteToken && (
           <select name="status" required value={formData.status} onChange={handleChange}>
             <option value="" disabled>Select your status</option>
@@ -109,9 +112,9 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
           </select>
         )}
         {inviteToken && (
-          <p>Status: {formData.status}</p>
+          <p className="status-paragraph-text">Status: {formData.status}</p>
         )}
-         <button type="submit">Create Account</button>
+         <button className="main-button" id="create-user-button" type="submit">Create Account</button>
     </form>
   );
 

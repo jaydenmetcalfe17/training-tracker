@@ -1,8 +1,10 @@
+// layout/Dashboard.tsx
+
 import type { FC } from 'react';
 import "./Dashboard.scss";
 import CoachDashboard from "../../pages/CoachDashboard/CoachDashboard";
 // import ParentDashboard from "../../pages/ParentDashboard";
-import AthleteDashboard from "../../pages/AthleteDashboard";
+import AthleteDashboard from "../../pages/AthleteDashboard/AthleteDashboard";
 import DashboardErrorPage from "../../pages/DashboardErrorPage";
 
 import { useContext } from 'react';
@@ -39,7 +41,7 @@ const Dashboard: React.FC = () => {
 
 
   return (
-    <div className="dashboard">
+    <div className="light-blue-box">
       <DashboardComponent/>
     </div>
   )

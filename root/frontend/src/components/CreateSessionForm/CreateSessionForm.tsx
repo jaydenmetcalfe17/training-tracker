@@ -227,7 +227,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange} />
               </div>
             </div>
-            <button type="submit">Create Session</button>
+            <button type="submit" className="main-button" id="create-session-button">Create Session</button>
           </form>
         </div>
       </div>

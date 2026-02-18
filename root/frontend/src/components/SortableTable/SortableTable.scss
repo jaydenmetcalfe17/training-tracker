@@ -1,0 +1,71 @@
+
+
+#sessions-white-box{
+    max-height: 400px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.sort-button {
+  background-color: transparent;
+  border: none;
+
+  padding: 5px 10px;
+  margin: 0;
+  line-height: 1;
+  font-size: 15px;
+  color: black;
+  cursor: pointer;
+
+  transition: transform 0.05s ease-out;
+}
+
+.sort-reverse {
+  transform: rotate(180deg);
+}
+
+th.sortable {
+  padding: 0.5rem 1rem;  
+  padding-right: 2.5rem;    
+  text-align: left;   
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th.sortable .header-label {
+  display: block;      
+  white-space: normal; 
+  word-wrap: break-word; 
+}
+
+th.sortable button.sort-button {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+table {
+    width: 100%; 
+    table-layout: fixed; 
+    padding: 0.5rem;
+    padding-top: 0;
+}
+
+thead th{
+    position: sticky; 
+    top: 0;
+    z-index: 1;
+    background-color: #FFF8F8;
+
+    padding: 0.5rem 1rem;  
+    padding-right: 2.5rem; 
+    text-align: left;
+}
+
+th {
+    width: 100px;
+}

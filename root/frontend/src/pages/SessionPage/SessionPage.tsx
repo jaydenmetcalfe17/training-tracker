@@ -1,10 +1,17 @@
 import { useContext, useEffect, useState } from 'react';
-import type { Session } from '../types/Session';
-import SessionsList from '../components/SessionsList/SessionsList';
+import type { Session } from '../../types/Session';
+import SessionsList from '../../components/SessionsList/SessionsList';
 import { useNavigate, useParams } from 'react-router-dom';
-import EditSessionForm from '../components/EditSessionForm';
-import AuthContext from '../context/AuthContext';
-import AttendanceList from '../components/AttendanceList';
+import EditSessionForm from '../../components/EditSessionForm';
+import AuthContext from '../../context/AuthContext';
+import AttendanceList from '../../components/AttendanceList/AttendanceList';
+
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+
+import './SessionPage.scss';
+
 
 
 const SessionPage: React.FC = () => {
@@ -161,32 +168,40 @@ const SessionPage: React.FC = () => {
 
 
   return (
-    <div>
-      <div>
-        <button className="back-button" onClick={() => handleBackClick()}>Back to Dashboard</button> {/* make this only for coach POV */}
-      </div>
-      <div>
-        {isVisible && <button className="edit-button" onClick={toggleEditPopup}>Edit Session</button>}
-          {showEditPopup && (
-            <div className="popup-overlay">
-              <div className="popup-content">
-                <EditSessionForm session={session} onSubmit={editSession}/>
-                {/* <button onClick={toggleEditPopup}>Edit Athlete</button> */}
-              </div>
-            </div>
-          )}
-      </div>
-      <div>
-        {isVisible && <button className="delete-button" onClick={toggleDeletePopup}>Delete Session</button>}
-          {showDeletePopup && (
-            <div className="popup-overlay">
-              <div className="popup-content">
-                <h3>Are you sure you want to delete this session?</h3>
-                <button onClick={deleteSession}>Yes, delete the session</button>
-                <button onClick={toggleDeletePopup}>No, keep the session</button>
-              </div>
-            </div>
-          )}
+    <div className="light-blue-box">
+      <div className='light-tan-box'>
+        <div className="back-button-box">
+          <button className="main-button" id="back-button" onClick={() => handleBackClick()}><KeyboardBackspaceIcon/></button> {/* make this only for coach POV */}
+        </div>
+        <div className="delete-edit-button-box">
+          <div>
+            {isVisible && <button className="main-button" id="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
+              {showEditPopup && (
+                <div className="popup-overlay">
+                  <div className="popup-content">
+                    <EditSessionForm session={session} onSubmit={editSession}/>
+                    {/* <button onClick={toggleEditPopup}>Edit Athlete</button> */}
+                  </div>
+                </div>
+              )}
+          </div>
+          <div>
+            {isVisible && <button className="main-button" id="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
+              {showDeletePopup && (
+                <div className="popup-overlay">
+                  <div className="popup-content">
+                    <div className="light-tan-box">
+                      <div className="white-box" id="delete-session-box">
+                        <h3>Are you sure you want to delete this session?</h3>
+                        <button onClick={deleteSession}>Yes, delete the session</button>
+                        <button onClick={toggleDeletePopup}>No, keep the session</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+          </div>
+        </div>
       </div>
       <div>
         {session ? (
