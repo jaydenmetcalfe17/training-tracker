@@ -1,7 +1,5 @@
 TO DO:
 * Learn more about React stuff (hooks, useState, useEffect... etc... when to use and whatnot )
-* Debouncing --> any time a letter is typed, some things happen (console logs going crazy)
-* Reload page after session or athlete has been created or deleted
 * In controller: push errors. Then in frontend: use and display errors when appropriate
 
 <!-- For Data Analysis: -->
@@ -35,7 +33,6 @@ TO DO:
     * useEffect calls for getting sessions for coach vs athlete dashboards?
 
 <!-- To Create: Individual Athlete Pages -->
-* Ensure that athletes/parents can only access their specific pages 
 
 <!-- To Create: Individual Sessions Pages -->
 

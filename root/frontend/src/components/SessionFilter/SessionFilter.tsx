@@ -19,9 +19,9 @@ interface FilterSessionsProps {
 const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const { user } = useContext(AuthContext);
-  const [isVisible, setIsVisible] = useState(true);
+  // const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
-  const params2 = useParams();
+  // const params2 = useParams();
 
   // create refs for all form inputs
   const startDateRef = useRef<HTMLInputElement>(null);
