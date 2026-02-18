@@ -7,17 +7,19 @@ import GenerateInviteButton from "../../components/GenerateInviteButton/Generate
 
 const CoachDashboard: React.FC = () => {
   return (
-    <div className="light-tan-box">
-      <div className="coach-dashboard">
-        <div className="generate-invite-butt" id="coach-invite">
-          <div className="generate-invite-box">
-            <h3>Invite a Coach</h3>
-            <GenerateInviteButton role="coach" />
+    <div className="light-blue-box">
+      <div className="light-tan-box">
+        <div className="coach-dashboard">
+          <div className="generate-invite-butt" id="coach-invite">
+            <div className="generate-invite-box">
+              <h3>Invite a Coach</h3>
+              <GenerateInviteButton role="coach" />
+            </div>
           </div>
-        </div>
-        <div className="athlete-session-box">
-          <CreateAthletePage />
-          <CreateSessionPage />
+          <div className="athlete-session-box">
+            <CreateAthletePage />
+            <CreateSessionPage />
+          </div>
         </div>
       </div>
     </div>

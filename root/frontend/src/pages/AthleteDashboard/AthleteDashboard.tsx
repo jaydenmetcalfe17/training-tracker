@@ -69,10 +69,10 @@ const AthleteDashboard: React.FC = () => {
 
 
   return (
-    <div>
+    <div className="athlete-dashboard-wrapper">
       <div className="coach-only-buttons-box">
         <div>
-          {isVisible && <button className="main-button" id="back-button" onClick={() => handleClick()}><KeyboardBackspaceIcon/></button> }
+          {isVisible && <button className="main-button" id="athlete-back-button" onClick={() => handleClick()}><KeyboardBackspaceIcon/></button> }
         </div>
       </div>
       <AthletesSessions athlete = {athlete}/>

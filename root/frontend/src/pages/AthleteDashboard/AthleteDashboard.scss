@@ -3,4 +3,23 @@
 .coach-only-buttons-box {
     display: flex;
     justify-content: space-between;
+    padding-bottom: 1rem;
 }
+
+.athlete-dashboard-wrapper {
+    display: grid;
+    gap: 0.75rem;
+}
+
+#athlete-back-button{
+    background: #8DA2C2;
+}
+
+#athlete-back-button:hover {
+    background: #C6CFDC;
+}
+
+#athlete-back-button:active{
+    background: #C6CFDC;
+}
+

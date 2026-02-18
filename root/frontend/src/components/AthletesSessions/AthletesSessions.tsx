@@ -11,7 +11,7 @@ const AthletesSessions: React.FC<AthletesProps> = ({ athlete }) => {
  
 
   return (
-    <div >
+    <div className="light-blue-box" id="blue-athlete-sessions-box">
       <div className="athlete-sessions-box">
           <SessionFilter athlete={athlete} />
         </div>

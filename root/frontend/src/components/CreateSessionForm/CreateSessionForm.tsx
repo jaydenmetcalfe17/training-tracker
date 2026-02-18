@@ -105,6 +105,11 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
           <form className="create-session-form" onSubmit={handleSubmit}>
             <div className="three-column-form">
               <div className="form-group">
+                <label>Attendance:</label>
+                <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange} />
+              </div>
+              
+              <div className="form-group">
                 <label>Session Date:</label>
                 <input required type="date" ref={sessionDayRef} />
               </div>
@@ -222,10 +227,6 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <input type="text" ref={generalCommentsRef} />
               </div>
 
-              <div className="form-group">
-                <label>Attendance:</label>
-                <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange} />
-              </div>
             </div>
             <button type="submit" className="main-button" id="create-session-button">Create Session</button>
           </form>

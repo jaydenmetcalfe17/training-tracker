@@ -17,6 +17,8 @@ TO DO:
 * make searches not case sensitive 
 
 <!-- Sessions -->
+* Edit athlete individual comments in session attendance button
+* "Are you sure you want to delete athlete from attendance" button
 
 <!-- Coach Dashboard -->
 * For Create Athlete section:

@@ -41,7 +41,7 @@ const Dashboard: React.FC = () => {
 
 
   return (
-    <div className="light-blue-box">
+    <div >
       <DashboardComponent/>
     </div>
   )
