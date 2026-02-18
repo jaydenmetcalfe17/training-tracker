@@ -69,7 +69,7 @@ const AthleteDashboard: React.FC = () => {
 
 
   return (
-    <div className="light-blue-box">
+    <div>
       <div className="coach-only-buttons-box">
         <div>
           {isVisible && <button className="main-button" id="back-button" onClick={() => handleClick()}><KeyboardBackspaceIcon/></button> }

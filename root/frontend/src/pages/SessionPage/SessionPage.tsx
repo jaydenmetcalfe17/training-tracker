@@ -20,13 +20,14 @@ const SessionPage: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const { user } = useContext(AuthContext);
   const [isVisible, setIsVisible] = useState(true);
- 
   
   // let sessions: Session[] = session ? [session] : [];
 
   useEffect(() => {
+    console.log("USE EFFECT USING");
      if (user?.status == 'athlete'){
       setIsVisible(!isVisible);
+      console.log("NOT VISIBLE, ATHLETE PAGE");
     }
 
     if (!sessionId) return;   

@@ -32,17 +32,25 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
   const visConditionsRef = useRef<HTMLInputElement>(null);
   const terrainTypeRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    let insert = ''
-    if (user?.status == 'coach') {
-      insert = `athleteId=${params2.athleteId}`
-    } else if (user?.status == 'athlete') {
-      insert = `userId=${user?.userId}`
-      setIsVisible(!isVisible);
-    }
+  // useEffect(() => {
+  //   let insert = ''
+  //   if (user?.status == 'coach') {
+  //     insert = `athleteId=${params2.athleteId}`
+  //   } else if (user?.status == 'athlete') {
+  //     insert = `userId=${user?.userId}`
+  //     setIsVisible(!isVisible);
+  //   }
 
+  //   fetchSessions();
+  // }, [athlete]);
+
+  const isCoach = user?.status === 'coach';
+
+  useEffect(() => {
     fetchSessions();
-  }, [athlete]); 
+  }, [athlete, user]); // run whenever athlete or user changes
+
+
 
   const fetchSessions = () => {
     const params = new URLSearchParams();
@@ -169,7 +177,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
               </div>
             <div className="delete-edit-button-box"> 
               <div>
-                {isVisible && <button className="main-button" id="edit-button" onClick={toggleEditPopup}><EditIcon></EditIcon></button>}
+                {isCoach && <button className="main-button" id="edit-button" onClick={toggleEditPopup}><EditIcon></EditIcon></button>}
                 {showEditPopup && (
                   <div className="popup-overlay">
                     <div className="popup-content">
@@ -179,7 +187,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
                 )}
               </div>
               <div>
-                {isVisible && <button onClick={toggleDeletePopup} className="main-button" id="delete-button"><DeleteIcon></DeleteIcon></button>}
+                {isCoach && <button onClick={toggleDeletePopup} className="main-button" id="delete-button"><DeleteIcon></DeleteIcon></button>}
                 {showDeletePopup && (
                   <div className="popup-overlay">
                     <div className="popup-content">
@@ -196,7 +204,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
               </div>
             </div> 
             <div className="buttons-box">
-              {isVisible && <div className="generate-invite-butt">
+              {isCoach && <div className="generate-invite-butt">
                 <div className="generate-invite-box">
                   <h3>Invite an Athlete: </h3>
                   <GenerateInviteButton athleteId={athlete.athleteId} role="athlete"/>
@@ -251,7 +259,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
                   </div>
                 </div>
 
-                <button type="submit">Apply Filters</button>
+                <button className="main-button" id="apply-filters-button" type="submit">Apply Filters</button>
               </form>
             </div>
           </div>
