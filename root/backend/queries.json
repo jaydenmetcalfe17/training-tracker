@@ -43,7 +43,8 @@
     "getAllAttendance": "SELECT * FROM attendance;",
     "setUpAttendanceTable": "CREATE TABLE IF NOT EXISTS attendance (attendance_id SERIAL PRIMARY KEY NOT NULL, athlete_id INT NOT NULL, session_id INT NOT NULL, individual_comments VARCHAR(500));",
     "addAthleteAttendance": "INSERT INTO attendance (athlete_id, session_id) VALUES ($1, $2) RETURNING *",
-    "deleteAthleteAttendanceSingleSession": "DELETE FROM attendance WHERE athlete_id = $1 AND session_id = $2"
+    "deleteAthleteAttendanceSingleSession": "DELETE FROM attendance WHERE athlete_id = $1 AND session_id = $2",
+    "updateIndividualComment": "UPDATE attendance SET individual_comments = $2 WHERE attendance_id = $1 RETURNING *;"
   },
   "parents": {
     "setUpParentsAthletesTable": "CREATE TABLE parents (athlete_id INTEGER NOT NULL, user_id INTEGER NOT NULL, PRIMARY KEY (athlete_id, user_id), CONSTRAINT fk_athlete FOREIGN KEY (athlete_id) REFERENCES athletes(athlete_id) ON DELETE CASCADE, CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE);"

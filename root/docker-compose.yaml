@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: training_backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env.production
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: training_frontend
+    ports:
+      - "80:80"
+    env_file:
+      - ./frontend/.env.production
+    depends_on:
+      - backend
+
+  # Postgres only for local testing
+  postgres:
+    image: postgres:15
+    container_name: training_db
+    environment:
+      POSTGRES_USER: prod_user
+      POSTGRES_PASSWORD: prod_password
+      POSTGRES_DB: training_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

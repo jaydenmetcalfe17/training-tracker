@@ -1,3 +1,6 @@
+require('dotenv').config();
+
+require('./config/auth');
 const express = require('express');
 const { spawn } = require('child_process');
 const bodyParser = require('body-parser');
@@ -6,8 +9,6 @@ const routes = require('./routes/routes');
 const authRoutes = require('./routes/auth');
 const cors = require('cors');
 const passport = require('passport');
-require('./config/auth');
-require('dotenv').config();
 const pythonRoutes = require("./routes/pythonRoutes");
 
 

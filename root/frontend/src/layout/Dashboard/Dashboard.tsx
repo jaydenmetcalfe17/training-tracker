@@ -15,7 +15,8 @@ const Dashboard: React.FC = () => {
 
 
   // status dictates which dashboard appears 
-  const { user, logout } = useContext(AuthContext);
+  // const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   console.log("user first name: ", user?.userFirstName);
 
   let status = user?.status || '';

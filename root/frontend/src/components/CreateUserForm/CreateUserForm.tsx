@@ -65,7 +65,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
       }
       setErrors((prev) => ({ ...prev, [e.target.name]: errorMessage }));
 
-      if (isValid = true) {
+      if (isValid === true) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
       } else {
         console.error("Invalid input. Please try again.");

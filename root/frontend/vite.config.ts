@@ -9,11 +9,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3000',  // for local
+        // target: 'http://backend:3000', // for Docker
         changeOrigin: true,
       },
       '/auth': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3000', // for local
+        // target: 'http://backend:3000', // for Docker 
         changeOrigin: true,
       },
     },

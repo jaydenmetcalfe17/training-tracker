@@ -4,7 +4,8 @@ import SessionsList from '../SessionsList/SessionsList';
 import type { Athlete } from '../../types/Athlete';
 import PieChart from "../PieChart";
 import './SessionFilter.scss';
-import { useNavigate, useParams } from "react-router-dom";
+// import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
 import EditAthleteForm from "../EditAthleteForm";
 

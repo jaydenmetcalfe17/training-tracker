@@ -11,7 +11,7 @@ interface PieChartProps {
 const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
     let availableColumns: any[] = [];
 
-    if (selection = "sessions"){
+    if (selection === "sessions"){
        availableColumns = [
             { label: "Location", value: "location" },
             { label: "Discipline", value: "discipline" },
@@ -20,7 +20,7 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
             { label: "Terrain Type", value: "terrainType" },
             { label: "Run Count", value: "runColumn"}
         ];
-    } else if (selection = "athletes") {
+    } else if (selection === "athletes") {
         availableColumns = [
             { label: "Gender", value: "gender" },
         ];

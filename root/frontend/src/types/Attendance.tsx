@@ -4,6 +4,6 @@ import type { Athlete } from "./Athlete";
 
 export interface Attendance {
   attendanceId?: number;
-  athlete: Athlete;
+  athlete?: Athlete;
   individualComments?: string;
 }

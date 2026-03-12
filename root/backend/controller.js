@@ -115,7 +115,7 @@ const updateAthleteProfile = async (req, res) => {
     const { athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
 
     //server side input validation
-     let errors = [];
+    let errors = [];
 
     //validation:
     if (validator.isEmpty(athleteFirstName)) {
@@ -270,6 +270,28 @@ const addAthletesToAttendance = async (req, res) => {
         res.status(500).send({error: 'Server error adding athletes to attendance'} );
     } 
 };
+
+const updateIndividualComment = async (req, res) => {
+  const attendanceId = req.params.attendanceId;
+  const { individualComment } = req.body;
+
+  console.log("Values for update query:", [
+        attendanceId,
+        individualComment
+     ]);
+
+    try {
+        const result = await pool.query(queries.attendance.updateIndividualComment, [attendanceId, individualComment]);
+        const updatedAttendance = result.rows[0]
+        res.status(201).json(updatedAttendance);
+        
+
+    } catch (error) {
+        console.error('Error updating attendance individual comment: ', error);
+        res.status(500).send( {error: 'Server error updating individual comment in attendance table'} );
+    }
+
+}
 
 
 
@@ -924,6 +946,7 @@ module.exports = {
     deleteAthleteProfile,
     deleteAthleteAttendanceSingleSession,
     addAthletesToAttendance,
+    updateIndividualComment,
     createSession,
     getSessions,
     getPieChartData,

@@ -38,6 +38,9 @@ router.get("/data/:athleteId/:column", controller.getPieChartData);
 // Example: DELETE /api/attendance/:athleteId/:sessionId
 router.delete("/attendance/:athleteId/:sessionId", controller.deleteAthleteAttendanceSingleSession);
 
+// Example: PUT /api/attendance/?attendanceId=1 // etc...
+router.put("/attendance/:attendanceId", controller.updateIndividualComment);
+
 // Example: PUT /api/attendance/
 router.put("/attendance/", controller.addAthletesToAttendance);
 

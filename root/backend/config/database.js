@@ -1,5 +1,7 @@
+// require('dotenv').config();
+require('dotenv').config({ path: './.env' }); // explicit path
+
 const path = require('path');
-require('dotenv').config();
 const { Pool, Client } = require("pg");
 
 
