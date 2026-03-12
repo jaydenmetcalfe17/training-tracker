@@ -273,15 +273,16 @@ const addAthletesToAttendance = async (req, res) => {
 
 const updateIndividualComment = async (req, res) => {
   const attendanceId = req.params.attendanceId;
-  const { individualComment } = req.body;
+  const { individualComments } = req.body;
+  console.log(req.body);
 
   console.log("Values for update query:", [
         attendanceId,
-        individualComment
+        individualComments
      ]);
 
     try {
-        const result = await pool.query(queries.attendance.updateIndividualComment, [attendanceId, individualComment]);
+        const result = await pool.query(queries.attendance.updateIndividualComment, [attendanceId, individualComments]);
         const updatedAttendance = result.rows[0]
         res.status(201).json(updatedAttendance);
         

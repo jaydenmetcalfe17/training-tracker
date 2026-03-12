@@ -13,3 +13,8 @@
 .attendance-list-box thead th {
     position: static;
 }
+
+.button-box {
+    display: flex;
+    justify-content: space-evenly;
+}

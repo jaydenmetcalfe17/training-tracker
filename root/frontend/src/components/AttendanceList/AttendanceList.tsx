@@ -90,12 +90,16 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   };
 
   const editIndComm = (updatedIndAttendance: Attendance) => {
+    console.log("trying to edit ind comm!", updatedIndAttendance)
     if (!updatedIndAttendance.attendanceId) return;
 
     fetch(`/api/attendance/${updatedIndAttendance.attendanceId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedIndAttendance.individualComments),
+      body: JSON.stringify({
+        individualComments: updatedIndAttendance.individualComments
+      }),
+
     })
       .then(() => {
         setAttendance(prev =>
@@ -135,7 +139,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                 <th>Last Name</th>
                 <th>Individual Comments</th>
                 <th>
-                  {isVisible && <span>Edit Comments</span>}
+                  {isVisible}
                 </th>
               </tr>
             </thead>
@@ -145,7 +149,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                   <td>{a.athlete!.athleteFirstName}</td>
                   <td>{a.athlete!.athleteLastName}</td>
                   <td>{a.individualComments}</td>
-                  <td>
+                  <td className="button-box">
                     {isVisible && (
                       <>
                         <button

@@ -15,7 +15,7 @@ interface EditAttendanceFormProps {
 
 const EditAttendanceForm: React.FC<EditAttendanceFormProps> = ({ attendance, onSubmit }) => {
     const [formData, setFormData] = useState<Attendance>({
-    attendanceId: 0,
+    attendanceId: attendance?.attendanceId,
     individualComments: ""
   });
 
@@ -24,6 +24,7 @@ const EditAttendanceForm: React.FC<EditAttendanceFormProps> = ({ attendance, onS
   useEffect(() => {
     if (attendance) {
       setFormData({
+        attendanceId: attendance.attendanceId,
         individualComments: attendance?.individualComments,
     
       });
@@ -49,7 +50,7 @@ const EditAttendanceForm: React.FC<EditAttendanceFormProps> = ({ attendance, onS
         <div className="white-box">
           <form onSubmit={handleSubmit}>
             <label>Individual Comment: </label>
-            <input name="individualComment" value={formData.individualComments} onChange={handleChange}/>
+            <input name="individualComments" value={formData.individualComments ?? ""} onChange={handleChange}/>
             <button type="submit">Edit</button>
           </form>
         </div>
