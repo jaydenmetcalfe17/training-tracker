@@ -11,12 +11,14 @@ const CreateUserPage: React.FC = () => {
     const { inviteToken } = useParams<{ inviteToken: string }>();
     const navigate = useNavigate();
 
+    const API = import.meta.env.VITE_API_URL || "";
+
     console.log("token: ", inviteToken);
 
     // Create User Profile
 	  const createUser = (newUser: User) => {
         
-        fetch('/auth/registration', {
+        fetch(`${API}/auth/registration`, {
 		// fetch('http://localhost:3000/auth/registration', {    // for when the vite.config.ts file is not redirecting to localhost:3000
 			method: 'POST',
 			headers: {

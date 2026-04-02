@@ -42,13 +42,15 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
         educational_course_runs: "Educational Course Runs",
     };
 
+    const API = import.meta.env.VITE_API_URL || "";
+
 
     useEffect(() => {
         console.log("Current loaded athleteId:", athleteId);
 
         const url = athleteId 
-            ? `/api/data/${athleteId}/${selectedColumn}`
-            : `/api/data/${selectedColumn}`;
+            ? `${API}/api/data/${athleteId}/${selectedColumn}`
+            : `${API}/api/data/${selectedColumn}`;
         
         fetch(url)
             .then((res) => {

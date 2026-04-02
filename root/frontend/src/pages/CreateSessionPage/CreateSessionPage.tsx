@@ -10,10 +10,10 @@ import PieChart from "../../components/PieChart";
 
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
-
+  const API = import.meta.env.VITE_API_URL || "";
 
     useEffect(() => {
-        fetch(`/api/session`, {
+        fetch(`${API}/api/session`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const CreateSessionPage: React.FC = () => {
     // Create Session
 	const createSession = (newSession: Session) => {
         
-        fetch('/api/session', {
+        fetch(`${API}/api/session`, {
 		// fetch('http://localhost:3000/api/session', {    // for when the vite.config.ts file is not redirecting to localhost:3000
 			method: 'POST',
 			headers: {

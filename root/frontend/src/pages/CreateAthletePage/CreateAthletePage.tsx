@@ -8,9 +8,10 @@ import CreateAthleteForm from '../../components/CreateAthleteForm/CreateAthleteF
 
 const CreateAthletePage: React.FC = () => {
     const [athletes, setAthletes] = useState<Athlete[]>([]);
+    const API = import.meta.env.VITE_API_URL || "";
 
     useEffect(() => { 
-        fetch(`/api/athlete`, {
+        fetch(`${API}/api/athlete`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ const CreateAthletePage: React.FC = () => {
     // Create Athlete Profile
 	  const createAthleteProfile = (newAthlete: Athlete) => {
         
-        fetch('/api/athlete', {
+        fetch(`${API}/api/athlete`, {
 		// fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
 			method: 'POST',
 			headers: {

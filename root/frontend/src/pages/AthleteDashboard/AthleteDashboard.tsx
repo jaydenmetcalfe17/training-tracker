@@ -20,6 +20,8 @@ const AthleteDashboard: React.FC = () => {
   const [athlete, setAthlete] = useState<Athlete | null>(null);
   const [isVisible, setIsVisible] = useState(true);
 
+  const API = import.meta.env.VITE_API_URL || "";
+
   useEffect(() => {
     let insert = ''
     if (user?.status == 'coach') {
@@ -29,7 +31,7 @@ const AthleteDashboard: React.FC = () => {
       setIsVisible(!isVisible);
     }
 
-    fetch(`/api/athlete?${insert}`, {
+    fetch(`${API}/api/athlete?${insert}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

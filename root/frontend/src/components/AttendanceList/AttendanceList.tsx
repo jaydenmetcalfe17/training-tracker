@@ -24,13 +24,14 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showEditIndCommPopup, setShowEditIndCommPopup] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
+  const API = import.meta.env.VITE_API_URL || "";
 
   useEffect(() => {
     if (user?.status === 'athlete') {
       setIsVisible(false);
     }
 
-    fetch('/api/athlete')
+    fetch(`${API}/api/athlete`)
       .then(res => res.json())
       .then(data => {
         const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
@@ -60,7 +61,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const toggleEditIndCommPopup = () => setShowEditIndCommPopup(!showEditIndCommPopup);
 
   const handleAttendanceChange = (selectedIds: number[]) => {
-    fetch(`/api/attendance/`, {
+    fetch(`${API}/api/attendance/`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId: session.sessionId, athleteIds: selectedIds }),
@@ -79,7 +80,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   };
 
   const deleteAthleteAttendance = (athleteId: number) => {
-    fetch(`/api/attendance/${athleteId}/${session.sessionId}`, {
+    fetch(`${API}/api/attendance/${athleteId}/${session.sessionId}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -93,7 +94,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
     console.log("trying to edit ind comm!", updatedIndAttendance)
     if (!updatedIndAttendance.attendanceId) return;
 
-    fetch(`/api/attendance/${updatedIndAttendance.attendanceId}`, {
+    fetch(`${API}/api/attendance/${updatedIndAttendance.attendanceId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
