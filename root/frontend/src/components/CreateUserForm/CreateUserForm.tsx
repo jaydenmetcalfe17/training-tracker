@@ -21,11 +21,10 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const API = import.meta.env.VITE_API_URL || "";
 
   useEffect(() => {
     if (inviteToken) {
-      fetch(`${API}/api/invite/${inviteToken}`)
+      fetch(`/api/invite/${inviteToken}`)
         .then(res => res.json())
         .then(data => {
           console.log("Role:", data.role);

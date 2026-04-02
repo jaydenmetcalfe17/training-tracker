@@ -12,12 +12,11 @@ interface SessionFormProps {
 
 const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
   const { user } = useContext(AuthContext);
-  const API = import.meta.env.VITE_API_URL || "";
 
   // Keep available athletes in state (async fetch)
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
   useEffect(() => {
-    fetch(`${API}/api/athlete`)
+    fetch(`/api/athlete`)
       .then(res => res.json())
       .then(data => {
         const mappedAthletes: Athlete[] = data.map((athlete: any) => ({

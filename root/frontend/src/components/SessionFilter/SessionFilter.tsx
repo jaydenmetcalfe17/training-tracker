@@ -55,7 +55,6 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
 
   const fetchSessions = () => {
     const params = new URLSearchParams();
-    const API = import.meta.env.VITE_API_URL || "";
 
     if (athlete?.athleteId) params.append("athleteId", athlete.athleteId.toString());
 
@@ -67,7 +66,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
     if (visConditionsRef.current?.value) params.append("visConditions", visConditionsRef.current.value);
     if (terrainTypeRef.current?.value) params.append("terrainType", terrainTypeRef.current.value);
 
-    fetch(`${API}/api/session?${params.toString()}`)
+    fetch(`/api/session?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
         const mappedSessions: Session[] = data.map((session: any) => ({
@@ -106,15 +105,13 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
     const toggleEditPopup = () => {
       setShowEditPopup(!showEditPopup);
     };
-
-    const API = import.meta.env.VITE_API_URL || "";
   
     const editAthleteProfile = (updatedAthlete: Athlete) => {
       console.log("updated: ", updatedAthlete);
         if (!updatedAthlete) return; 
         if (!athlete) return;  
   
-        fetch(`${API}/api/athlete/${athlete.athleteId}`, {
+        fetch(`/api/athlete/${athlete.athleteId}`, {
       // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'PUT',
         headers: {
@@ -140,7 +137,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
       const deleteAthlete = () => {
           if (!athlete) return;  
     
-          fetch(`${API}/api/athlete/${athlete.athleteId}`, {
+          fetch(`/api/athlete/${athlete.athleteId}`, {
         // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
           method: 'DELETE',
           headers: {

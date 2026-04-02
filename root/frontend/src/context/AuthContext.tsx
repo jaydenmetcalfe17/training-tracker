@@ -24,7 +24,6 @@ export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null); 
   const [isReady, setIsReady] = useState(false); 
 
-  const API = import.meta.env.VITE_API_URL || "";
 
   useEffect(() => {
   const user = localStorage.getItem("user");
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }: Props) => {
   //No feature for auto-login after user registration yet
   const newLogin = async (newLogin: Login) => {
         
-        await fetch(`${API}/auth/login`, {
+        await fetch(`/auth/login`, {
 		// fetch('http://localhost:3000/auth/login', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'POST',
         headers: {

@@ -20,8 +20,6 @@ const SessionPage: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const { user } = useContext(AuthContext);
   const [isVisible, setIsVisible] = useState(true);
-
-  const API = import.meta.env.VITE_API_URL || "";
   
   // let sessions: Session[] = session ? [session] : [];
 
@@ -34,7 +32,7 @@ const SessionPage: React.FC = () => {
 
     if (!sessionId) return;   
 
-    fetch(`${API}/api/session?sessionId=${sessionId}`, {
+    fetch(`/api/session?sessionId=${sessionId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +100,7 @@ const SessionPage: React.FC = () => {
         if (!updatedSession) return; 
         if (!session) return;  
   
-        fetch(`${API}/api/session/${session.sessionId}`, {
+        fetch(`/api/session/${session.sessionId}`, {
       // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'PUT',
         headers: {
@@ -145,7 +143,7 @@ const SessionPage: React.FC = () => {
     const deleteSession = () => {
         if (!session) return;  
   
-        fetch(`${API}/api/session/${session.sessionId}`, {
+        fetch(`/api/session/${session.sessionId}`, {
       // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'DELETE',
         headers: {

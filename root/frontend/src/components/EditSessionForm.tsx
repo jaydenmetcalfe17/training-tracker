@@ -14,10 +14,8 @@ interface EditSessionFormProps {
 const EditSessionForm: React.FC<EditSessionFormProps> = ({ session, onSubmit }) => {
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
 
-  const API = import.meta.env.VITE_API_URL || "";
-
   useEffect(() => {
-  fetch(`${API}/api/athlete`)
+  fetch(`/api/athlete`)
     .then(res => res.json())
     .then(data => {
       const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
