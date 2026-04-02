@@ -12,17 +12,17 @@ router.get("/", (req, res) => {
     res.send("authing it up");
 });
 
-router.get("/google", passport.authenticate("google", {
-    scope: ["profile", "email"], 
-}));
+// router.get("/google", passport.authenticate("google", {
+//     scope: ["profile", "email"], 
+// }));
 
-router.get("/google/callback", passport.authenticate("google", { 
-        session: true 
-    }),
-    (req, res) => {
-        res.send(req.user);
-    }
-);
+// router.get("/google/callback", passport.authenticate("google", { 
+//         session: true 
+//     }),
+//     (req, res) => {
+//         res.send(req.user);
+//     }
+// );
 
 // router.post("/login", passport.authenticate("local", {
 //     successRedirect: "/", // successRedirect: "/dashboard",
