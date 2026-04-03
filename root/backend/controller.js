@@ -319,7 +319,7 @@ const createSession = async (req, res) => {
         createdBy,
         attendance} = req.body; 
     
-    const formatTime = (time) => time.length === 5 ? `${time}:00` : time;
+    const formatTime = (time) => time.length === (5 || 4) ? `${time}:00` : time;
 
     const formStartTime = formatTime(startTime);
     const formEndTime = formatTime(endTime);
@@ -633,7 +633,7 @@ const updateSession = async (req, res) => {
         generalComments,
      } = req.body;
 
-    const formatTime = (time) => time.length === 5 ? `${time}:00` : time;
+     const formatTime = (time) => time.length === (5 || 4) ? `${time}:00` : time;
 
     const formStartTime = formatTime(startTime);
     const formEndTime = formatTime(endTime);
