@@ -130,7 +130,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
 
               <div className="form-group">
                 <label>Location:</label>
-                <input required type="text" ref={locationRef} />
+                <input required type="text" ref={locationRef}/>
               </div>
 
               <div className="form-group">
