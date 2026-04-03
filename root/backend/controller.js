@@ -318,6 +318,11 @@ const createSession = async (req, res) => {
         generalComments,
         createdBy,
         attendance} = req.body; 
+    
+    const formatTime = (time) => time.length === 5 ? `${time}:00` : time;
+
+    const formStartTime = formatTime(startTime);
+    const formEndTime = formatTime(endTime);
 
     console.log(sessionDay, location, discipline);
     console.log("Athletes in attendance: ", attendance[0]);
@@ -334,13 +339,13 @@ const createSession = async (req, res) => {
     }
 
     // make this a time (version of type Date?)
-    if (validator.isEmpty(startTime)) {
-      errors.push({startTime:'Session must have a start time'});
+    if (validator.isEmpty(formStartTime)) {
+      errors.push({formStartTime:'Session must have a start time'});
     }
 
     // make this a time (version of type Date? then turn into string for database entry?)
-    if (validator.isEmpty(endTime)) {
-      errors.push({endTime:'Session must have an end time'});
+    if (validator.isEmpty(formEndTime)) {
+      errors.push({formEndTime:'Session must have an end time'});
     }
 
     if (validator.isEmpty(location)) {
@@ -427,8 +432,8 @@ const createSession = async (req, res) => {
     try {
         const result = await pool.query(queries.sessions.createSession, [
             sessionDay, 
-            startTime,
-            endTime,
+            formStartTime,
+            formEndTime,
             location,
             discipline, 
             snowConditions, 
@@ -628,6 +633,11 @@ const updateSession = async (req, res) => {
         generalComments,
      } = req.body;
 
+    const formatTime = (time) => time.length === 5 ? `${time}:00` : time;
+
+    const formStartTime = formatTime(startTime);
+    const formEndTime = formatTime(endTime);
+
     //backend validation
     let errors = [];
 
@@ -640,13 +650,13 @@ const updateSession = async (req, res) => {
     }
 
     // make this a time (version of type Date?)
-    if (validator.isEmpty(startTime)) {
-      errors.push({startTime:'Session must have a start time'});
+    if (validator.isEmpty(formStartTime)) {
+      errors.push({formStartTime:'Session must have a start time'});
     }
 
     // make this a time (version of type Date? then turn into string for database entry?)
-    if (validator.isEmpty(endTime)) {
-      errors.push({endTime:'Session must have an end time'});
+    if (validator.isEmpty(formEndTime)) {
+      errors.push({formEndTime:'Session must have an end time'});
     }
 
 
@@ -731,8 +741,8 @@ const updateSession = async (req, res) => {
     console.log("Values for update query:", [
         sessionId,
         sessionDay, 
-        startTime,
-        endTime,
+        formStartTime,
+        formEndTime,
         location,
         discipline, 
         snowConditions, 
@@ -752,8 +762,8 @@ const updateSession = async (req, res) => {
         const result = await pool.query(queries.sessions.updateSession, [
             sessionId,
             sessionDay, 
-            startTime,
-            endTime,
+            formStartTime,
+            formEndTime,
             location,
             discipline, 
             snowConditions, 
