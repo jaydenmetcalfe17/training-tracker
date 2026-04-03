@@ -106,9 +106,11 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({ session, onSubmit }) 
               <label>Session Date: </label>
               <input name="sessionDay" type="date"value={formData.sessionDay} onChange={handleChange}/>
               <label>Start Time: </label>
-              <input type="text" placeholder="0:00" required name="startTime" value={formData.startTime} onChange={handleChange}/>
+              {/* <input type="time" placeholder="0:00" required name="startTime" value={formData.startTime} onChange={handleChange}/> */}
+              <input type="time" id="startTime" className="block w-full p-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body" name="startTime" value={formData.startTime} onChange={handleChange} required />
               <label>End Time: </label>
-              <input type="text" required placeholder="0:00" name="endTime" value={formData.endTime} onChange={handleChange}/>
+              {/* <input type="time" required placeholder="0:00" name="endTime" value={formData.endTime} onChange={handleChange}/> */}
+              <input type="time" id="endTime" className="block w-full p-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body" name="endTime" value={formData.endTime} onChange={handleChange} required />
               <label>Location: </label>
               <input name="location" value={formData.location} onChange={handleChange}/>
               <label>Discipline: </label>

@@ -50,8 +50,8 @@ const SessionPage: React.FC = () => {
           const mappedSession: Session = {
             sessionId: sessionData.session_id,
             sessionDay: new Date(sessionData.session_day).toISOString().split("T")[0],
-            startTime: sessionData.startTime,
-            endTime: sessionData.endTime,
+            startTime: sessionData.start_time.slice(0, 5),
+            endTime: sessionData.end_time.slice(0, 5),
             location: sessionData.location,
             discipline: sessionData.discipline,
             snowConditions: sessionData.snow_conditions,
