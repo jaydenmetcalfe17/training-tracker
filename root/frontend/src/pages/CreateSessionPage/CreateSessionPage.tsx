@@ -32,8 +32,8 @@ const CreateSessionPage: React.FC = () => {
               sessionDay: new Date(session.session_day)
                 .toISOString()
                 .split("T")[0],
-              startTime: session.startTime,
-              endTime: session.endTime,
+              startTime: session.start_time,
+              endTime: session.end_time,
               location: session.location,
               discipline: session.discipline,
               snowConditions: session.snow_conditions,
