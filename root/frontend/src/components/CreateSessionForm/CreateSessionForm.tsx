@@ -116,12 +116,12 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
 
               <div className="form-group">
                 <label>Start Time:</label>
-                <input required type="text" placeholder="0:00" ref={startTimeRef} />
+                <input required type="time" placeholder="0:00" ref={startTimeRef} />
               </div>
 
               <div className="form-group">
                 <label>End Time:</label>
-                <input required type="text" placeholder="0:00" ref={endTimeRef} />
+                <input required type="time" placeholder="0:00" ref={endTimeRef} />
               </div>
 
               <div className="form-group">
