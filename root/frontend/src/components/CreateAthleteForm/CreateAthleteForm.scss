@@ -4,3 +4,17 @@
     margin-top: 1rem;
     margin-bottom: 0.5rem;
 }
+
+.one-column-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px; /* Adds space between grid items */
+    max-width: 600px; /* Optional: sets a max width for the form */
+    margin: 0 auto; /* Centers the form on the page */
+    padding: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column; /* Stacks label and input vertically */
+}

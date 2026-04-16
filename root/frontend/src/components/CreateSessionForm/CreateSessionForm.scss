@@ -1,6 +1,6 @@
 .three-column-form {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Creates two equal-width columns */
+    grid-template-columns: 1fr 1fr 1fr; 
     gap: 20px; /* Adds space between grid items */
     max-width: 600px; /* Optional: sets a max width for the form */
     margin: 0 auto; /* Centers the form on the page */

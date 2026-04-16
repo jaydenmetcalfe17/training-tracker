@@ -59,35 +59,55 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
       <div className="light-tan-box">
         <h2 className="box-h2-title">Create Athlete</h2>
         <div className="white-box">
-          <form onSubmit={handleSubmit}>
-            <label>First Name: </label>
-            <input type="text" required name="athleteFirstName" value={formData.athleteFirstName} onChange={handleChange}/>
-            <label>Last Name: </label>
-            <input type="text" required name="athleteLastName" value={formData.athleteLastName} onChange={handleChange}/>
-            <label>Birthday: </label>
-            <input required name="birthday" type="date" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
-            <label>Gender: </label>
-            <input type="text" required name="gender" list="gender" value={formData.gender} onChange={handleChange}/>
-            <datalist id="gender">
-                <option value="Male"></option>
-                <option value="Female"></option>
-            </datalist>
-            {errors.gender && <p className="error-text">{errors.gender}</p>}
-            <label>Team: </label>
-            <input type="text" name="team" list="team" value={formData.team} onChange={handleChange}/>
-            <datalist id="team">
-                <option value="Whistler Mountain Ski Club"></option>
-              </datalist>
-            <label>Age Group: </label>
-            <input type="text" required name="ageGroup" list="ageGroup" value={formData.ageGroup} onChange={handleChange}/>
-            <datalist id="ageGroup">
-                <option value="U10"></option>
-                <option value="U12"></option>
-                <option value="U14"></option>
-                <option value="U16"></option>
-                <option value="FIS"></option>
-              </datalist>
-              {errors.ageGroup && <p className="error-text">{errors.ageGroup}</p>}
+          <form className="create-athlete-form" onSubmit={handleSubmit}>
+            <div className="one-column-form">
+
+              <div className="form-group">
+                <label>First Name: </label>
+                <input type="text" required name="athleteFirstName" value={formData.athleteFirstName} onChange={handleChange}/>
+              </div>
+
+              <div className="form-group">
+                <label>Last Name: </label>
+                <input type="text" required name="athleteLastName" value={formData.athleteLastName} onChange={handleChange}/>
+              </div>
+
+              <div className="form-group">
+                <label>Birthday: </label>
+                <input required name="birthday" type="date" placeholder="Birthday (YYYY-MM-DD)" value={formData.birthday} onChange={handleChange}/>
+              </div>
+              
+              <div className="form-group">
+                <label>Gender: </label>
+                <input type="text" required name="gender" list="gender" value={formData.gender} onChange={handleChange}/>
+                <datalist id="gender">
+                    <option value="Male"></option>
+                    <option value="Female"></option>
+                </datalist>
+                {errors.gender && <p className="error-text">{errors.gender}</p>}
+              </div>
+
+              <div className="form-group">
+                <label>Team: </label>
+                <input type="text" name="team" list="team" value={formData.team} onChange={handleChange}/>
+                <datalist id="team">
+                    <option value="Whistler Mountain Ski Club"></option>
+                  </datalist>
+              </div>
+
+              <div className="form-group">
+                <label>Age Group: </label>
+                <input type="text" required name="ageGroup" list="ageGroup" value={formData.ageGroup} onChange={handleChange}/>
+                <datalist id="ageGroup">
+                    <option value="U10"></option>
+                    <option value="U12"></option>
+                    <option value="U14"></option>
+                    <option value="U16"></option>
+                    <option value="FIS"></option>
+                  </datalist>
+                  {errors.ageGroup && <p className="error-text">{errors.ageGroup}</p>}
+              </div>
+            </div>
             <button type="submit" className="main-button" id="create-athlete-profile-button">Create Athlete Profile</button>
           </form>
         </div>
