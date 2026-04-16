@@ -18,6 +18,12 @@
     gap: 0.25rem;
 }
 
+@media (max-width: 600px) {
+  .filters-form-labels {
+    flex-direction: column;
+  }
+}
+
 .details-filters-box{
     display: flex;
     flex-wrap: wrap;
@@ -50,6 +56,12 @@
 .pie-info-box{
     display: flex;
     justify-content: space-between;
+}
+
+@media (max-width: 600px) {
+  .pie-info-box {
+    flex-direction: column;
+  }
 }
 
 #apply-filters-button {
