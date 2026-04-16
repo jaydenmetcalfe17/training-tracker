@@ -56,7 +56,10 @@ export const AuthProvider = ({ children }: Props) => {
             userFirstName: data.safeUser.userFirstName,
             userLastName: data.safeUser.userLastName,
             userId: data.safeUser.userId,
-            status: data.safeUser.status,
+            status: data.safeUser.status
+          }
+          if (data.safeUser.athleteId != null) {
+            userObj.athleteId = data.safeUser.athleteId;
           }
           localStorage.setItem("user", JSON.stringify(userObj));
           // localStorage.setItem("token", data.token);
