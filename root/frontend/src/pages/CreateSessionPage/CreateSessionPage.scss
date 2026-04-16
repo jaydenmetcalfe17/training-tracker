@@ -7,16 +7,17 @@
 .upper-sessions-box {
     display: flex;
     gap: 1rem;
-    align-items: stretch; /* <-- makes children the same height */
+    align-items: center; /* <-- makes children the same height */
 
-    flex-direction: row; /* side by side */
+    flex-direction: column; 
     width: 100%;
     min-width: 0;       /* allow children to shrink */
-    overflow-x: hidden; /* prevent overflow */
+    // overflow-x: hidden; /* prevent overflow */
 }
 
 
 
 #pie-chart {
-    size: 2rem;
+    width: 500px;
+    height: 500px;
 }

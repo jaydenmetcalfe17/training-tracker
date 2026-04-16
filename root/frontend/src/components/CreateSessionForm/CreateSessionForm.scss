@@ -23,6 +23,13 @@
     flex-direction: column;
 }
 
+#main-create-session-form{
+    display: flex;
+    width: 100%;
+    max-width: 95vw;
+    overflow-x: auto;
+}
+
 #create-session-button{
     display: flex;
     justify-content: center;

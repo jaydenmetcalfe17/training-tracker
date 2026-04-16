@@ -67,7 +67,7 @@ function SortableTable<T extends object>(
   return (
     <div className="table-scroll-wrapper">
       <div className="light-tan-box">
-        <div className="sessions-list-box">
+        <div className="sessions-list-box" id="main-sessions-list-box">
           {/* <h2 className="box-h2-title">All Sessions</h2> */}
           <div className="white-box" id="sessions-white-box">
             <table>

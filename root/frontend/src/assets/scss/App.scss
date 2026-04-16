@@ -44,6 +44,9 @@ h3 {
     table-layout: auto;
 }
 
+// #main-sessions-list-box{
+
+// }
 
 .light-tan-box {
     background-color: #D9D9D9;
@@ -81,11 +84,11 @@ label {
 
 
 .sessions-list-box {
-    display: flex;
-    align-items: flex-start;
+    // display: flex;
+    // align-items: flex-start;
 
     gap: 1rem;    
-    flex-direction: row; 
+    // flex-direction: row; 
     width: 100%;
     min-width: 0;       
     overflow-x: auto;

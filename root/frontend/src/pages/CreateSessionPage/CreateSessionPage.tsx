@@ -86,7 +86,7 @@ const CreateSessionPage: React.FC = () => {
   return (
     <div className="create-session-page">
       <div className="upper-sessions-box">
-        <div className= "cr-form">
+        <div className= "cr-form" id="main-create-session-form">
           <CreateSessionForm onSubmit={createSession} />
         </div>
         <div className="light-tan-box" id="pie-chart">
