@@ -178,7 +178,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
           </table>
 
           {showEditIndCommPopup && selectedAttendance && (
-            <div className="popup-overlay">
+            <div className="popup-overlay" id="popup-attendance">
               <div className="popup-content">
                 <EditAttendanceForm attendance={selectedAttendance} onSubmit={editIndComm} />
               </div>
