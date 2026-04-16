@@ -21,7 +21,7 @@
     "setUpUsersTable": "CREATE TABLE IF NOT EXISTS users (user_id SERIAL PRIMARY KEY NOT NULL, first_name VARCHAR(250) NOT NULL, last_name VARCHAR(250) NOT NULL, email VARCHAR(100) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL, status TEXT CHECK (status IN ('coach', 'athlete', 'parent')) NOT NULL, google_id TEXT UNIQUE);",
     "checkUserAuth": "SELECT * FROM users WHERE google_id = $1",
     "createGoogleUser": "INSERT INTO users (name, google_id, email) VALUES ($1, $2, $3) RETURNING *",
-    "createUser": "INSERT INTO users (first_name, last_name, email, password, status, athlete_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+    "createUser": "INSERT INTO users (first_name, last_name, email, password, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
     "getUserID": "SELECT user_id FROM users WHERE google_id = $1",
     "findUserByEmail": "SELECT * FROM users WHERE email = $1",
     "createInvitesTable": "CREATE TABLE invites (invite_id SERIAL PRIMARY KEY, athlete_id INT, token VARCHAR(128) UNIQUE NOT NULL, role TEXT CHECK(role IN ('athlete','parent', 'coach')) NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",

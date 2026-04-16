@@ -888,7 +888,7 @@ const createUser = async (req, res) => {
 
         if (checkUserExists.rows.length > 0) {
             // console.error('User already exists!: ', error);
-            res.status(500).send( {error: 'User already exists.'} );
+            res.status(400).send( {error: 'User already exists.'} );
         } else {
             const result = await pool.query(queries.users.createUser, [userFirstName, userLastName, email, hashed, status]);
             const newUser = result.rows[0]
