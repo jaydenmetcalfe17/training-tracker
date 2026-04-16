@@ -941,7 +941,7 @@ const approveInvite = async (req, res) => {
 
   const result = await pool.query(queries.users.updateRegistrationToken, [token]);
 
-  if (result.rowCount === 0) return res.status(404).json({ error: "Invalid or expired invite" });
+  if (result.rowCount === 0) return res.status(404).json({ error: "Cannot find invite via token" });
 
   const invite = result.rows[0];
   res.json({
