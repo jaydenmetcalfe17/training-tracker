@@ -25,8 +25,8 @@ const AthleteDashboard: React.FC = () => {
     let insert = ''
     if (user?.status == 'coach') {
       insert = `athleteId=${params.athleteId}`
-    } else if (user?.status == 'athlete') {
-      insert = `userId=${user?.userId}`
+    } else if (user?.status == 'athlete' || user?.status == 'parent')  {
+      insert = `athleteId=${user?.athleteId}`
       setIsVisible(!isVisible);
     }
 
