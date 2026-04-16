@@ -45,24 +45,24 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
 
       if (e.target.name === "status" && inviteToken) return;
 
-      if (e.target.name == "password") {
-        const pattern = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,24}$");
-        if (!pattern.test(e.target.value)) { // if invalid input
-          isValid = false;
-          errorMessage = "Password must be between 8-24 characters, contain upper and lowercase letters, at least 1 number, and a special character: !@#$%^&*_=+-.";
-        }
-      } else if (e.target.name == "password2") {
-          if (e.target.value !== formData.password) { // if invalid input
-            isValid = false;
-            errorMessage = "Passwords must match!"
-        }
-      } else if (e.target.name == "email") {
-          if (e.target.matches(":invalid")) { // if invalid input
-            isValid = false;
-            errorMessage = "Please enter a valid email!"
-        }
+      // if (e.target.name == "password") {
+      //   const pattern = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,24}$");
+      //   if (!pattern.test(e.target.value)) { // if invalid input
+      //     isValid = false;
+      //     errorMessage = "Password must be between 8-24 characters, contain upper and lowercase letters, at least 1 number, and a special character: !@#$%^&*_=+-.";
+      //   }
+      // } else if (e.target.name == "password2") {
+      //     if (e.target.value !== formData.password) { // if invalid input
+      //       isValid = false;
+      //       errorMessage = "Passwords must match!"
+      //   }
+      // } else if (e.target.name == "email") {
+      //     if (e.target.matches(":invalid")) { // if invalid input
+      //       isValid = false;
+      //       errorMessage = "Please enter a valid email!"
+      //   }
       // } else if (e.target.name == "team") {
-      }
+      // }
       setErrors((prev) => ({ ...prev, [e.target.name]: errorMessage }));
 
       if (isValid === true) {
