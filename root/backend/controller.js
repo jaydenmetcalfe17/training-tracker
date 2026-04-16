@@ -825,7 +825,7 @@ const deleteSession = async (req, res) => {
 
 // Create user profile
 const createUser = async (req, res) => {
-    const {userFirstName, userLastName, email, password, password2, status } = req.body;
+    const {userFirstName, userLastName, email, password, password2, status, athleteId } = req.body;
     // const fullName = userFirstName + ' ' + userLastName;
     console.log(userFirstName, userLastName,  email, password, status);
 
@@ -895,9 +895,9 @@ const createUser = async (req, res) => {
 
             console.log("NEW USER: ", newUser);
 
-            if (newUser.status == 'athlete') {
-                const updated = await pool.query(queries.athletes.addUserIDtoAthlete, [newUser.user_id, userFirstName, userLastName]);
-                console.log("Successfully updated with userID: ", updated);
+            if (newUser.status == 'athlete' || newUser.status == 'parent') {
+                const updated = await pool.query(queries.users.addAthleteIdToUser, [athleteId, newUser.user_id]);
+                console.log("Successfully updated user with athleteId: ", updated);
             }
 
             res.status(201).json(newUser);
