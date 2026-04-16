@@ -26,7 +26,7 @@ const AthleteDashboard: React.FC = () => {
     if (user?.status == 'coach') {
       insert = `athleteId=${params.athleteId}`
     } else if (user?.status == 'athlete' || user?.status == 'parent')  {
-      console.log("IN HERE!");
+      console.log("IN HERE! athleteid: ", user?.athleteId);
       insert = `athleteId=${user?.athleteId}`
       setIsVisible(!isVisible);
     }
