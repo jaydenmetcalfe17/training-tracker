@@ -948,7 +948,7 @@ const approveInvite = async (req, res) => {
     athleteId: invite.athlete_id,
     role: invite.role,
     used: invite.used,
-    expiresAt: invite,expires_at
+    expiresAt: invite.expires_at
   });
 };
 
