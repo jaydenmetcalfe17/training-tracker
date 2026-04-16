@@ -230,7 +230,9 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <label>General Comments:</label>
                 <input type="text" ref={generalCommentsRef} />
               </div>
-            <button type="submit" className="main-button" id="create-session-button">Create Session</button>
+            <div className="center-button">
+              <button type="submit" className="main-button" id="create-session-button">Create Session</button>
+            </div>  
            </div>
           </form>
         </div>

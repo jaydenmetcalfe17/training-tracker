@@ -39,3 +39,9 @@
 input:focus-visible {
    outline-color: #274651;
 }
+
+.center-button {
+    display: grid;
+    grid-column: 2;
+    justify-items: center;
+}
