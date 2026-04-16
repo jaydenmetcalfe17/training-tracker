@@ -107,8 +107,8 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
                   </datalist>
                   {errors.ageGroup && <p className="error-text">{errors.ageGroup}</p>}
               </div>
+              <button type="submit" className="main-button" id="create-athlete-profile-button">Create Athlete Profile</button>
             </div>
-            <button type="submit" className="main-button" id="create-athlete-profile-button">Create Athlete Profile</button>
           </form>
         </div>
       </div>
