@@ -944,7 +944,6 @@ const approveInvite = async (req, res) => {
   if (result.rowCount === 0) return res.status(404).json({ error: "Invalid or expired invite" });
 
   const invite = result.rows[0];
-  console.log("in the controller and here's the invite: ", invite);
   res.json({
     athleteId: invite.athlete_id,
     role: invite.role,

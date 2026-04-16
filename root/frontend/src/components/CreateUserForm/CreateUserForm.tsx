@@ -29,6 +29,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
       fetch(`/api/invite/${inviteToken}`)
         .then(res => res.json())
         .then(data => {
+          console.log("in the controller and here's the invite: ", data);
           console.log("Role:", data.role);
           setFormData(prev => ({
             ...prev,
