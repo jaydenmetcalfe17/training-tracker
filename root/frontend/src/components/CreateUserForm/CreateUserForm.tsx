@@ -60,47 +60,72 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    // input validation 
-      e.preventDefault();
-
-      if (inviteError) {
-        return; 
-      }
-
-      let isValid = true;
-      let errorMessage = "";
-
       if (e.target.name === "status" && inviteToken) return;
 
-      // if (e.target.name == "password") {
-      //   const pattern = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,24}$");
-      //   if (!pattern.test(e.target.value)) { // if invalid input
-      //     isValid = false;
-      //     errorMessage = "Password must be between 8-24 characters, contain upper and lowercase letters, at least 1 number, and a special character: !@#$%^&*_=+-.";
-      //   }
-      // } else if (e.target.name == "password2") {
-      //     if (e.target.value !== formData.password) { // if invalid input
-      //       isValid = false;
-      //       errorMessage = "Passwords must match!"
-      //   }
-      // } else if (e.target.name == "email") {
-      //     if (e.target.matches(":invalid")) { // if invalid input
-      //       isValid = false;
-      //       errorMessage = "Please enter a valid email!"
-      //   }
-      // } else if (e.target.name == "team") {
+      // // input validation 
+      // if (inviteError) {
+      //   return; 
       // }
-      setErrors((prev) => ({ ...prev, [e.target.name]: errorMessage }));
 
-      if (isValid === true) {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-      } else {
-        console.error("Invalid input. Please try again.");
-      }
+      // let isValid = true;
+      // let errorMessage = "";
+      // // if (e.target.name == "password") {
+      // //   const pattern = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,24}$");
+      // //   if (!pattern.test(e.target.value)) { // if invalid input
+      // //     isValid = false;
+      // //     errorMessage = "Password must be between 8-24 characters, contain upper and lowercase letters, at least 1 number, and a special character: !@#$%^&*_=+-.";
+      // //   }
+      // // } else if (e.target.name == "password2") {
+      // //     if (e.target.value !== formData.password) { // if invalid input
+      // //       isValid = false;
+      // //       errorMessage = "Passwords must match!"
+      // //   }
+      // // } else if (e.target.name == "email") {
+      // //     if (e.target.matches(":invalid")) { // if invalid input
+      // //       isValid = false;
+      // //       errorMessage = "Please enter a valid email!"
+      // //   }
+      // // } else if (e.target.name == "team") {
+      // // }
+      // setErrors((prev) => ({ ...prev, [e.target.name]: errorMessage }));
+
+      // if (isValid === true) {
+      //   setFormData({ ...formData, [e.target.name]: e.target.value });
+      // } else {
+      //   console.error("Invalid input. Please try again.");
+      // }
+
+      setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    let newErrors: { [key: string]: string } = {};
+
+    // Password validation
+    const pattern = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,24}$");
+    if (!formData.password || !pattern.test(formData.password)) {
+      newErrors.password = "Password must be 8-24 chars, include upper/lowercase, number, and special character.";
+    }
+
+    // Confirm password
+    if (formData.password !== formData.password2) {
+      newErrors.password2 = "Passwords must match!";
+    }
+
+    // Email validation
+    if (!formData.email || !formData.email.includes("@")) {
+      newErrors.email = "Please enter a valid email!";
+    }
+
+    // invite error
+    if (inviteError) {
+      newErrors.invite = inviteError;
+    }
+
+    setErrors(newErrors);
+
     onSubmit(formData);
     setFormData({ userFirstName: '', userLastName: '', email: '', password: '', password2: '', status: '', athleteId: undefined });
   };
@@ -142,7 +167,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
           <p className="status-paragraph-text">Status: {formData.status}</p>
         )}
 
-        {inviteError && <p className="error-text">{inviteError}</p>}
+        {errors.invite && <p className="error-text">{errors.invite}</p>}
 
          <button className="main-button" id="create-user-button" type="submit" disabled={!!inviteError}>Create Account</button>
     </form>
