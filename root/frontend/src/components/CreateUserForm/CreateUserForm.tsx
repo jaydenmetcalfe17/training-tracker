@@ -20,7 +20,9 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
       athleteId: undefined,
   });
 
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (inviteToken) {
@@ -31,8 +33,26 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
           setFormData(prev => ({
             ...prev,
             status: data.role, 
-            athleteId: data.athleteId || undefined
+            athleteId: data.athleteId || undefined,
           }));
+          if (data.used) {
+            console.log("Cannot create account. Link has already been used");
+            setInviteError("This invite link has already been used.");
+            return;
+          }
+          if (data.expiresAt ) {
+            const now = new Date();
+            const expiry = new Date(data.expiresAt);
+            if (expiry < now) {
+              console.log("Cannot create account. Link is expired. Please request a new one from your coach.");
+              setInviteError("This invite link has expired. Please request a new one.");
+              return;
+            }
+          }
+          setInviteError(null);
+        })
+        .catch(() => {
+          setInviteError("Invalid invite link!");
         });
     }
   }, [inviteToken]);
@@ -40,6 +60,12 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     // input validation 
+      e.preventDefault();
+
+      if (inviteError) {
+        return; 
+      }
+
       let isValid = true;
       let errorMessage = "";
 
@@ -114,7 +140,10 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
         {inviteToken && (
           <p className="status-paragraph-text">Status: {formData.status}</p>
         )}
-         <button className="main-button" id="create-user-button" type="submit">Create Account</button>
+
+        {inviteError && <p className="error-text">{inviteError}</p>}
+
+         <button className="main-button" id="create-user-button" type="submit" disabled={!!inviteError}>Create Account</button>
     </form>
   );
 

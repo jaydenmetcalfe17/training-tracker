@@ -946,7 +946,9 @@ const approveInvite = async (req, res) => {
   const invite = result.rows[0];
   res.json({
     athleteId: invite.athlete_id,
-    role: invite.role
+    role: invite.role,
+    used: invite.used,
+    expiresAt: invite,expires_at
   });
 };
 
