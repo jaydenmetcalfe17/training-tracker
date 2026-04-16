@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: Props) => {
 		  .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          console.log(data.safeUser);
+          console.log("LOGGED SAFEUSER: ", data.safeUser);
           const userObj: User = {
             email: data.safeUser.email,
             userFirstName: data.safeUser.userFirstName,
@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: Props) => {
           }
           if (data.safeUser.athleteId != null) {
             userObj.athleteId = data.safeUser.athleteId;
+            console.log("Athlete id exists and is: ", userObj.athleteId);
           }
           localStorage.setItem("user", JSON.stringify(userObj));
           // localStorage.setItem("token", data.token);
