@@ -119,11 +119,6 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
       newErrors.email = "Please enter a valid email!";
     }
 
-    // invite error
-    if (inviteError) {
-      newErrors.invite = inviteError;
-    }
-
     setErrors(newErrors);
 
     onSubmit(formData);
@@ -167,7 +162,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
           <p className="status-paragraph-text">Status: {formData.status}</p>
         )}
 
-        {errors.invite && <p className="error-text">{errors.invite}</p>}
+        {inviteError && <p className="error-text">{inviteError}</p>}
 
          <button className="main-button" id="create-user-button" type="submit" disabled={!!inviteError}>Create Account</button>
     </form>
