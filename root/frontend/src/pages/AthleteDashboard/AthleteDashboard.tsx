@@ -18,7 +18,7 @@ const AthleteDashboard: React.FC = () => {
   const params = useParams()
 
   const [athlete, setAthlete] = useState<Athlete | null>(null);
-  const [isVisible, setIsVisible] = useState(true);
+  const isVisible = (user?.status === 'coach');
 
 
   useEffect(() => {
@@ -28,7 +28,6 @@ const AthleteDashboard: React.FC = () => {
     } else if (user?.status == 'athlete' || user?.status == 'parent')  {
       console.log("IN HERE! athleteid: ", user?.athleteId, "this user is a: ", user?.status);
       insert = `athleteId=${user?.athleteId}`
-      setIsVisible(!isVisible);
     }
 
     fetch(`/api/athlete?${insert}`, {
