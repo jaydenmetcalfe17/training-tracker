@@ -208,9 +208,7 @@ const deleteAthleteProfile = async (req, res) => {
 
         const attendanceDelete = await pool.query(queries.athletes.deleteAllAttendanceForAthlete, [athleteId]);
         
-        if (attendanceDelete.rows.length === 0) {
-            return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
-        } 
+        
         console.log('Athlete attendance result rows:', attendanceDelete.rows);
         res.status(200).json(attendanceDelete.rows);
 
