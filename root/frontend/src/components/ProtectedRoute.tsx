@@ -7,11 +7,21 @@ import AuthContext from "../context/AuthContext";
 interface Props {
   children: React.JSX.Element;
   redirectTo?: string;
+  allowedRoles?: string[];
 }
 
-const ProtectedRoute: React.FC<Props> = ({ children, redirectTo = "/login" }) => {
-  const { isLoggedIn } = useContext(AuthContext);
-  return isLoggedIn() ? children : <Navigate to={redirectTo} replace />;
+const ProtectedRoute: React.FC<Props> = ({ children, redirectTo = "/login", allowedRoles = [] }) => {
+  const { isLoggedIn, user } = useContext(AuthContext);
+
+  if (!isLoggedIn()) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.status ?? "")) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;
