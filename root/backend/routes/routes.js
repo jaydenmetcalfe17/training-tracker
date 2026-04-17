@@ -2,6 +2,7 @@
 
 const { Router } = require('express');
 const controller = require('../controller');
+const { requireCoach } = require("../middleware/auth");
 const router = Router();
 
 
@@ -9,25 +10,25 @@ const router = Router();
 router.get("/athlete", controller.getAllDataFromAthleteProfile);
 
 // Example: POST /api/athlete// last name, bday 
-router.post("/athlete", controller.createAthleteProfile);
+router.post("/athlete", requireCoach, controller.createAthleteProfile);
 
 // Example: PUT /api/athlete/?athleteId=1 // etc...
-router.put("/athlete/:athleteId", controller.updateAthleteProfile);
+router.put("/athlete/:athleteId", requireCoach, controller.updateAthleteProfile);
 
 // Example: DELETE /api/athlete/?athleteId=1 // etc...
-router.delete("/athlete/:athleteId", controller.deleteAthleteProfile);
+router.delete("/athlete/:athleteId", requireCoach, controller.deleteAthleteProfile);
 
 // Example: POST /api/session // etc...
-router.post("/session", controller.createSession);
+router.post("/session", requireCoach, controller.createSession);
 
 // Example: GET /api/session/ // etc...
 router.get("/session", controller.getSessions)
 
 // Example: PUT /api/session/?sessionId=1 // etc...
-router.put("/session/:sessionId", controller.updateSession);
+router.put("/session/:sessionId", requireCoach, controller.updateSession);
 
 // Example: DELETE /api/session/?sessionId=1 // etc...
-router.delete("/session/:sessionId", controller.deleteSession);
+router.delete("/session/:sessionId", requireCoach, controller.deleteSession);
 
 // Pie chart data for all sessions
 router.get("/data/:column", controller.getPieChartData);
@@ -36,16 +37,16 @@ router.get("/data/:column", controller.getPieChartData);
 router.get("/data/:athleteId/:column", controller.getPieChartData);
 
 // Example: DELETE /api/attendance/:athleteId/:sessionId
-router.delete("/attendance/:athleteId/:sessionId", controller.deleteAthleteAttendanceSingleSession);
+router.delete("/attendance/:athleteId/:sessionId", requireCoach, controller.deleteAthleteAttendanceSingleSession);
 
 // Example: PUT /api/attendance/?attendanceId=1 // etc...
-router.put("/attendance/:attendanceId", controller.updateIndividualComment);
+router.put("/attendance/:attendanceId", requireCoach, controller.updateIndividualComment);
 
 // Example: PUT /api/attendance/
-router.put("/attendance/", controller.addAthletesToAttendance);
+router.put("/attendance/", requireCoach, controller.addAthletesToAttendance);
 
 // POST /api/invite
-router.post("/invite", controller.createInvite);
+router.post("/invite", requireCoach, controller.createInvite);
 
 // GET /api/invite/:token
 router.get("/invite/:token", controller.approveInvite);
