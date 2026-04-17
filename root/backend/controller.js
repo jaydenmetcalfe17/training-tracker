@@ -203,6 +203,9 @@ const deleteAthleteProfile = async (req, res) => {
     
     try {
 
+        console.log("ATTENDANCE QUERY:", queries.athletes.deleteAllAttendanceForAthlete);
+        console.log("ATHLETE QUERY:", queries.athletes.deleteAthleteProfile);
+
         const attendanceDelete = await pool.query(queries.athletes.deleteAllAttendanceForAthlete, [athleteId]);
         
         if (attendanceDelete.rows.length === 0) {
