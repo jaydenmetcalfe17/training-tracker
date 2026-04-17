@@ -27,10 +27,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
 
   useEffect(() => {
     console.log("checking user status for attendance list: ", user?.status);
-    if (user?.status === 'athlete' || user?.status === 'parent') {
-      setIsVisible(false);
-      console.log("Set is visible is: ", isVisible);
-    }
+    setIsVisible(!(user?.status === 'athlete' || user?.status === 'parent'));
 
     fetch(`/api/athlete`)
       .then(res => res.json())
