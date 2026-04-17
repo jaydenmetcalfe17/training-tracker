@@ -46,7 +46,7 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
     useEffect(() => {
         console.log("Current loaded athleteId:", athleteId);
 
-        const url = athleteId != null
+        const url = athleteId
             ? `/api/data/${athleteId}/${selectedColumn}`
             : `/api/data/${selectedColumn}`;
         
