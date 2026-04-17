@@ -12,6 +12,7 @@ const CreateAthletePage: React.FC = () => {
     useEffect(() => { 
         fetch(`/api/athlete`, {
             method: 'GET',
+            credentials: "include",
             headers: {
               'Content-Type': 'application/json',
             },
@@ -48,6 +49,7 @@ const CreateAthletePage: React.FC = () => {
         fetch(`/api/athlete`, {
 		// fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
 			method: 'POST',
+      credentials: "include",
 			headers: {
 				'Content-Type': 'application/json',
 			},

@@ -1,6 +1,7 @@
 // root/backend/middleware/auth.js
 
 function requireAuth(req, res, next) {
+  console.log("USER IN MIDDLEWARE:", req.user);
   if (!req.user) {
     return res.status(401).json({ error: "Not logged in" });
   }
@@ -8,6 +9,7 @@ function requireAuth(req, res, next) {
 }
 
 function requireCoach(req, res, next) {
+  console.log("USER IN MIDDLEWARE:", req.user);
   if (!req.user) {
     return res.status(401).json({ error: "Not logged in" });
   }

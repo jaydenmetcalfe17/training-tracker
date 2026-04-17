@@ -66,6 +66,7 @@ const CreateSessionPage: React.FC = () => {
         fetch(`/api/session`, {
 		// fetch('http://localhost:3000/api/session', {    // for when the vite.config.ts file is not redirecting to localhost:3000
 			method: 'POST',
+      credentials: "include",
 			headers: {
 				'Content-Type': 'application/json',
 			},
