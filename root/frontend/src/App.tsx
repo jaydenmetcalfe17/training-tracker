@@ -26,8 +26,8 @@ const App: React.FC = () => {
 			}/>
 
 			<Route path="/" element = {<MainLayout/>}>
-				<Route path="/createAthlete" element={<ProtectedRoute><CreateAthletePage/></ProtectedRoute>}/>
-				<Route path="/createSession" element={<ProtectedRoute><CreateSessionPage/></ProtectedRoute>}/>
+				{/* <Route path="/createAthlete" element={<ProtectedRoute><CreateAthletePage/></ProtectedRoute>}/> */}
+				{/* <Route path="/createSession" element={<ProtectedRoute><CreateSessionPage/></ProtectedRoute>}/> */}
 				<Route path="/register/:inviteToken" element={<CreateUserPage />} />
 				<Route path="/login" element={<LoginPage/>}/>
 				<Route index path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
