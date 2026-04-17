@@ -196,6 +196,9 @@ const updateAthleteProfile = async (req, res) => {
 
 const deleteAthleteProfile = async (req, res) => {
     console.log("ENTERED to Delete athlete");
+    console.log("PARAMS:", req.params);
+    console.log("BODY:", req.body);
+    console.log("QUERY:", req.query);
 
     const {athleteId} = req.params;
     
@@ -211,6 +214,8 @@ const deleteAthleteProfile = async (req, res) => {
 
 
         const athleteDelete = await pool.query(queries.athletes.deleteAthleteProfile, [athleteId]);
+        console.log("DELETE QUERY 1:", queries.attendance.deleteAllAttendanceForAthlete);
+        console.log("DELETE QUERY 2:", queries.athletes.deleteAthleteProfile);
         
         if (athleteDelete.rows.length === 0) {
             return res.status(404).json({ error: "No athleteId found"} );
@@ -548,8 +553,12 @@ const getPieChartData = async(req, res) => {
 
   // future: add athlete pie chart functionality so it doesn't just search sessions table in database -- need to change query or add new one here. pass through another param?
 
-  const {column, athleteId} = req.params;
+  const {athleteId, column} = req.params;
   console.log("athleteID to search: ", athleteId);
+
+  if (athleteId === "undefined" || !athleteId) {
+    return res.status(400).json({ error: "Missing athleteId" });
+  }
 
   const columnMap = {
       sessionDay: "session_day",
@@ -790,7 +799,7 @@ const updateSession = async (req, res) => {
 }
 
 const deleteSession = async (req, res) => {
-    console.log("ENTERED to Delete");
+    console.log("ENTERED to Delete session");
 
     const {sessionId} = req.params;
 

@@ -46,7 +46,7 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
     useEffect(() => {
         console.log("Current loaded athleteId:", athleteId);
 
-        const url = athleteId 
+        const url = athleteId != null
             ? `/api/data/${athleteId}/${selectedColumn}`
             : `/api/data/${selectedColumn}`;
         
@@ -68,7 +68,7 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
             .catch((err) => {
                 console.error('Unable to load chart data:', err);
             });
-    }, [selectedColumn, athleteId]);
+    }, [athleteId, selectedColumn]);
 
 
     const data = {
