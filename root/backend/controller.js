@@ -489,6 +489,8 @@ const getSessions = async (req, res) => {
         terrainType
     } = req.query;
 
+    console.log("DATES TO FILTER: ", fromDate, toDate);
+
 
     try {
         const values = [
