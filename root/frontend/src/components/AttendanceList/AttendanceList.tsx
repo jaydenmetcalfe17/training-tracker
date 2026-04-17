@@ -15,7 +15,8 @@ interface AttendanceListProps {
 
 const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const { user } = useContext(AuthContext);
-  const [isVisible, setIsVisible] = useState(true);
+  // const [isVisible, setIsVisible] = useState(true);
+  const isVisible = (user?.status === 'coach');
 
   const [attendance, setAttendance] = useState<Attendance[]>(
     session.receivedAttendance ?? []
@@ -26,8 +27,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
 
   useEffect(() => {
-    console.log("checking user status for attendance list: ", user?.status, " and setting isVisible to: ", !isVisible);
-    setIsVisible(!(user?.status === 'parent' || user?.status === 'athlete'));
 
     fetch(`/api/athlete`)
       .then(res => res.json())
