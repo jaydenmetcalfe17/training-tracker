@@ -480,8 +480,8 @@ const getSessions = async (req, res) => {
     const {
         sessionId,
         athleteId,
-        fromDate,
-        toDate,
+        startDate,
+        endDate,
         location,
         discipline,
         snowConditions,
@@ -494,8 +494,8 @@ const getSessions = async (req, res) => {
     try {
         const values = [
             athleteId,
-            fromDate || null,
-            toDate || null,
+            startDate || null,
+            endDate || null,
             location || null,
             discipline || null,
             snowConditions || null,
@@ -503,7 +503,7 @@ const getSessions = async (req, res) => {
             terrainType || null
         ];
 
-        console.log("DATES TO FILTER: ", values);
+        console.log("THINGS TO FILTER: ", values);
 
         let result;
 
