@@ -47,7 +47,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
         setAvailableAthletes(includeThem);
       })
       .catch(err => console.error('Failed to load athletes', err));
-  }, []);
+  }, [user]);
 
   // keep availableAthletes in sync after attendance changes
   useEffect(() => {
