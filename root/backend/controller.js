@@ -556,10 +556,6 @@ const getPieChartData = async(req, res) => {
   const {athleteId, column} = req.params;
   console.log("athleteID to search: ", athleteId);
 
-  if (athleteId === "undefined" || !athleteId) {
-    return res.status(400).json({ error: "Missing athleteId" });
-  }
-
   const columnMap = {
       sessionDay: "session_day",
       location: "location",
