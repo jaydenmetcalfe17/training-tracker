@@ -22,7 +22,6 @@ const GenerateInviteButton: React.FC<GenerateInviteButtonProps> = ({ athleteId, 
     try {
       const res = await fetch(`/api/invite`, {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ athleteId, role }),
       });

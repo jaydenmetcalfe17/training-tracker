@@ -114,7 +114,6 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
         fetch(`/api/athlete/${athlete.athleteId}`, {
       // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'PUT',
-        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -141,7 +140,6 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
           fetch(`/api/athlete/${athlete.athleteId}`, {
         // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
           method: 'DELETE',
-          credentials: "include",
           headers: {
             'Content-Type': 'application/json',
           },

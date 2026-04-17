@@ -104,7 +104,6 @@ const SessionPage: React.FC = () => {
         fetch(`/api/session/${session.sessionId}`, {
       // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'PUT',
-        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -148,7 +147,6 @@ const SessionPage: React.FC = () => {
         fetch(`/api/session/${session.sessionId}`, {
       // fetch('http://localhost:3000/api/athlete', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'DELETE',
-        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },

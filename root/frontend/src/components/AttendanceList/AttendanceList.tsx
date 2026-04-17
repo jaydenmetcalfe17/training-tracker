@@ -61,7 +61,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
     fetch(`/api/attendance/`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: "include",
       body: JSON.stringify({ sessionId: session.sessionId, athleteIds: selectedIds }),
     })
       .then(res => res.json())
@@ -80,7 +79,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const deleteAthleteAttendance = (athleteId: number) => {
     fetch(`/api/attendance/${athleteId}/${session.sessionId}`, {
       method: 'DELETE',
-      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
     })
       .then(() => {
@@ -95,7 +93,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
 
     fetch(`/api/attendance/${updatedIndAttendance.attendanceId}`, {
       method: 'PUT',
-      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         individualComments: updatedIndAttendance.individualComments
