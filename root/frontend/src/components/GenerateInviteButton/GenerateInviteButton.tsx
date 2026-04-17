@@ -18,12 +18,13 @@ const GenerateInviteButton: React.FC<GenerateInviteButtonProps> = ({ athleteId, 
   const handleClick = async () => {
     setLoading(true);
     setError(null);
+    const currentURL = window.location.origin;
 
     try {
       const res = await fetch(`/api/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ athleteId, role }),
+        body: JSON.stringify({ athleteId, role, currentURL }),
       });
 
       if (!res.ok) {

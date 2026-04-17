@@ -916,7 +916,7 @@ const createUser = async (req, res) => {
 };
 
 const createInvite = async (req, res) => {
-  const { athleteId, role } = req.body;
+  const { athleteId, role, currentURL } = req.body;
 
   if (!role || !["athlete", "parent", "coach"].includes(role)) {
     return res.status(400).json({ error: "Invalid role" });
@@ -932,7 +932,7 @@ const createInvite = async (req, res) => {
     await pool.query(queries.users.generateRegistrationToken, [athleteId, token, role, expiresAt]);
 
     // Construct the link to send
-    const inviteLink = `${process.env.FRONTEND_URL}/register/${token}`;
+    const inviteLink = `${currentURL}/register/${token}`;
 
     res.status(201).json({ inviteLink });
 
