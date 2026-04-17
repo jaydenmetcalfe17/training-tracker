@@ -26,7 +26,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
 
   useEffect(() => {
-    if (user?.status === 'athlete') {
+    if (user?.status === 'athlete' || user?.status === 'parent') {
       setIsVisible(false);
     }
 
