@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes} from 'react-router-dom'
 import './assets/scss/App.scss'
 import MainLayout from './layout/MainLayout/MainLayout'
-import CreateAthletePage from './pages/CreateAthletePage/CreateAthletePage';
-import CreateSessionPage from './pages/CreateSessionPage/CreateSessionPage';
+// import CreateAthletePage from './pages/CreateAthletePage/CreateAthletePage';
+// import CreateSessionPage from './pages/CreateSessionPage/CreateSessionPage';
 import CreateUserPage from './pages/CreateUserPage/CreateUserPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import Dashboard from './layout/Dashboard/Dashboard';
