@@ -198,11 +198,13 @@ const deleteAthleteProfile = async (req, res) => {
     console.log("ENTERED to Delete athlete");
     console.log("PARAMS:", req.params);
     console.log("BODY:", req.body);
-    console.log("QUERY:", req.query);
 
     const {athleteId} = req.params;
     
     try {
+
+        console.log("ATTENDANCE QUERY:", queries.attendance.deleteAllAttendanceForAthlete);
+        console.log("ATHLETE QUERY:", queries.athletes.deleteAthleteProfile);
 
         const attendanceDelete = await pool.query(queries.attendance.deleteAllAttendanceForAthlete, [athleteId]);
         
@@ -214,8 +216,6 @@ const deleteAthleteProfile = async (req, res) => {
 
 
         const athleteDelete = await pool.query(queries.athletes.deleteAthleteProfile, [athleteId]);
-        console.log("DELETE QUERY 1:", queries.attendance.deleteAllAttendanceForAthlete);
-        console.log("DELETE QUERY 2:", queries.athletes.deleteAthleteProfile);
         
         if (athleteDelete.rows.length === 0) {
             return res.status(404).json({ error: "No athleteId found"} );
