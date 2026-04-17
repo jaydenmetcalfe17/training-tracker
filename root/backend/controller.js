@@ -49,17 +49,17 @@ const createAthleteProfile = async (req, res) => {
       errors.push({athleteFirstName:'Must enter a first name'});
     }
 
-    if (!validator.isAlpha(athleteFirstName)) {
-      errors.push({athleteFirstName:'First name can only be letters'});
-    }
+    // if (!validator.isAlpha(athleteFirstName)) {
+    //   errors.push({athleteFirstName:'First name can only be letters'});
+    // }
 
     if (validator.isEmpty(athleteLastName)) {
       errors.push({athleteLastName:'Must enter a last name'});
     }
 
-     if (!validator.isAlpha(athleteLastName)) {
-      errors.push({athleteFirstName:'Last name can only be letters'});
-    }
+    //  if (!validator.isAlpha(athleteLastName)) {
+    //   errors.push({athleteFirstName:'Last name can only be letters'});
+    // }
 
     if (validator.isEmpty(birthday)) {
       errors.push({birthday:'Must enter a birthday'});
@@ -122,17 +122,17 @@ const updateAthleteProfile = async (req, res) => {
       errors.push({athleteFirstName:'Must enter a first name'});
     }
 
-    if (!validator.isAlpha(athleteFirstName)) {
-      errors.push({athleteFirstName:'First name can only be letters'});
-    }
+    // if (!validator.isAlpha(athleteFirstName)) {
+    //   errors.push({athleteFirstName:'First name can only be letters'});
+    // }
 
     if (validator.isEmpty(athleteLastName)) {
       errors.push({athleteLastName:'Must enter a last name'});
     }
 
-     if (!validator.isAlpha(athleteLastName)) {
-      errors.push({athleteFirstName:'Last name can only be letters'});
-    }
+    //  if (!validator.isAlpha(athleteLastName)) {
+    //   errors.push({athleteFirstName:'Last name can only be letters'});
+    // }
 
     if (validator.isEmpty(birthday)) {
       errors.push({birthday:'Must enter a birthday'});
