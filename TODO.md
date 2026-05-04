@@ -6,6 +6,7 @@ TO DO:
 
 <!-- Login Page -->
 * Create Forgot Password option. sends you email with your password 
+* Push wrong email or password errors
 
 <!-- Create Account Page -->
 
@@ -17,8 +18,7 @@ TO DO:
 * make searches not case sensitive 
 
 <!-- Sessions -->
-* Edit athlete individual comments in session attendance button
-* "Are you sure you want to delete athlete from attendance" button
+* "Are you sure you want to delete athlete from attendance" popup and button
 
 <!-- Coach Dashboard -->
 * For Create Athlete section:
@@ -28,18 +28,18 @@ TO DO:
 
 <!-- Other: -->
 * Upgrade routes to be separated by auth, athletes, sessions, users, etc... 
-* Containerize via Docker (or similar)
 * Make errors show up on display for necessary pages (ex: pages where data is filled in)
 * Redirect to login/create account/dashboard pages where applicable (after logging in/creating an account, etc) -> in controller.js
 * Reduce repetetive code by using React 
     * useEffect calls for getting sessions for coach vs athlete dashboards?
 
-<!-- To Create: Individual Athlete Pages -->
+<!-- Individual Athlete Pages -->
 
-<!-- To Create: Individual Sessions Pages -->
+<!-- Individual Sessions Pages -->
 
 <!-- To Create: Team Page -->
 * Can see average stats for a team or all athletes associated with a team and specific age categories 
+* Functionality to sort by teams/assign coaches to only specific teams/age categories
 
 <!-- To Create: Parents' Dashboard -->
 
