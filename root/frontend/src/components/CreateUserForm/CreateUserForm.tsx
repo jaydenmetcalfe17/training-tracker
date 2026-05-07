@@ -146,6 +146,7 @@ const CreateUserForm: React.FC<UserFormProps> = ({ onSubmit, inviteToken }) => {
         {errors.password && <p className="error-text">{errors.password}</p>}
         <input name="password2" required ref={password2Ref} type="password" placeholder="Re-enter Password" onChange={handleChange}/>  {/* need to check that passwords match! */}
         {errors.password2 && <p className="error-text">{errors.password2}</p>}
+        <p>Password must be 8-24 chars, include upper/lowercase, number, and special character: !@#$%^&*_=+-</p>
         <div className="show-password-box">
           <label>Show Password</label>
           <input type="checkbox" onClick={revealPassword}/>
