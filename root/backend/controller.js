@@ -49,17 +49,17 @@ const createAthleteProfile = async (req, res) => {
       errors.push({athleteFirstName:'Must enter a first name'});
     }
 
-    if (!validator.isAlpha(athleteFirstName)) {
-      errors.push({athleteFirstName:'First name can only be letters'});
-    }
+    // if (!validator.isAlpha(athleteFirstName)) {
+    //   errors.push({athleteFirstName:'First name can only be letters'});
+    // }
 
     if (validator.isEmpty(athleteLastName)) {
       errors.push({athleteLastName:'Must enter a last name'});
     }
 
-     if (!validator.isAlpha(athleteLastName)) {
-      errors.push({athleteFirstName:'Last name can only be letters'});
-    }
+    //  if (!validator.isAlpha(athleteLastName)) {
+    //   errors.push({athleteFirstName:'Last name can only be letters'});
+    // }
 
     if (validator.isEmpty(birthday)) {
       errors.push({birthday:'Must enter a birthday'});
@@ -122,17 +122,17 @@ const updateAthleteProfile = async (req, res) => {
       errors.push({athleteFirstName:'Must enter a first name'});
     }
 
-    if (!validator.isAlpha(athleteFirstName)) {
-      errors.push({athleteFirstName:'First name can only be letters'});
-    }
+    // if (!validator.isAlpha(athleteFirstName)) {
+    //   errors.push({athleteFirstName:'First name can only be letters'});
+    // }
 
     if (validator.isEmpty(athleteLastName)) {
       errors.push({athleteLastName:'Must enter a last name'});
     }
 
-     if (!validator.isAlpha(athleteLastName)) {
-      errors.push({athleteFirstName:'Last name can only be letters'});
-    }
+    //  if (!validator.isAlpha(athleteLastName)) {
+    //   errors.push({athleteFirstName:'Last name can only be letters'});
+    // }
 
     if (validator.isEmpty(birthday)) {
       errors.push({birthday:'Must enter a birthday'});
@@ -196,16 +196,19 @@ const updateAthleteProfile = async (req, res) => {
 
 const deleteAthleteProfile = async (req, res) => {
     console.log("ENTERED to Delete athlete");
+    console.log("PARAMS:", req.params);
+    console.log("BODY:", req.body);
 
     const {athleteId} = req.params;
     
     try {
 
-        const attendanceDelete = await pool.query(queries.attendance.deleteAllAttendanceForAthlete, [athleteId]);
+        console.log("ATTENDANCE QUERY:", queries.athletes.deleteAllAttendanceForAthlete);
+        console.log("ATHLETE QUERY:", queries.athletes.deleteAthleteProfile);
+
+        const attendanceDelete = await pool.query(queries.athletes.deleteAllAttendanceForAthlete, [athleteId]);
         
-        if (attendanceDelete.rows.length === 0) {
-            return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
-        } 
+        
         console.log('Athlete attendance result rows:', attendanceDelete.rows);
         res.status(200).json(attendanceDelete.rows);
 
@@ -318,6 +321,11 @@ const createSession = async (req, res) => {
         generalComments,
         createdBy,
         attendance} = req.body; 
+    
+    const formatTime = (time) => time.length === (5 || 4) ? `${time}:00` : time;
+
+    const formStartTime = formatTime(startTime);
+    const formEndTime = formatTime(endTime);
 
     console.log(sessionDay, location, discipline);
     console.log("Athletes in attendance: ", attendance[0]);
@@ -334,13 +342,13 @@ const createSession = async (req, res) => {
     }
 
     // make this a time (version of type Date?)
-    if (validator.isEmpty(startTime)) {
-      errors.push({startTime:'Session must have a start time'});
+    if (validator.isEmpty(formStartTime)) {
+      errors.push({formStartTime:'Session must have a start time'});
     }
 
     // make this a time (version of type Date? then turn into string for database entry?)
-    if (validator.isEmpty(endTime)) {
-      errors.push({endTime:'Session must have an end time'});
+    if (validator.isEmpty(formEndTime)) {
+      errors.push({formEndTime:'Session must have an end time'});
     }
 
     if (validator.isEmpty(location)) {
@@ -427,8 +435,8 @@ const createSession = async (req, res) => {
     try {
         const result = await pool.query(queries.sessions.createSession, [
             sessionDay, 
-            startTime,
-            endTime,
+            formStartTime,
+            formEndTime,
             location,
             discipline, 
             snowConditions, 
@@ -472,8 +480,8 @@ const getSessions = async (req, res) => {
     const {
         sessionId,
         athleteId,
-        fromDate,
-        toDate,
+        startDate,
+        endDate,
         location,
         discipline,
         snowConditions,
@@ -482,17 +490,20 @@ const getSessions = async (req, res) => {
     } = req.query;
 
 
+
     try {
         const values = [
             athleteId,
-            fromDate || null,
-            toDate || null,
+            startDate || null,
+            endDate || null,
             location || null,
             discipline || null,
             snowConditions || null,
             visConditions || null,
             terrainType || null
         ];
+
+        console.log("THINGS TO FILTER: ", values);
 
         let result;
 
@@ -543,7 +554,7 @@ const getPieChartData = async(req, res) => {
 
   // future: add athlete pie chart functionality so it doesn't just search sessions table in database -- need to change query or add new one here. pass through another param?
 
-  const {column, athleteId} = req.params;
+  const {athleteId, column} = req.params;
   console.log("athleteID to search: ", athleteId);
 
   const columnMap = {
@@ -628,6 +639,11 @@ const updateSession = async (req, res) => {
         generalComments,
      } = req.body;
 
+     const formatTime = (time) => time.length === (5 || 4) ? `${time}:00` : time;
+
+    const formStartTime = formatTime(startTime);
+    const formEndTime = formatTime(endTime);
+
     //backend validation
     let errors = [];
 
@@ -640,13 +656,13 @@ const updateSession = async (req, res) => {
     }
 
     // make this a time (version of type Date?)
-    if (validator.isEmpty(startTime)) {
-      errors.push({startTime:'Session must have a start time'});
+    if (validator.isEmpty(formStartTime)) {
+      errors.push({formStartTime:'Session must have a start time'});
     }
 
     // make this a time (version of type Date? then turn into string for database entry?)
-    if (validator.isEmpty(endTime)) {
-      errors.push({endTime:'Session must have an end time'});
+    if (validator.isEmpty(formEndTime)) {
+      errors.push({formEndTime:'Session must have an end time'});
     }
 
 
@@ -731,8 +747,8 @@ const updateSession = async (req, res) => {
     console.log("Values for update query:", [
         sessionId,
         sessionDay, 
-        startTime,
-        endTime,
+        formStartTime,
+        formEndTime,
         location,
         discipline, 
         snowConditions, 
@@ -752,8 +768,8 @@ const updateSession = async (req, res) => {
         const result = await pool.query(queries.sessions.updateSession, [
             sessionId,
             sessionDay, 
-            startTime,
-            endTime,
+            formStartTime,
+            formEndTime,
             location,
             discipline, 
             snowConditions, 
@@ -780,7 +796,7 @@ const updateSession = async (req, res) => {
 }
 
 const deleteSession = async (req, res) => {
-    console.log("ENTERED to Delete");
+    console.log("ENTERED to Delete session");
 
     const {sessionId} = req.params;
 
@@ -815,7 +831,7 @@ const deleteSession = async (req, res) => {
 
 // Create user profile
 const createUser = async (req, res) => {
-    const {userFirstName, userLastName, email, password, password2, status } = req.body;
+    const {userFirstName, userLastName, email, password, password2, status, athleteId } = req.body;
     // const fullName = userFirstName + ' ' + userLastName;
     console.log(userFirstName, userLastName,  email, password, status);
 
@@ -878,16 +894,16 @@ const createUser = async (req, res) => {
 
         if (checkUserExists.rows.length > 0) {
             // console.error('User already exists!: ', error);
-            res.status(500).send( {error: 'User already exists.'} );
+            res.status(400).send( {error: 'User already exists.'} );
         } else {
             const result = await pool.query(queries.users.createUser, [userFirstName, userLastName, email, hashed, status]);
             const newUser = result.rows[0]
 
             console.log("NEW USER: ", newUser);
 
-            if (newUser.status == 'athlete') {
-                const updated = await pool.query(queries.athletes.addUserIDtoAthlete, [newUser.user_id, userFirstName, userLastName]);
-                console.log("Successfully updated with userID: ", updated);
+            if (newUser.status == 'athlete' || newUser.status == 'parent') {
+                const updated = await pool.query(queries.users.addAthleteIdToUser, [athleteId, newUser.user_id]);
+                console.log("Successfully updated user with athleteId: ", updated);
             }
 
             res.status(201).json(newUser);
@@ -900,7 +916,7 @@ const createUser = async (req, res) => {
 };
 
 const createInvite = async (req, res) => {
-  const { athleteId, role } = req.body;
+  const { athleteId, role, currentURL } = req.body;
 
   if (!role || !["athlete", "parent", "coach"].includes(role)) {
     return res.status(400).json({ error: "Invalid role" });
@@ -916,7 +932,7 @@ const createInvite = async (req, res) => {
     await pool.query(queries.users.generateRegistrationToken, [athleteId, token, role, expiresAt]);
 
     // Construct the link to send
-    const inviteLink = `${process.env.FRONTEND_URL}/register/${token}`;
+    const inviteLink = `${currentURL}/register/${token}`;
 
     res.status(201).json({ inviteLink });
 
@@ -931,12 +947,14 @@ const approveInvite = async (req, res) => {
 
   const result = await pool.query(queries.users.updateRegistrationToken, [token]);
 
-  if (result.rowCount === 0) return res.status(404).json({ error: "Invalid or expired invite" });
+  if (result.rowCount === 0) return res.status(404).json({ error: "Cannot find invite via token" });
 
   const invite = result.rows[0];
   res.json({
     athleteId: invite.athlete_id,
-    role: invite.role
+    role: invite.role,
+    used: invite.used,
+    expiresAt: invite.expires_at
   });
 };
 

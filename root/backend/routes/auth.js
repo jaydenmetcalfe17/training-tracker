@@ -12,17 +12,17 @@ router.get("/", (req, res) => {
     res.send("authing it up");
 });
 
-router.get("/google", passport.authenticate("google", {
-    scope: ["profile", "email"], 
-}));
+// router.get("/google", passport.authenticate("google", {
+//     scope: ["profile", "email"], 
+// }));
 
-router.get("/google/callback", passport.authenticate("google", { 
-        session: true 
-    }),
-    (req, res) => {
-        res.send(req.user);
-    }
-);
+// router.get("/google/callback", passport.authenticate("google", { 
+//         session: true 
+//     }),
+//     (req, res) => {
+//         res.send(req.user);
+//     }
+// );
 
 // router.post("/login", passport.authenticate("local", {
 //     successRedirect: "/", // successRedirect: "/dashboard",
@@ -53,6 +53,12 @@ router.post('/login', (req, res, next) => {
         email: user.email,
         status: user.status
       };
+
+      if (user.athlete_id != null) {
+        console.log("I am a safe user adding the athleteId");
+        safeUser.athleteId = user.athlete_id;
+      }
+
       console.log("Safe user passed through: ", safeUser);
       return res.json({ success: true, safeUser });
     });

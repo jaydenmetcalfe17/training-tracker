@@ -12,6 +12,7 @@ services:
       - ./backend/.env.production
     depends_on:
       - postgres
+    restart: always
 
   frontend:
     build:
@@ -20,12 +21,13 @@ services:
     container_name: training_frontend
     ports:
       - "80:80"
-    env_file:
-      - ./frontend/.env.production
+    # env_file:
+    #   - ./frontend/.env.production
     depends_on:
       - backend
+    restart: always
 
-  # Postgres only for local testing
+  # Postgres database (internal only)
   postgres:
     image: postgres:15
     container_name: training_db
@@ -33,10 +35,11 @@ services:
       POSTGRES_USER: prod_user
       POSTGRES_PASSWORD: prod_password
       POSTGRES_DB: training_tracker
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: always
 
 volumes:
   pgdata:

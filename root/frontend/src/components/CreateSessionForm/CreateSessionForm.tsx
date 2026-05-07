@@ -16,7 +16,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
   // Keep available athletes in state (async fetch)
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
   useEffect(() => {
-    fetch('/api/athlete')
+    fetch(`/api/athlete`)
       .then(res => res.json())
       .then(data => {
         const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
@@ -116,17 +116,21 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
 
               <div className="form-group">
                 <label>Start Time:</label>
-                <input required type="text" placeholder="0:00" ref={startTimeRef} />
+                {/* <input required type="time" placeholder="0:00" ref={startTimeRef} /> */}
+                <input type="time" id="startTime" className="block w-full p-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body" ref={startTimeRef} required />
+              
               </div>
 
               <div className="form-group">
                 <label>End Time:</label>
-                <input required type="text" placeholder="0:00" ref={endTimeRef} />
+                {/* <input required type="time" placeholder="0:00" ref={endTimeRef} /> */}
+                <input type="time" id="endTime" className="block w-full p-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body" ref={endTimeRef} required />
+              
               </div>
 
               <div className="form-group">
                 <label>Location:</label>
-                <input required type="text" ref={locationRef} />
+                <input required type="text" ref={locationRef}/>
               </div>
 
               <div className="form-group">
@@ -226,9 +230,10 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
                 <label>General Comments:</label>
                 <input type="text" ref={generalCommentsRef} />
               </div>
-
-            </div>
-            <button type="submit" className="main-button" id="create-session-button">Create Session</button>
+            <div className="center-button">
+              <button type="submit" className="main-button" id="create-session-button">Create Session</button>
+            </div>  
+           </div>
           </form>
         </div>
       </div>

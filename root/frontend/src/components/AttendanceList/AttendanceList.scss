@@ -7,7 +7,8 @@
     align-items: flex-start;
     padding: 1rem;
     gap: 1rem;
-    width: min-content;
+    // width: min-content;
+    overflow-x: auto;
 }
 
 .attendance-list-box thead th {
@@ -17,4 +18,8 @@
 .button-box {
     display: flex;
     justify-content: space-evenly;
+}
+
+#popup-attendance {
+    position: fixed;
 }

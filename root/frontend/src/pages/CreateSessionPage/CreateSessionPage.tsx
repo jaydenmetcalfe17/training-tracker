@@ -11,7 +11,6 @@ import PieChart from "../../components/PieChart";
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
 
-
     useEffect(() => {
         fetch(`/api/session`, {
           method: "GET",
@@ -33,8 +32,8 @@ const CreateSessionPage: React.FC = () => {
               sessionDay: new Date(session.session_day)
                 .toISOString()
                 .split("T")[0],
-              startTime: session.startTime,
-              endTime: session.endTime,
+              startTime: session.start_time,
+              endTime: session.end_time,
               location: session.location,
               discipline: session.discipline,
               snowConditions: session.snow_conditions,
@@ -64,7 +63,7 @@ const CreateSessionPage: React.FC = () => {
     // Create Session
 	const createSession = (newSession: Session) => {
         
-        fetch('/api/session', {
+        fetch(`/api/session`, {
 		// fetch('http://localhost:3000/api/session', {    // for when the vite.config.ts file is not redirecting to localhost:3000
 			method: 'POST',
 			headers: {
@@ -87,7 +86,7 @@ const CreateSessionPage: React.FC = () => {
   return (
     <div className="create-session-page">
       <div className="upper-sessions-box">
-        <div className= "cr-form">
+        <div className= "cr-form" id="main-create-session-form">
           <CreateSessionForm onSubmit={createSession} />
         </div>
         <div className="light-tan-box" id="pie-chart">

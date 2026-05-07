@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null); 
   const [isReady, setIsReady] = useState(false); 
 
+
   useEffect(() => {
   const user = localStorage.getItem("user");
 
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }: Props) => {
   //No feature for auto-login after user registration yet
   const newLogin = async (newLogin: Login) => {
         
-        await fetch('/auth/login', {
+        await fetch(`/auth/login`, {
 		// fetch('http://localhost:3000/auth/login', {    // for when the vite.config.ts file is not redirecting to localhost:3000
         method: 'POST',
         headers: {
@@ -49,13 +50,17 @@ export const AuthProvider = ({ children }: Props) => {
 		  .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          console.log(data.safeUser);
+          console.log("LOGGED SAFEUSER: ", data.safeUser);
           const userObj: User = {
             email: data.safeUser.email,
             userFirstName: data.safeUser.userFirstName,
             userLastName: data.safeUser.userLastName,
             userId: data.safeUser.userId,
-            status: data.safeUser.status,
+            status: data.safeUser.status
+          }
+          if (data.safeUser.athleteId != null) {
+            userObj.athleteId = data.safeUser.athleteId;
+            console.log("Athlete id exists and is: ", userObj.athleteId);
           }
           localStorage.setItem("user", JSON.stringify(userObj));
           // localStorage.setItem("token", data.token);

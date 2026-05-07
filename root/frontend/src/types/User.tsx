@@ -9,6 +9,7 @@ export interface User {
   password2?: string;
   status: string;
   athleteId?: number;
+  token?: string;
 }
 
 

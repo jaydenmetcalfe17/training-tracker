@@ -2,6 +2,7 @@
 
 const { Router } = require('express');
 const controller = require('../controller');
+// const { requireCoach } = require("../middleware/auth");
 const router = Router();
 
 
@@ -9,6 +10,7 @@ const router = Router();
 router.get("/athlete", controller.getAllDataFromAthleteProfile);
 
 // Example: POST /api/athlete// last name, bday 
+// router.post("/athlete", requireCoach, controller.createAthleteProfile);
 router.post("/athlete", controller.createAthleteProfile);
 
 // Example: PUT /api/athlete/?athleteId=1 // etc...

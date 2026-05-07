@@ -15,7 +15,8 @@ interface AttendanceListProps {
 
 const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const { user } = useContext(AuthContext);
-  const [isVisible, setIsVisible] = useState(true);
+  // const [isVisible, setIsVisible] = useState(true);
+  const isVisible = (user?.status === 'coach');
 
   const [attendance, setAttendance] = useState<Attendance[]>(
     session.receivedAttendance ?? []
@@ -26,11 +27,8 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
 
   useEffect(() => {
-    if (user?.status === 'athlete') {
-      setIsVisible(false);
-    }
 
-    fetch('/api/athlete')
+    fetch(`/api/athlete`)
       .then(res => res.json())
       .then(data => {
         const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
@@ -48,7 +46,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
         setAvailableAthletes(includeThem);
       })
       .catch(err => console.error('Failed to load athletes', err));
-  }, []);
+  }, [user]);
 
   // keep availableAthletes in sync after attendance changes
   useEffect(() => {
@@ -178,7 +176,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
           </table>
 
           {showEditIndCommPopup && selectedAttendance && (
-            <div className="popup-overlay">
+            <div className="popup-overlay" id="popup-attendance">
               <div className="popup-content">
                 <EditAttendanceForm attendance={selectedAttendance} onSubmit={editIndComm} />
               </div>

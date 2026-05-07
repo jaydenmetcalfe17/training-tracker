@@ -19,16 +19,17 @@ const SessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const [session, setSession] = useState<Session | null>(null);
   const { user } = useContext(AuthContext);
-  const [isVisible, setIsVisible] = useState(true);
+  // const [isVisible, setIsVisible] = useState(true);
+  const isVisible = (user?.status === 'coach');
   
   // let sessions: Session[] = session ? [session] : [];
 
   useEffect(() => {
-    console.log("USE EFFECT USING");
-     if (user?.status == 'athlete'){
-      setIsVisible(!isVisible);
-      console.log("NOT VISIBLE, ATHLETE PAGE");
-    }
+    // console.log("USE EFFECT USING");
+    //  if (user?.status == 'athlete'){
+    //   setIsVisible(!isVisible);
+    //   console.log("NOT VISIBLE, ATHLETE PAGE");
+    // }
 
     if (!sessionId) return;   
 
@@ -50,8 +51,8 @@ const SessionPage: React.FC = () => {
           const mappedSession: Session = {
             sessionId: sessionData.session_id,
             sessionDay: new Date(sessionData.session_day).toISOString().split("T")[0],
-            startTime: sessionData.startTime,
-            endTime: sessionData.endTime,
+            startTime: sessionData.start_time.slice(0, 5),
+            endTime: sessionData.end_time.slice(0, 5),
             location: sessionData.location,
             discipline: sessionData.discipline,
             snowConditions: sessionData.snow_conditions,

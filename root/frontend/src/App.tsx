@@ -26,13 +26,13 @@ const App: React.FC = () => {
 			}/>
 
 			<Route path="/" element = {<MainLayout/>}>
-				<Route path="/createAthlete" element={<ProtectedRoute><CreateAthletePage/></ProtectedRoute>}/>
-				<Route path="/createSession" element={<ProtectedRoute><CreateSessionPage/></ProtectedRoute>}/>
+				<Route path="/createAthlete" element={<ProtectedRoute allowedRoles={["coach"]}><CreateAthletePage/></ProtectedRoute>}/>
+				<Route path="/createSession" element={<ProtectedRoute allowedRoles={["coach"]}><CreateSessionPage/></ProtectedRoute>}/>
 				<Route path="/register/:inviteToken" element={<CreateUserPage />} />
 				<Route path="/login" element={<LoginPage/>}/>
-				<Route index path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
-				<Route path="/athlete/:athleteId" element={<ProtectedRoute><AthleteDashboard/></ProtectedRoute>}/>
-				<Route path="/session/:sessionId" element={<ProtectedRoute><SessionPage/></ProtectedRoute>}/>
+				<Route index path="/dashboard" element={<ProtectedRoute allowedRoles={["coach", "athlete", "parent"]}><Dashboard/></ProtectedRoute>}/>
+				<Route path="/athlete/:athleteId" element={<ProtectedRoute allowedRoles={["coach"]}><AthleteDashboard/></ProtectedRoute>}/>
+				<Route path="/session/:sessionId" element={<ProtectedRoute allowedRoles={["coach"]}><SessionPage/></ProtectedRoute>}/>
 				{<Route path="*" element={<NotFoundPage/>}/>}
 			</Route>
 		</Routes>

@@ -1,6 +1,6 @@
 .three-column-form {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Creates two equal-width columns */
+    grid-template-columns: 1fr 1fr 1fr; 
     gap: 20px; /* Adds space between grid items */
     max-width: 600px; /* Optional: sets a max width for the form */
     margin: 0 auto; /* Centers the form on the page */
@@ -23,6 +23,13 @@
     flex-direction: column;
 }
 
+#main-create-session-form{
+    display: flex;
+    width: 100%;
+    max-width: 95vw;
+    overflow-x: auto;
+}
+
 #create-session-button{
     display: flex;
     justify-content: center;
@@ -31,4 +38,10 @@
 
 input:focus-visible {
    outline-color: #274651;
+}
+
+.center-button {
+    display: grid;
+    grid-column: 2;
+    justify-items: center;
 }
