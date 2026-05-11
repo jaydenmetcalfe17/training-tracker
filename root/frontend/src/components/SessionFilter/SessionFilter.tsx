@@ -2,12 +2,12 @@ import { useContext, useEffect, useRef, useState } from "react";
 import type { Session } from '../../types/Session';
 import SessionsList from '../SessionsList/SessionsList';
 import type { Athlete } from '../../types/Athlete';
-import PieChart from "../PieChart";
+import PieChart from "../PieChart/PieChart";
 import './SessionFilter.scss';
 // import { useNavigate, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
-import EditAthleteForm from "../EditAthleteForm";
+import EditAthleteForm from "../EditAthleteForm/EditAthleteForm";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';

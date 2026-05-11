@@ -66,14 +66,15 @@ const AthleteDashboard: React.FC = () => {
     navigate(`/dashboard`);
   };
 
-  if (!athlete) return null;
+  // if (!athlete) return null;
+  if (!athlete) return <div>Loading...</div>;
 
 
   return (
     <div className="athlete-dashboard-wrapper">
       <div className="coach-only-buttons-box">
         <div>
-          {isVisible && <button className="main-button" id="athlete-back-button" onClick={() => handleClick()}><KeyboardBackspaceIcon/></button> }
+          {isVisible && <button className="main-button" id="athlete-back-button" data-testid="back-button" onClick={() => handleClick()}><KeyboardBackspaceIcon/></button> }
         </div>
       </div>
       <AthletesSessions athlete = {athlete}/>

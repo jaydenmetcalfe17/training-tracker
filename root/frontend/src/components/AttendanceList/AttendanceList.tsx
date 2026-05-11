@@ -118,7 +118,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
       <div className="light-tan-box">
         <h2 className="box-h2-title">Attendance</h2>
         <div className="white-box" id="attendance-white-box">
-          <button className="main-button" id="add-athlete-attendance-button" onClick={toggleEditPopup}>
+          <button className="main-button" id="add-athlete-attendance-button" data-testid="add-attendance-button" onClick={toggleEditPopup}>
             Add Athlete to Attendance
           </button>
 
@@ -153,6 +153,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                         <button
                           className="main-button"
                           id="edit-button"
+                          data-testid="edit-button"
                           onClick={() => {
                             setSelectedAttendance(a);
                             toggleEditIndCommPopup();
@@ -163,6 +164,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                         <button
                           className="main-button"
                           id="delete-button"
+                          data-testid="delete-button"
                           onClick={() => deleteAthleteAttendance(a.athlete!.athleteId!)}
                         >
                           <DeleteIcon />

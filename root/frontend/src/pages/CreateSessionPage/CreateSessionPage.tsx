@@ -6,7 +6,7 @@ import type { Session } from '../../types/Session';
 // import SessionsList from '../../components/SessionsList/SessionsList';
 import CreateSessionForm from '../../components/CreateSessionForm/CreateSessionForm';
 import PartialSessionsList from "../../components/PartialSessionsList";
-import PieChart from "../../components/PieChart";
+import PieChart from "../../components/PieChart/PieChart";
 
 const CreateSessionPage: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
