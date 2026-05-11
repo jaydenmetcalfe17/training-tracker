@@ -1,7 +1,7 @@
 // components/EditAthleteForm.tsx
 
 import { useEffect, useState } from 'react';
-import type { Athlete } from "../types/Athlete";
+import type { Athlete } from "../../types/Athlete";
 
 interface EditAthleteFormProps {
   athlete: Athlete | null,

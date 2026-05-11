@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import type { Session } from '../../types/Session';
 import SessionsList from '../../components/SessionsList/SessionsList';
 import { useNavigate, useParams } from 'react-router-dom';
-import EditSessionForm from '../../components/EditSessionForm';
+import EditSessionForm from '../../components/EditSessionForm/EditSessionForm';
 import AuthContext from '../../context/AuthContext';
 import AttendanceList from '../../components/AttendanceList/AttendanceList';
 
@@ -177,7 +177,7 @@ const SessionPage: React.FC = () => {
         </div>
         <div className="delete-edit-button-box">
           <div>
-            {isVisible && <button className="main-button" id="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
+            {isVisible && <button className="main-button" id="edit-button" data-testid="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
               {showEditPopup && (
                 <div className="popup-overlay">
                   <div className="popup-content">
@@ -188,7 +188,7 @@ const SessionPage: React.FC = () => {
               )}
           </div>
           <div>
-            {isVisible && <button className="main-button" id="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
+            {isVisible && <button className="main-button" id="delete-button" data-testid="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
               {showDeletePopup && (
                 <div className="popup-overlay">
                   <div className="popup-content">
@@ -209,7 +209,7 @@ const SessionPage: React.FC = () => {
         {session ? (
           <>
             <SessionsList sessions={[session]} />
-            {isVisible && <AttendanceList session={session} />}
+            {isVisible && <AttendanceList data-testid="attendance-list" session={session} />}
           </>
           ) : (
             <p>You do not have access to this session</p> 
