@@ -165,6 +165,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                         <button
                           className="main-button"
                           id="delete-button"
+                          aria-label="delete-button"
                           data-testid="delete-button"
                           onClick={() => deleteAthleteAttendance(a.athlete!.athleteId!)}
                         >
