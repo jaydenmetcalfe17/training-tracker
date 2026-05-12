@@ -178,17 +178,17 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
               </div>
             <div className="delete-edit-button-box"> 
               <div>
-                {isCoach && <button className="main-button" id="edit-button" onClick={toggleEditPopup}><EditIcon></EditIcon></button>}
+                {isCoach && <button className="main-button" id="edit-button" aria-label="edit-button" data-testid="edit-athlete-button" onClick={toggleEditPopup}><EditIcon></EditIcon></button>}
                 {showEditPopup && (
                   <div className="popup-overlay">
-                    <div className="popup-content">
+                    <div className="popup-content" data-testid="edit-athlete-popup">
                       <EditAthleteForm athlete={athlete} onSubmit={editAthleteProfile}/>
                     </div>
                   </div>
                 )}
               </div>
               <div>
-                {isCoach && <button onClick={toggleDeletePopup} className="main-button" id="delete-button"><DeleteIcon></DeleteIcon></button>}
+                {isCoach && <button onClick={toggleDeletePopup} className="main-button" data-testid="delete-athlete-button" aria-label="delete-button" id="delete-button"><DeleteIcon></DeleteIcon></button>}
                 {showDeletePopup && (
                   <div className="popup-overlay">
                     <div className="popup-content">
@@ -205,7 +205,7 @@ const SessionFilter: React.FC<FilterSessionsProps>= ({ athlete }) => {
               </div>
             </div> 
             <div className="buttons-box">
-              {isCoach && <div className="generate-invite-butt">
+              {isCoach && <div className="generate-invite-butt" data-testid="generate-invite-button" >
                 <div className="generate-invite-box">
                   <h3>Invite an Athlete: </h3>
                   <GenerateInviteButton athleteId={athlete.athleteId} role="athlete"/>

@@ -154,6 +154,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                           className="main-button"
                           id="edit-button"
                           data-testid="edit-button"
+                          aria-label="edit-button"
                           onClick={() => {
                             setSelectedAttendance(a);
                             toggleEditIndCommPopup();

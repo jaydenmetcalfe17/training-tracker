@@ -173,14 +173,14 @@ const SessionPage: React.FC = () => {
     <div className="light-blue-box">
       <div className='light-tan-box'>
         <div className="back-button-box">
-          <button className="main-button" id="back-button" onClick={() => handleBackClick()}><KeyboardBackspaceIcon/></button> {/* make this only for coach POV */}
+          <button className="main-button" id="back-button" aria-label="back-button" onClick={() => handleBackClick()}><KeyboardBackspaceIcon/></button> {/* make this only for coach POV */}
         </div>
         <div className="delete-edit-button-box">
           <div>
-            {isVisible && <button className="main-button" id="edit-button" data-testid="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
+            {isVisible && <button className="main-button" id="edit-button" aria-label="edit-button" data-testid="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
               {showEditPopup && (
                 <div className="popup-overlay">
-                  <div className="popup-content">
+                  <div className="popup-content" data-testid="edit-popup">
                     <EditSessionForm session={session} onSubmit={editSession}/>
                     {/* <button onClick={toggleEditPopup}>Edit Athlete</button> */}
                   </div>
@@ -188,7 +188,7 @@ const SessionPage: React.FC = () => {
               )}
           </div>
           <div>
-            {isVisible && <button className="main-button" id="delete-button" data-testid="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
+            {isVisible && <button className="main-button" id="delete-button" aria-label="delete-button" data-testid="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
               {showDeletePopup && (
                 <div className="popup-overlay">
                   <div className="popup-content">

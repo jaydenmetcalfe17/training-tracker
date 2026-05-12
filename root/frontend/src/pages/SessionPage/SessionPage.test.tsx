@@ -1,6 +1,7 @@
 import SessionPage from './SessionPage';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
 import AuthContext from '../../context/AuthContext';
 import { vi, describe, it, expect } from 'vitest';
 
@@ -11,6 +12,11 @@ vi.mock('../../components/SessionsList/SessionsList', () => ({
 vi.mock('../../components/AttendanceList/AttendanceList', () => ({
   default: () => <div data-testid="attendance-list" />,
 }));
+
+vi.mock('../../components/EditSessionForm', () => ({
+  default: () => <div data-testid="edit-popup">Edit Popup</div>,
+}));
+
 
 
 globalThis.fetch = vi.fn(() =>
@@ -24,18 +30,18 @@ globalThis.fetch = vi.fn(() =>
         end_time: '12:00:00',
         location: 'Hill',
         discipline: 'GS',
-        snow_conditions: '',
-        vis_conditions: '',
-        terrain_type: '',
-        num_freeski_runs: 0,
-        num_drill_runs: 0,
-        num_educational_course_runs: 0,
-        num_gates_educational_course: 0,
-        num_race_training_course_runs: 0,
-        num_gates_race_training_course: 0,
-        num_race_runs: 0,
-        num_gates_race: 0,
-        general_comments: '',
+        snow_conditions: 'Icy',
+        vis_conditions: 'Foggy',
+        terrain_type: 'Mixed',
+        num_freeski_runs: 3,
+        num_drill_runs: 3,
+        num_educational_course_runs: 3,
+        num_gates_educational_course: 33,
+        num_race_training_course_runs: 3,
+        num_gates_race_training_course: 33,
+        num_race_runs: 2,
+        num_gates_race: 43,
+        general_comments: 'Test w RTL',
         attendance: [],
       }),
   })
@@ -96,4 +102,50 @@ describe('SessionPage - coach-only visibility', () => {
     });
   });
 
+});
+
+
+
+describe('Session Page - testing edit session button leads to pop-up opening', () => {
+
+  it('opens edit session popup when button is clicked', async () => {
+
+    render(
+      <MemoryRouter initialEntries={['/session/1']}>
+        <AuthContext.Provider
+          value={{
+            user: {
+              userFirstName: 'Jayden',
+              userLastName: 'Metcalfe',
+              email: 'test@test.com',
+              status: 'coach',
+              athleteId: 1,
+            },
+            newLogin: vi.fn(),
+            logout: vi.fn(),
+            isLoggedIn: vi.fn(() => true),
+          }}
+        >
+          <Routes>
+            <Route path="/session/:sessionId" element={<SessionPage />} />
+          </Routes>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+
+    const editButton = await screen.findByTestId('edit-button');
+
+    await user.click(editButton);
+
+    expect(screen.getByTestId('edit-popup')).toBeInTheDocument();
+
+  });
+
+
+
+    it.todo('opens delete confirmation popup when delete button clicked');
+
+    it.todo('sends delete session request when delete is confirmed');
 });
