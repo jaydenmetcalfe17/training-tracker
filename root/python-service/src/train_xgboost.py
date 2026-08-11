@@ -17,6 +17,8 @@ PROCESSED_DIR = (
     "processed"
 )
 
+MODELS_DIR = BASE_DIR / "models"
+
 
 def load_training_data():
 
@@ -39,6 +41,8 @@ def train_gs_model(df):
     features = [
         "YOB",
         "Gender",
+
+        # Overall experience
         "total_race_starts",
         "total_finishes",
         "overall_finish_rate",
@@ -46,23 +50,42 @@ def train_gs_model(df):
         "podiums",
         "top_5s",
         "top_10s",
+
+        # GS performance
         "GS starts",
         "GS wins",
         "GS podiums",
         "GS top 5s",
         "GS top 10s",
         "GS finish rate",
+
+        # Overall tier percentiles
         "Zone avg percentile",
         "Provincial avg percentile",
         "Regional avg percentile",
         "National avg percentile",
         "International avg percentile",
+
+        # Overall tier sample sizes
+        "Zone percentile sample size",
+        "Provincial percentile sample size",
+        "Regional percentile sample size",
+        "National percentile sample size",
+        "International percentile sample size",
+
+        # GS tier percentiles
         "GS Zone avg percentile",
         "GS Provincial avg percentile",
         "GS Regional avg percentile",
         "GS National avg percentile",
-        "GS International avg percentile"
+        "GS International avg percentile",
 
+        # GS tier sample sizes
+        "GS Zone percentile sample size",
+        "GS Provincial percentile sample size",
+        "GS Regional percentile sample size",
+        "GS National percentile sample size",
+        "GS International percentile sample size"
     ]
 
 
@@ -173,7 +196,7 @@ def train_gs_model(df):
         gs_results[f"prob_{name}"] = probabilities[:, i]
 
 
-    return gs_results, gs_confusion_matrix, gs_classification_report
+    return gs_results, gs_confusion_matrix, gs_classification_report, model
 
 
 def gs_main(gs_results, gs_confusion_matrix, gs_classification_report):
@@ -232,6 +255,8 @@ def train_sl_model(df):
     features = [
         "YOB",
         "Gender",
+
+        # Overall experience
         "total_race_starts",
         "total_finishes",
         "overall_finish_rate",
@@ -239,23 +264,42 @@ def train_sl_model(df):
         "podiums",
         "top_5s",
         "top_10s",
+
+        # SL performance
         "SL starts",
         "SL wins",
         "SL podiums",
         "SL top 5s",
         "SL top 10s",
         "SL finish rate",
+
+        # Overall tier percentiles
         "Zone avg percentile",
         "Provincial avg percentile",
         "Regional avg percentile",
         "National avg percentile",
         "International avg percentile",
+
+        # Overall tier sample sizes
+        "Zone percentile sample size",
+        "Provincial percentile sample size",
+        "Regional percentile sample size",
+        "National percentile sample size",
+        "International percentile sample size",
+
+        # SL tier percentiles
         "SL Zone avg percentile",
         "SL Provincial avg percentile",
         "SL Regional avg percentile",
         "SL National avg percentile",
-        "SL International avg percentile"
+        "SL International avg percentile",
 
+        # SL tier sample sizes
+        "SL Zone percentile sample size",
+        "SL Provincial percentile sample size",
+        "SL Regional percentile sample size",
+        "SL National percentile sample size",
+        "SL International percentile sample size"
     ]
 
 
@@ -366,7 +410,7 @@ def train_sl_model(df):
         sl_results[f"prob_{name}"] = probabilities[:, i]
 
 
-    return sl_results, sl_confusion_matrix, sl_classification_report
+    return sl_results, sl_confusion_matrix, sl_classification_report, model
 
 
 def sl_main(sl_results, sl_confusion_matrix, sl_classification_report):
@@ -424,6 +468,8 @@ def train_sg_model(df):
     features = [
         "YOB",
         "Gender",
+
+        # Overall experience
         "total_race_starts",
         "total_finishes",
         "overall_finish_rate",
@@ -431,23 +477,42 @@ def train_sg_model(df):
         "podiums",
         "top_5s",
         "top_10s",
+
+        # SG performance
         "SG starts",
         "SG wins",
         "SG podiums",
         "SG top 5s",
         "SG top 10s",
         "SG finish rate",
+
+        # Overall tier percentiles
         "Zone avg percentile",
         "Provincial avg percentile",
         "Regional avg percentile",
         "National avg percentile",
         "International avg percentile",
+
+        # Overall tier sample sizes
+        "Zone percentile sample size",
+        "Provincial percentile sample size",
+        "Regional percentile sample size",
+        "National percentile sample size",
+        "International percentile sample size",
+
+        # SG tier percentiles
         "SG Zone avg percentile",
         "SG Provincial avg percentile",
         "SG Regional avg percentile",
         "SG National avg percentile",
-        "SG International avg percentile"
+        "SG International avg percentile",
 
+        # SG tier sample sizes
+        "SG Zone percentile sample size",
+        "SG Provincial percentile sample size",
+        "SG Regional percentile sample size",
+        "SG National percentile sample size",
+        "SG International percentile sample size"
     ]
 
 
@@ -558,7 +623,7 @@ def train_sg_model(df):
         sg_results[f"prob_{name}"] = probabilities[:, i]
 
 
-    return sg_results, sg_confusion_matrix, sg_classification_report
+    return sg_results, sg_confusion_matrix, sg_classification_report, model
 
 
 def sg_main(sg_results, sg_confusion_matrix, sg_classification_report):
@@ -608,14 +673,30 @@ def main():
 
     df = load_training_data()
 
-    gs_results, gs_confusion_matrix, gs_classification_report = train_gs_model(df)
-    sl_results, sl_confusion_matrix, sl_classification_report = train_sl_model(df)
-    sg_results, sg_confusion_matrix, sg_classification_report = train_sg_model(df)
+    gs_results, gs_confusion_matrix, gs_classification_report, gs_model = train_gs_model(df)
+    sl_results, sl_confusion_matrix, sl_classification_report, sl_model = train_sl_model(df)
+    sg_results, sg_confusion_matrix, sg_classification_report, sg_model = train_sg_model(df)
 
     gs_main(gs_results, gs_confusion_matrix, gs_classification_report)
     sl_main(sl_results, sl_confusion_matrix, sl_classification_report)
     sg_main(sg_results, sg_confusion_matrix, sg_classification_report)
 
+    # Save trained models
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+    gs_model.save_model(
+        MODELS_DIR / "gs_xgboost.json"
+    )
+
+    sl_model.save_model(
+        MODELS_DIR / "sl_xgboost.json"
+    )
+
+    sg_model.save_model(
+        MODELS_DIR / "sg_xgboost.json"
+    )
+
+    print("\nSaved trained models.")
 
 
 if __name__ == "__main__":

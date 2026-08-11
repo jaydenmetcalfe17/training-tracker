@@ -438,7 +438,6 @@ def create_tier_features(df):
 
     temp = add_race_percentile(df)
 
-
     tiers = [
         "Zone",
         "Provincial",
@@ -447,9 +446,7 @@ def create_tier_features(df):
         "International"
     ]
 
-
     features = []
-
 
     for tier in tiers:
 
@@ -457,36 +454,35 @@ def create_tier_features(df):
             temp["Tier"] == tier
         ]
 
-
         grouped = (
             tier_df
             .groupby("ACA")
             .agg(
-                {
-                    "Percentile":"mean",
-                    "Started":"sum"
-                }
+                percentile=(
+                    "Percentile",
+                    "mean"
+                ),
+                percentile_sample_size=(
+                    "Percentile",
+                    "count"
+                )
             )
             .reset_index()
         )
 
-
         grouped = grouped.rename(
             columns={
-                "Percentile":
+                "percentile":
                     f"{tier} avg percentile",
 
-                "Started":
-                    f"{tier} starts"
+                "percentile_sample_size":
+                    f"{tier} percentile sample size"
             }
         )
 
-
         features.append(grouped)
 
-
     result = features[0]
-
 
     for f in features[1:]:
         result = result.merge(
@@ -495,9 +491,7 @@ def create_tier_features(df):
             how="outer"
         )
 
-
     return result
-
 
 def create_discipline_tier_features(df):
 
@@ -517,9 +511,7 @@ def create_discipline_tier_features(df):
         "International"
     ]
 
-
     outputs = []
-
 
     for discipline in disciplines:
 
@@ -531,7 +523,6 @@ def create_discipline_tier_features(df):
                 (temp["Tier"] == tier)
             ]
 
-
             grouped = (
                 subset
                 .groupby("ACA")
@@ -540,31 +531,27 @@ def create_discipline_tier_features(df):
                         "Percentile",
                         "mean"
                     ),
-                    starts=(
-                        "Started",
-                        "sum"
+                    percentile_sample_size=(
+                        "Percentile",
+                        "count"
                     )
                 )
                 .reset_index()
             )
-
 
             grouped = grouped.rename(
                 columns={
                     "percentile":
                         f"{discipline} {tier} avg percentile",
 
-                    "starts":
-                        f"{discipline} {tier} starts"
+                    "percentile_sample_size":
+                        f"{discipline} {tier} percentile sample size"
                 }
             )
 
-
             outputs.append(grouped)
 
-
     result = outputs[0]
-
 
     for output in outputs[1:]:
 
@@ -574,9 +561,7 @@ def create_discipline_tier_features(df):
             how="outer"
         )
 
-
     return result
-
 
 
 # -----------------------------

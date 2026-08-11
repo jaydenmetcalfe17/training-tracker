@@ -197,8 +197,7 @@ def merge_athlete_info(results, athletes):
 
     matched = results["Name"].notna().sum()
     print(f"  {matched} / {len(results)} race results matched to a known athlete in the Athletes tab")
-    print(f"  (unmatched ones are junior racers not in your Athletes master list - that's expected, "
-          f"not a bug, unless the number looks too high)")
+    print(f"  (unmatched ones are junior racers not in Athletes master list")
 
     return results
 
@@ -213,6 +212,9 @@ def clean_for_parquet(results):
     results["ACA"] = pd.to_numeric(results["ACA"], errors="coerce")
     results = results.dropna(subset=["ACA"]).copy()
     results["ACA"] = results["ACA"].astype("Int64")
+
+    # Remove rows with missing YOB
+    results = results.dropna(subset=["YOB"]).copy()
 
     string_columns = [
         "Team", "Name", "Location", "Title", "Gender", "Discipline",
