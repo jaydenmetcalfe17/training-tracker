@@ -209,8 +209,8 @@ const deleteAthleteProfile = async (req, res) => {
         const attendanceDelete = await pool.query(queries.athletes.deleteAllAttendanceForAthlete, [athleteId]);
         
         
-        console.log('Athlete attendance result rows:', attendanceDelete.rows);
-        res.status(200).json(attendanceDelete.rows);
+        console.log('Athlete attendance deleted rows: ', attendanceDelete.rows);
+        // res.status(200).json(attendanceDelete.rows);
 
 
         const athleteDelete = await pool.query(queries.athletes.deleteAthleteProfile, [athleteId]);
@@ -218,7 +218,7 @@ const deleteAthleteProfile = async (req, res) => {
         if (athleteDelete.rows.length === 0) {
             return res.status(404).json({ error: "No athleteId found"} );
         } 
-        console.log('Athletes result rows:', athleteDelete.rows);
+        console.log('Deleted athlete rows: ', athleteDelete.rows);
         res.status(200).json(athleteDelete.rows);
 
     } catch (error) {
@@ -240,11 +240,11 @@ const deleteAthleteAttendanceSingleSession = async (req, res) => {
             return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
         } 
         console.log('Athlete attendance result rows:', attendanceDelete.rows);
-        res.status(200).json(attendanceDelete.rows);
+        return res.status(200).json(attendanceDelete.rows);
 
     } catch (error) {
         console.error('Error deleting athlete attendance: ', error);
-        res.status(500).send({error: 'Server error deleting athlete attendance'} );
+        return res.status(500).send({error: 'Server error deleting athlete attendance'} );
     } 
 };
 
@@ -258,19 +258,19 @@ const addAthletesToAttendance = async (req, res) => {
        const attendingIds = check.rows.map(row => row.athlete_id)
         // loop through athletes in attendance
        for (const athlete of athleteIds) {
-            if (attendingIds.includes(athlete)){
-                console.error('Error adding athletes to attendance: ', error);
-                res.status(500).send({error: 'Cannot add athlete to a session more than once'} );
-            } else {
-                console.log("Adding athlete attendance: ", athlete);
-                await pool.query(queries.attendance.addAthleteAttendance, [athlete, sessionId]);
+            if (!attendingIds.includes(athlete)){
+              console.log("Adding athlete attendance: ", athlete);
+              await pool.query(queries.attendance.addAthleteAttendance, [athlete, sessionId]);
             }
         }
-        // res.status(200).json(attendanceDelete.rows);
+
+        return res.status(200).json({
+            message: "Athletes added to attendance"
+        });
 
     } catch (error) {
         console.error('Error adding athletes to attendance: ', error);
-        res.status(500).send({error: 'Server error adding athletes to attendance'} );
+        return res.status(500).send({error: 'Server error adding athletes to attendance'} );
     } 
 };
 
@@ -286,8 +286,13 @@ const updateIndividualComment = async (req, res) => {
 
     try {
         const result = await pool.query(queries.attendance.updateIndividualComment, [attendanceId, individualComments]);
-        const updatedAttendance = result.rows[0]
-        res.status(201).json(updatedAttendance);
+        if (result.rows.length === 0) {
+          return res.status(404).json({
+            error: "Attendance not found"
+          });
+        }
+
+        return res.status(200).json(result.rows[0]);
         
 
     } catch (error) {
@@ -639,7 +644,11 @@ const updateSession = async (req, res) => {
         generalComments,
      } = req.body;
 
-     const formatTime = (time) => time.length === (5 || 4) ? `${time}:00` : time;
+     const formatTime = (time) => {
+      return time.length === 5 || time.length === 4
+        ? `${time}:00`
+        : time;
+      };
 
     const formStartTime = formatTime(startTime);
     const formEndTime = formatTime(endTime);
@@ -804,11 +813,11 @@ const deleteSession = async (req, res) => {
 
         const attendanceDelete = await pool.query(queries.sessions.deleteAllAttendanceForSession, [sessionId]);
 
-        if (attendanceDelete.rows.length === 0) {
-            return res.status(404).json({ error: "No sessions found"} );
-        }
-        console.log('Sessions result rows:', attendanceDelete.rows);
-        res.status(200).json(attendanceDelete.rows);
+        // if (attendanceDelete.rows.length === 0) {
+        //     return res.status(404).json({ error: "No sessions found"} );
+        // }
+        // console.log('Sessions result rows:', attendanceDelete.rows);
+        // res.status(200).json(attendanceDelete.rows);
 
 
         const sessionDelete = await pool.query(queries.sessions.deleteSession, [sessionId]);
@@ -816,8 +825,8 @@ const deleteSession = async (req, res) => {
         if (sessionDelete.rows.length === 0) {
             return res.status(404).json({ error: "No sessions found"} );
         }
-        console.log('Sessions result rows:', sessionDelete.rows);
-        res.status(200).json(sessionDelete.rows);
+        console.log('Deleted session: ', sessionDelete.rows);
+        return res.status(200).json(sessionDelete.rows);
 
 
     } catch (error) {

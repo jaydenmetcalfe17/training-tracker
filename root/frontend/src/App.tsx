@@ -6,18 +6,17 @@ import CreateSessionPage from './pages/CreateSessionPage/CreateSessionPage';
 import CreateUserPage from './pages/CreateUserPage/CreateUserPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import Dashboard from './layout/Dashboard/Dashboard';
-import NotFoundPage from './pages/NotFoundPage';
+import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 import AthleteDashboard from './pages/AthleteDashboard/AthleteDashboard';
 import SessionPage from './pages/SessionPage/SessionPage';
 import AuthContext from './context/AuthContext';
 import { useContext } from 'react';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 
 const App: React.FC = () => {
 
 	const { isLoggedIn } = useContext(AuthContext);
-
 	return (
 
 		<Routes>

@@ -1,9 +1,9 @@
 // components/EditSessionForm.tsx
 
 import { useEffect, useState } from 'react';
-import type { Session } from "../types/Session";
-import type { Athlete } from '../types/Athlete';
-import MultiSelectEx from './Multiselect/Multiselect';
+import type { Session } from "../../types/Session";
+import type { Athlete } from '../../types/Athlete';
+import MultiSelectEx from '../Multiselect/Multiselect';
 
 
 interface EditSessionFormProps {

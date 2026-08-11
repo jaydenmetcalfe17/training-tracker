@@ -5,7 +5,7 @@ import "./Dashboard.scss";
 import CoachDashboard from "../../pages/CoachDashboard/CoachDashboard";
 // import ParentDashboard from "../../pages/ParentDashboard";
 import AthleteDashboard from "../../pages/AthleteDashboard/AthleteDashboard";
-import DashboardErrorPage from "../../pages/DashboardErrorPage";
+import DashboardErrorPage from "../../pages/DashboardErrorPage/DashboardErrorPage";
 
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';

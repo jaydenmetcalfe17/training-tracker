@@ -1,8 +1,8 @@
 // components/AthleteList.tsx
 // import "./SessionsList.scss";
-import type { Session } from "../types/Session";
+import type { Session } from "../../types/Session";
 import { useNavigate } from "react-router-dom";
-import SortableTable from "./SortableTable/SortableTable";
+import SortableTable from "../SortableTable/SortableTable";
 // import Table from "../Table";
 
 interface SessionListProps {
