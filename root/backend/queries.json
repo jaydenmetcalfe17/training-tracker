@@ -33,7 +33,7 @@
     "createAthleteProfile": "INSERT INTO athletes (athlete_first_name, athlete_last_name, birthday, gender, team, age_group) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
     "getAllDataFromAthleteProfileWithAthleteId": "SELECT * FROM athletes WHERE athlete_id = $1",
     "getAllAthletes": "SELECT * FROM athletes",
-    "setUpAthleteProfilesTable": "CREATE TABLE IF NOT EXISTS athletes (athlete_id SERIAL PRIMARY KEY, athlete_first_name VARCHAR(100) NOT NULL, athlete_last_name VARCHAR(100) NOT NULL, birthday DATE NOT NULL, gender VARCHAR(10) NOT NULL, team VARCHAR(255); age_group VARCHAR(10); user_id INTEGER UNIQUE, CONSTRAINT fk_athlete_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL);",
+    "setUpAthleteProfilesTable": "CREATE TABLE IF NOT EXISTS athletes (athlete_id SERIAL PRIMARY KEY, athlete_first_name VARCHAR(100) NOT NULL, athlete_last_name VARCHAR(100) NOT NULL, birthday DATE NOT NULL, gender VARCHAR(10) NOT NULL, team VARCHAR(255), age_group VARCHAR(10), user_id INTEGER UNIQUE, CONSTRAINT fk_athlete_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL);",
     "getAthleteDataWithUserId": "SELECT * FROM athletes WHERE user_id = $1",
     "updateAthleteProfile": "UPDATE athletes SET athlete_first_name = $2, athlete_last_name = $3, birthday = $4, gender = $5, team = $6, age_group = $7 WHERE athlete_id = $1 RETURNING *;",
     "deleteAthleteProfile": "DELETE FROM athletes WHERE athlete_id = $1 RETURNING *;",
