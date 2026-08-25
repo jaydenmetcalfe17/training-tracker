@@ -67,7 +67,7 @@ model athletes {
 
   team_memberships team_memberships[]
   attendance       attendance[]
-  users            users?
+  users            users[]
   parents          parents[]
 }
 
@@ -141,7 +141,7 @@ model users {
   google_id String? @unique
 
   // Used for athlete accounts.
-  athlete_id Int? @unique
+  athlete_id Int?
 
   athlete athletes? @relation(fields: [athlete_id], references: [athlete_id], onDelete: SetNull)
 
