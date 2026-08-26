@@ -2133,133 +2133,340 @@ const deleteSession = async (req, res) => {
 
 // Create user profile
 const createUser = async (req, res) => {
-    const {userFirstName, userLastName, email, password, password2, status, athleteId } = req.body;
-    // const fullName = userFirstName + ' ' + userLastName;
-    console.log(userFirstName, userLastName,  email, password, status);
+    const {
+        userFirstName,
+        userLastName,
+        email,
+        password,
+        password2,
+        status,
+        athleteId
+    } = req.body;
+
+    console.log(
+        userFirstName,
+        userLastName,
+        email,
+        password,
+        status
+    );
 
     let errors = [];
 
-    if (validator.isEmpty(userFirstName)) {
-      errors.push({userFirstName:'Must enter a first name'});
+    // ----------------------------------------
+    // Validation
+    // ----------------------------------------
+
+    if (!userFirstName) {
+        errors.push({
+            userFirstName: "Must enter a first name"
+        });
     }
 
-    if (validator.isEmpty(userLastName)) {
-      errors.push({userLastName: 'Must enter a last name'});
+    if (!userLastName) {
+        errors.push({
+            userLastName: "Must enter a last name"
+        });
     }
 
-    if (validator.isEmpty(email)) {
-      errors.push({email: 'Must enter an email'});
+    if (!email) {
+        errors.push({
+            email: "Must enter an email"
+        });
     }
 
-    if (validator.isEmpty(password)) {
-      errors.push({password: 'Must enter a password'});
+    if (!password) {
+        errors.push({
+            password: "Must enter a password"
+        });
     }
 
-    if (validator.isEmpty(password2)) {
-      errors.push({password2: 'Must re-enter password'});
+    if (!password2) {
+        errors.push({
+            password2: "Must re-enter password"
+        });
     }
 
-    if (validator.isEmpty(status)) {
-      errors.push({status: 'Must select status'});
+    if (!status) {
+        errors.push({
+            status: "Must select status"
+        });
     }
 
-    // Password validation: 
-    if (!validator.isLength(password, { min: 8 , max: 24})) {
-      errors.push({password: "Password should be between 8-24 characters long"});
+    // ----------------------------------------
+    // Password validation
+    // ----------------------------------------
+
+    if (
+        password &&
+        !validator.isLength(password, {
+            min: 8,
+            max: 24
+        })
+    ) {
+        errors.push({
+            password:
+                "Password should be between 8-24 characters long"
+        });
     }
 
-    if (password != password2) {
-        errors.push({password2: "Passwords do not match"})
+    if (
+        password &&
+        password2 &&
+        password !== password2
+    ) {
+        errors.push({
+            password2:
+                "Passwords do not match"
+        });
     }
 
-    if (!validator.isEmail(email)) {
-        errors.push({email: 'Please enter a valid email address'});
+    // ----------------------------------------
+    // Email validation
+    // ----------------------------------------
+
+    if (
+        email &&
+        !validator.isEmail(email)
+    ) {
+        errors.push({
+            email:
+                "Please enter a valid email address"
+        });
     }
 
-    // Display errors and restart registration attempts 
-    // if (errors.length > 0) {
-    //     res.render('registration', {errors}); 
-    // }
+    // ----------------------------------------
+    // Status validation
+    // ----------------------------------------
 
-    // Hashing password: 
-    let hashed = await bcrypt.hash(password, 10);
-    console.log("hashed: ", hashed);
+    if (
+        status &&
+        !["coach", "athlete", "parent"].includes(status)
+    ) {
+        errors.push({
+            status:
+                "Must choose a valid status"
+        });
+    }
+
+    // ----------------------------------------
+    // Return validation errors
+    // ----------------------------------------
 
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+        return res.status(400).json({
+            errors
+        });
     }
 
-    
     try {
-        // Check if user exists first
-        const checkUserExists = await pool.query(queries.users.findUserByEmail, [email]);
 
-        if (checkUserExists.rows.length > 0) {
-            // console.error('User already exists!: ', error);
-            res.status(400).send( {error: 'User already exists.'} );
-        } else {
-            const result = await pool.query(queries.users.createUser, [userFirstName, userLastName, email, hashed, status]);
-            const newUser = result.rows[0]
+        // ----------------------------------------
+        // 1. Check if user already exists
+        // ----------------------------------------
 
-            console.log("NEW USER: ", newUser);
+        const existingUser =
+            await prisma.users.findUnique({
+                where: {
+                    email: email
+                }
+            });
 
-            if (newUser.status == 'athlete' || newUser.status == 'parent') {
-                const updated = await pool.query(queries.users.addAthleteIdToUser, [athleteId, newUser.user_id]);
-                console.log("Successfully updated user with athleteId: ", updated);
-            }
-
-            res.status(201).json(newUser);
+        if (existingUser) {
+            return res.status(400).json({
+                error: "User already exists."
+            });
         }
 
+        // ----------------------------------------
+        // 2. Hash password
+        // ----------------------------------------
+
+        const hashed =
+            await bcrypt.hash(password, 10);
+
+        console.log(
+            "Hashed password:",
+            hashed
+        );
+
+        // ----------------------------------------
+        // 3. Create user
+        // ----------------------------------------
+
+        const newUser =
+            await prisma.users.create({
+                data: {
+                    first_name:
+                        userFirstName,
+
+                    last_name:
+                        userLastName,
+
+                    email:
+                        email,
+
+                    password:
+                        hashed,
+
+                    status:
+                        status,
+
+                    athlete_id:
+                        athleteId != null
+                            ? Number(athleteId)
+                            : null
+                }
+            });
+
+        console.log(
+            "NEW USER:",
+            newUser
+        );
+
+        // ----------------------------------------
+        // 4. Return frontend shape
+        // ----------------------------------------
+
+        return res.status(201).json({
+            userId:
+                newUser.user_id,
+
+            userFirstName:
+                newUser.first_name,
+
+            userLastName:
+                newUser.last_name,
+
+            email:
+                newUser.email,
+
+            status:
+                newUser.status,
+
+            athleteId:
+                newUser.athlete_id
+        });
+
     } catch (error) {
-        console.error('Error creating user profile: ', error);
-        res.status(500).send( {error: 'Server error creating user profile'} );
-    } 
+
+        console.error(
+            "Error creating user profile:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error creating user profile"
+        });
+    }
 };
 
+// coach can create an invite link for another coach, parent or athlete to register with the system
 const createInvite = async (req, res) => {
-  const { athleteId, role, currentURL } = req.body;
+    const { athleteId, role, currentURL } = req.body;
 
-  if (!role || !["athlete", "parent", "coach"].includes(role)) {
-    return res.status(400).json({ error: "Invalid role" });
-  }
+    if (!role || !["athlete", "parent", "coach"].includes(role)) {
+        return res.status(400).json({ error: "Invalid role" });
+    }
 
-  try {
-    // Generate a random token
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    try {
+        // Generate random token
+        const token = crypto.randomBytes(32).toString("hex");
 
-    // Save the token in DB with role and optional athlete link
-    await pool.query(queries.users.generateRegistrationToken, [athleteId, token, role, expiresAt]);
+        // Expires in 7 days
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7);
 
-    // Construct the link to send
-    const inviteLink = `${currentURL}/register/${token}`;
+        const invite = await prisma.invites.create({
+            data: {
+                athlete_id:
+                    athleteId != null
+                        ? Number(athleteId)
+                        : null,
 
-    res.status(201).json({ inviteLink });
+                token: token,
 
-  } catch (err) {
-    console.error("Error generating invite", err);
-    res.status(500).json({ error: "Failed to generate invite link" });
-  }
+                role: role,
+
+                expires_at: expiresAt,
+
+                used: false
+            }
+        });
+
+        const inviteLink =
+            `${currentURL}/register/${invite.token}`;
+
+        return res.status(201).json({
+            inviteLink
+        });
+
+    } catch (error) {
+        console.error(
+            "Error generating invite:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Failed to generate invite link"
+        });
+    }
 };
 
+// ensures that the invite link is valid and returns the role and athleteId if applicable
 const approveInvite = async (req, res) => {
-  const { token } = req.params;
+    const { token } = req.params;
 
-  const result = await pool.query(queries.users.updateRegistrationToken, [token]);
+    try {
+        const invite = await prisma.invites.findUnique({
+            where: {
+                token: token
+            }
+        });
 
-  if (result.rowCount === 0) return res.status(404).json({ error: "Cannot find invite via token" });
+        // Invite doesn't exist
+        if (!invite) {
+            return res.status(404).json({
+                error: "Invalid invite link."
+            });
+        }
 
-  const invite = result.rows[0];
-  res.json({
-    athleteId: invite.athlete_id,
-    role: invite.role,
-    used: invite.used,
-    expiresAt: invite.expires_at
-  });
+        // Invite has already been used
+        if (invite.used) {
+            return res.status(400).json({
+                error: "This invite link has already been used."
+            });
+        }
+
+        // Invite has expired
+        if (invite.expires_at < new Date()) {
+            return res.status(400).json({
+                error: "This invite link has expired."
+            });
+        }
+
+        // Invite is valid
+        return res.status(200).json({
+            athleteId: invite.athlete_id,
+            role: invite.role,
+            used: invite.used,
+            expiresAt: invite.expires_at
+        });
+
+    } catch (error) {
+        console.error(
+            "Error approving invite:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Server error validating invite"
+        });
+    }
 };
 
+// get all clubs in the database, ordered by name
 const getClubs = async (req, res) => {
     try {
         const clubs = await prisma.clubs.findMany({
@@ -2279,7 +2486,7 @@ const getClubs = async (req, res) => {
     }
 };
 
-
+// get all teams in the database, optionally filtered by clubId, ordered by name
 const getTeams = async (req, res) => {
     const { clubId } = req.query;
 
