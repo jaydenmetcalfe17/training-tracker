@@ -108,7 +108,6 @@ const getAllDataFromAthleteProfile = async (req, res) => {
     }
 };
 
-
 // Create an athlete profile
 const createAthleteProfile = async (req, res) => {
     const {
@@ -294,168 +293,564 @@ const createAthleteProfile = async (req, res) => {
     }
 };
 
+// edit an athlete's profile
 const updateAthleteProfile = async (req, res) => {
-    const athleteId = req.params.athleteId;
-    const { athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
+    const athleteId = Number(req.params.athleteId);
 
-    //server side input validation
-    let errors = [];
+    const {
+        athleteFirstName,
+        athleteLastName,
+        birthday,
+        gender,
+        acaId,
+        fisId,
+        ageGroup,
+        teamId
+    } = req.body;
 
-    //validation:
-    if (validator.isEmpty(athleteFirstName)) {
-      errors.push({athleteFirstName:'Must enter a first name'});
-    }
-
-    // if (!validator.isAlpha(athleteFirstName)) {
-    //   errors.push({athleteFirstName:'First name can only be letters'});
-    // }
-
-    if (validator.isEmpty(athleteLastName)) {
-      errors.push({athleteLastName:'Must enter a last name'});
-    }
-
-    //  if (!validator.isAlpha(athleteLastName)) {
-    //   errors.push({athleteFirstName:'Last name can only be letters'});
-    // }
-
-    if (validator.isEmpty(birthday)) {
-      errors.push({birthday:'Must enter a birthday'});
-    }
-
-    // add: is year of birth greater than current date?
-    if (!validator.isDate(birthday)) {
-      errors.push({birthday:'Birthday must be format YYYY-MM-DD'});
-    }
-
-    if (validator.isEmpty(gender)) {
-      errors.push({gender:'Must choose a gender'});
-    }
-
-    if (!['Male', 'Female'].includes(gender)){
-        errors.push({gender:'Gender can only be Male or Female'});
-    }
-
-    if (validator.isEmpty(team)) {
-      errors.push({team:'Must choose a team'});
-    }
-
-    if (validator.isEmpty(ageGroup)) {
-      errors.push({ageGroup:'Must choose an age group'});
-    }
-
-    if (!['U10', 'U12', 'U14', 'U16', 'FIS'].includes(ageGroup)) {
-      errors.push({ageGroup:'Must choose a valid age group'});
-    }
-
-
-    // if any errors:
-     if (errors.length > 0) {
-      return res.status(400).json({ errors });
-    }
-
-
-
-    console.log("Values for update query:", [
+    console.log("Values for athlete update:", [
         athleteId,
         athleteFirstName,
         athleteLastName,
         birthday,
         gender,
+        acaId,
+        fisId,
         ageGroup,
-        team
-     ]);
+        teamId
+    ]);
+
+    // Server-side input validation
+    let errors = [];
+
+    // Athlete ID
+    if (!Number.isInteger(athleteId)) {
+        errors.push({
+            athleteId: "Invalid athlete ID"
+        });
+    }
+
+    // First name
+    if (!athleteFirstName || validator.isEmpty(athleteFirstName)) {
+        errors.push({
+            athleteFirstName: "Must enter a first name"
+        });
+    }
+
+    // Last name
+    if (!athleteLastName || validator.isEmpty(athleteLastName)) {
+        errors.push({
+            athleteLastName: "Must enter a last name"
+        });
+    }
+
+    // Birthday
+    if (!birthday) {
+        errors.push({
+            birthday: "Must enter a birthday"
+        });
+    } else if (!validator.isDate(birthday)) {
+        errors.push({
+            birthday: "Birthday must be format YYYY-MM-DD"
+        });
+    }
+
+    // Gender
+    if (!gender) {
+        errors.push({
+            gender: "Must choose a gender"
+        });
+    } else if (!["Male", "Female"].includes(gender)) {
+        errors.push({
+            gender: "Gender can only be Male or Female"
+        });
+    }
+
+    // Age group
+    if (!ageGroup) {
+        errors.push({
+            ageGroup: "Must choose an age group"
+        });
+    } else if (
+        !["U10", "U12", "U14", "U16", "FIS"].includes(ageGroup)
+    ) {
+        errors.push({
+            ageGroup: "Must choose a valid age group"
+        });
+    }
+
+    // Team
+    if (!teamId) {
+        errors.push({
+            teamId: "Must choose a team"
+        });
+    } else if (!Number.isInteger(Number(teamId))) {
+        errors.push({
+            teamId: "Team ID must be a number"
+        });
+    }
+
+    // ACA ID
+    if (
+        acaId !== undefined &&
+        acaId !== null &&
+        acaId !== ""
+    ) {
+        if (!Number.isInteger(Number(acaId))) {
+            errors.push({
+                acaId: "ACA ID must be a number"
+            });
+        }
+    }
+
+    // FIS ID
+    if (
+        fisId !== undefined &&
+        fisId !== null &&
+        fisId !== ""
+    ) {
+        if (!Number.isInteger(Number(fisId))) {
+            errors.push({
+                fisId: "FIS ID must be a number"
+            });
+        }
+    }
+
+    // Return validation errors
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
+    }
+
     try {
-        const result = await pool.query(queries.athletes.updateAthleteProfile, [athleteId, athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
-        const updatedAthlete = result.rows[0]
-        res.status(201).json(updatedAthlete);
-        
+        const result = await prisma.$transaction(async (tx) => {
+
+            // ----------------------------------------
+            // 1. Update athlete information
+            // ----------------------------------------
+
+            const updatedAthlete =
+                await tx.athletes.update({
+                    where: {
+                        athlete_id: athleteId
+                    },
+
+                    data: {
+                        athlete_first_name:
+                            athleteFirstName,
+
+                        athlete_last_name:
+                            athleteLastName,
+
+                        birthday:
+                            new Date(birthday),
+
+                        gender:
+                            gender,
+
+                        aca_id:
+                            acaId
+                                ? Number(acaId)
+                                : null,
+
+                        fis_id:
+                            fisId
+                                ? Number(fisId)
+                                : null,
+
+                        age_group:
+                            ageGroup
+                    }
+                });
+
+
+            // ----------------------------------------
+            // 2. Find current team membership
+            // ----------------------------------------
+
+            const currentMembership =
+                await tx.team_memberships.findFirst({
+                    where: {
+                        athlete_id: athleteId,
+                        end_date: null
+                    },
+
+                    orderBy: {
+                        start_date: "desc"
+                    }
+                });
+
+
+            // ----------------------------------------
+            // 3. Check whether the team changed
+            // ----------------------------------------
+
+            if (
+                !currentMembership ||
+                currentMembership.team_id !== Number(teamId)
+            ) {
+
+                // End the old membership
+                if (currentMembership) {
+                    await tx.team_memberships.update({
+                        where: {
+                            team_membership_id:
+                                currentMembership
+                                    .team_membership_id
+                        },
+
+                        data: {
+                            end_date: new Date()
+                        }
+                    });
+                }
+
+
+                // Create new membership
+                await tx.team_memberships.create({
+                    data: {
+                        athlete_id: athleteId,
+
+                        team_id:
+                            Number(teamId),
+
+                        start_date:
+                            new Date(),
+
+                        end_date:
+                            null
+                    }
+                });
+            }
+
+
+            // ----------------------------------------
+            // 4. Return athlete with memberships
+            // ----------------------------------------
+
+            return await tx.athletes.findUnique({
+                where: {
+                    athlete_id: athleteId
+                },
+
+                include: {
+                    team_memberships: {
+                        include: {
+                            team: {
+                                include: {
+                                    club: true
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+
+        console.log(
+            "Updated athlete:",
+            result
+        );
+
+        return res.status(200).json(result);
 
     } catch (error) {
-        console.error('Error updating athlete profile: ', error);
-        res.status(500).send( {error: 'Server error updating athlete profile'} );
+        console.error(
+            "Error updating athlete profile:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Server error updating athlete profile"
+        });
     }
-}
+};
 
 //delete an athlete's profile and everything related to them in attendance table
-
+// Delete an athlete's profile and everything related to them
 const deleteAthleteProfile = async (req, res) => {
     console.log("ENTERED to Delete athlete");
     console.log("PARAMS:", req.params);
     console.log("BODY:", req.body);
 
-    const {athleteId} = req.params;
-    
+    const athleteId = Number(req.params.athleteId);
+
+    // Validate athlete ID
+    if (!Number.isInteger(athleteId)) {
+        return res.status(400).json({
+            error: "Invalid athlete ID"
+        });
+    }
+
     try {
+        const result = await prisma.$transaction(async (tx) => {
 
-        console.log("ATTENDANCE QUERY:", queries.athletes.deleteAllAttendanceForAthlete);
-        console.log("ATHLETE QUERY:", queries.athletes.deleteAthleteProfile);
+            // ----------------------------------------
+            // 1. Check that the athlete exists
+            // ----------------------------------------
 
-        const attendanceDelete = await pool.query(queries.athletes.deleteAllAttendanceForAthlete, [athleteId]);
-        
-        
-        console.log('Athlete attendance deleted rows: ', attendanceDelete.rows);
-        // res.status(200).json(attendanceDelete.rows);
+            const athlete =
+                await tx.athletes.findUnique({
+                    where: {
+                        athlete_id: athleteId
+                    }
+                });
+
+            if (!athlete) {
+                return null;
+            }
 
 
-        const athleteDelete = await pool.query(queries.athletes.deleteAthleteProfile, [athleteId]);
-        
-        if (athleteDelete.rows.length === 0) {
-            return res.status(404).json({ error: "No athleteId found"} );
-        } 
-        console.log('Deleted athlete rows: ', athleteDelete.rows);
-        res.status(200).json(athleteDelete.rows);
+            // ----------------------------------------
+            // 2. Delete all attendance records
+            // ----------------------------------------
+
+            await tx.attendance.deleteMany({
+                where: {
+                    athlete_id: athleteId
+                }
+            });
+
+
+            // ----------------------------------------
+            // 3. Delete all team memberships
+            // ----------------------------------------
+
+            await tx.team_memberships.deleteMany({
+                where: {
+                    athlete_id: athleteId
+                }
+            });
+
+
+            // ----------------------------------------
+            // 4. Delete the athlete
+            // ----------------------------------------
+
+            const deletedAthlete =
+                await tx.athletes.delete({
+                    where: {
+                        athlete_id: athleteId
+                    }
+                });
+
+
+            return deletedAthlete;
+        });
+
+
+        // Athlete didn't exist
+        if (!result) {
+            return res.status(404).json({
+                error: "No athleteId found"
+            });
+        }
+
+
+        console.log(
+            "Deleted athlete:",
+            result
+        );
+
+        return res.status(200).json(result);
 
     } catch (error) {
-        console.error('Error deleting athlete: ', error);
-        res.status(500).send({error: 'Server error deleting athlete'} );
+        console.error(
+            "Error deleting athlete:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Server error deleting athlete"
+        });
+    }
+};
+ 
+
+// delete athlete from attendance of a single session 
+const deleteAthleteAttendanceSingleSession = async (req, res) => {
+    const athleteId = Number(req.params.athleteId);
+    const sessionId = Number(req.params.sessionId);
+
+    console.log("DELETE ATTENDANCE PARAMS:", {
+        athleteId,
+        sessionId
+    });
+
+    if (!Number.isInteger(athleteId)) {
+        return res.status(400).json({
+            error: "Invalid athlete ID"
+        });
+    }
+
+    if (!Number.isInteger(sessionId)) {
+        return res.status(400).json({
+            error: "Invalid session ID"
+        });
+    }
+
+    try {
+        const attendance =
+            await prisma.attendance.findUnique({
+                where: {
+                    athlete_id_session_id: {
+                        athlete_id: athleteId,
+                        session_id: sessionId
+                    }
+                }
+            });
+
+        console.log(
+            "ATTENDANCE FOUND:",
+            attendance
+        );
+
+        if (!attendance) {
+            return res.status(404).json({
+                error: "No attendance record found for this athlete and session",
+                athleteId,
+                sessionId
+            });
+        }
+
+        const deletedAttendance =
+            await prisma.attendance.delete({
+                where: {
+                    athlete_id_session_id: {
+                        athlete_id: athleteId,
+                        session_id: sessionId
+                    }
+                }
+            });
+
+        console.log(
+            "DELETED ATTENDANCE:",
+            deletedAttendance
+        );
+
+        return res.status(200).json(
+            deletedAttendance
+        );
+
+    } catch (error) {
+        console.error(
+            "Error deleting athlete attendance:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Server error deleting athlete attendance"
+        });
     }
 };
 
 
-// delete athlete from attendance of a single session 
-const deleteAthleteAttendanceSingleSession = async (req, res) => {
-    const {athleteId, sessionId} = req.params;
-    
-    try {
-
-        const attendanceDelete = await pool.query(queries.attendance.deleteAthleteAttendanceSingleSession, [athleteId, sessionId]);
-        
-        if (attendanceDelete.rows.length === 0) {
-            return res.status(404).json({ error: "Could not delete athlete from attendance table"} );
-        } 
-        console.log('Athlete attendance result rows:', attendanceDelete.rows);
-        return res.status(200).json(attendanceDelete.rows);
-
-    } catch (error) {
-        console.error('Error deleting athlete attendance: ', error);
-        return res.status(500).send({error: 'Server error deleting athlete attendance'} );
-    } 
-};
-
-
 const addAthletesToAttendance = async (req, res) => {
-    const {athleteIds, sessionId} = req.body;
-    console.log(athleteIds);
-    
+    const { athleteIds, sessionId } = req.body;
+
+    const parsedSessionId = Number(sessionId);
+
+    console.log(
+        "Adding athletes to session:",
+        parsedSessionId
+    );
+
+    console.log(
+        "Athletes:",
+        athleteIds
+    );
+
+    // ----------------------------------------
+    // Validation
+    // ----------------------------------------
+
+    if (!Number.isInteger(parsedSessionId)) {
+        return res.status(400).json({
+            error: "Invalid session ID"
+        });
+    }
+
+    if (!Array.isArray(athleteIds)) {
+        return res.status(400).json({
+            error: "athleteIds must be an array"
+        });
+    }
+
+    // ----------------------------------------
+    // Add attendance records
+    // ----------------------------------------
+
     try {
-       const check = await pool.query(queries.sessions.getAllAthletesAttendanceFromSession, [sessionId])
-       const attendingIds = check.rows.map(row => row.athlete_id)
-        // loop through athletes in attendance
-       for (const athlete of athleteIds) {
-            if (!attendingIds.includes(athlete)){
-              console.log("Adding athlete attendance: ", athlete);
-              await pool.query(queries.attendance.addAthleteAttendance, [athlete, sessionId]);
-            }
+        // Check which athletes are already attending
+        const existingAttendance =
+            await prisma.attendance.findMany({
+                where: {
+                    session_id: parsedSessionId,
+                    athlete_id: {
+                        in: athleteIds.map(
+                            id => Number(id)
+                        )
+                    }
+                },
+
+                select: {
+                    athlete_id: true
+                }
+            });
+
+        const attendingIds =
+            existingAttendance.map(
+                attendance =>
+                    attendance.athlete_id
+            );
+
+        // Only add athletes who aren't already attending this session
+        const athletesToAdd =
+            athleteIds
+                .map(id => Number(id))
+                .filter(
+                    athleteId =>
+                        !attendingIds.includes(
+                            athleteId
+                        )
+                );
+
+        // Create attendance records
+        if (athletesToAdd.length > 0) {
+            await prisma.attendance.createMany({
+                data: athletesToAdd.map(
+                    athleteId => ({
+                        athlete_id: athleteId,
+                        session_id:
+                            parsedSessionId
+                    })
+                )
+            });
         }
 
+        console.log(
+            "Athletes added to attendance:",
+            athletesToAdd
+        );
+
         return res.status(200).json({
-            message: "Athletes added to attendance"
+            message:
+                "Athletes added to attendance",
+            addedAthleteIds:
+                athletesToAdd
         });
 
     } catch (error) {
-        console.error('Error adding athletes to attendance: ', error);
-        return res.status(500).send({error: 'Server error adding athletes to attendance'} );
-    } 
+        console.error(
+            "Error adding athletes to attendance:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error adding athletes to attendance"
+        });
+    }
 };
 
 const updateIndividualComment = async (req, res) => {
