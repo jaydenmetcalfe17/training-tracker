@@ -1560,71 +1560,205 @@ const getSessions = async (req, res) => {
     }
 };
 
-const getPieChartData = async(req, res) => {
+const getPieChartData = async (req, res) => {
 
-  // future: add athlete pie chart functionality so it doesn't just search sessions table in database -- need to change query or add new one here. pass through another param?
+    const { athleteId, column } = req.params;
 
-  const {athleteId, column} = req.params;
-  console.log("athleteID to search: ", athleteId);
+    console.log(
+        "athleteID to search:",
+        athleteId
+    );
 
-  const columnMap = {
-      sessionDay: "session_day",
-      location: "location",
-      discipline: "discipline",
-      snowConditions: "snow_conditions",
-      visConditions: "vis_conditions",
-      terrainType: "terrain_type",
-      runColumn: "run_column"
-  };
+    const columnMap = {
+        sessionDay: "session_day",
+        location: "location",
+        discipline: "discipline",
+        snowConditions: "snow_conditions",
+        visConditions: "vis_conditions",
+        terrainType: "terrain_type"
+    };
 
-  db_col = columnMap[column] || null;
+    // ----------------------------------------
+    // Validate column
+    // ----------------------------------------
 
+    if (
+        column !== "runColumn" &&
+        !columnMap[column]
+    ) {
+        return res.status(400).json({
+            error: "Invalid column"
+        });
+    }
 
-  if (!db_col) {
-    return res.status(400).json({ error: "Invalid column" });
-  }
+    try {
 
-  try {
-      if (athleteId) {
-        if (db_col == "run_column"){
-          result = await pool.query(queries.sessions.getSingleAthleteRunColumnData, [athleteId])
+        // ----------------------------------------
+        // Run column
+        // ----------------------------------------
+
+        if (column === "runColumn") {
+
+            const where = athleteId
+                ? {
+                    athlete_id: Number(athleteId)
+                }
+                : {};
+
+            const attendance =
+                await prisma.attendance.findMany({
+                    where,
+
+                    select: {
+                        freeski_runs: true,
+                        drill_runs: true,
+                        educational_course_runs: true,
+                        race_training_course_runs: true,
+                        race_runs: true
+                    }
+                });
+
+            if (attendance.length === 0) {
+                return res.status(404).json({
+                    error: "No data found"
+                });
+            }
+
+            const labels = [
+                "freeski_runs",
+                "drill_runs",
+                "educational_course_runs",
+                "race_training_course_runs",
+                "race_runs"
+            ];
+
+            const values = [
+                attendance.reduce(
+                    (sum, row) =>
+                        sum + (row.freeski_runs || 0),
+                    0
+                ),
+
+                attendance.reduce(
+                    (sum, row) =>
+                        sum + (row.drill_runs || 0),
+                    0
+                ),
+
+                attendance.reduce(
+                    (sum, row) =>
+                        sum + (row.educational_course_runs || 0),
+                    0
+                ),
+
+                attendance.reduce(
+                    (sum, row) =>
+                        sum + (row.race_training_course_runs || 0),
+                    0
+                ),
+
+                attendance.reduce(
+                    (sum, row) =>
+                        sum + (row.race_runs || 0),
+                    0
+                )
+            ];
+
+            return res.status(200).json({
+                labels,
+                values
+            });
         }
-        else {
-          result = await pool.query(queries.sessions.getSingleAthleteSingleColumnDataSessions.replace(/{{column}}/g, db_col), [athleteId])
+
+        // ----------------------------------------
+        // Session columns
+        // ----------------------------------------
+
+        const dbColumn = columnMap[column];
+
+        const sessions =
+            await prisma.sessions.findMany({
+                where: athleteId
+                    ? {
+                        attendance: {
+                            some: {
+                                athlete_id:
+                                    Number(athleteId)
+                            }
+                        }
+                    }
+                    : {},
+
+                select: {
+                    session_day: true,
+                    location: true,
+                    discipline: true,
+                    snow_conditions: true,
+                    vis_conditions: true,
+                    terrain_type: true
+                }
+            });
+
+        if (sessions.length === 0) {
+            return res.status(404).json({
+                error: "No data found"
+            });
         }
-      } 
-      else if (db_col == "run_column"){
-        result = await pool.query(queries.sessions.getRunColumnData)
-      }
-      else {
-        result = await pool.query(queries.sessions.getSingleColumnDataSessions.replace(/{{column}}/g, db_col))
-      }
 
-    let labels = [];
-    let values = [];
+        const counts = {};
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "No data found" });
+        for (const session of sessions) {
+
+            let value = session[dbColumn];
+
+            if (
+                column === "sessionDay" &&
+                value
+            ) {
+                value =
+                    value
+                        .toISOString()
+                        .split("T")[0];
+            }
+
+            if (
+                value !== null &&
+                value !== undefined
+            ) {
+                counts[value] =
+                    (counts[value] || 0) + 1;
+            }
+        }
+
+        const labels =
+            Object.keys(counts);
+
+        const values =
+            Object.values(counts);
+
+        if (labels.length === 0) {
+            return res.status(404).json({
+                error: "No data found"
+            });
+        }
+
+        return res.status(200).json({
+            labels,
+            values
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error getting data from sessions:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error retrieving sessions"
+        });
     }
-
-
-    if (result.rows[0].drill_runs !== undefined) {
-      const row = result.rows[0];
-      labels = Object.keys(row);         
-      values = Object.values(row).map(Number); 
-    } else {
-
-      labels = result.rows.map(r => r[db_col]);
-      values = result.rows.map(r => Number(r.count));
-    }
-
-    res.status(200).json({ labels, values });
-
-  } catch (error) {
-        console.error('Error getting data from sessions: ', error);
-        res.status(500).send({error: 'Server error retrieving sessions'} );
-    }
-
 };
 
 const updateSession = async (req, res) => {
