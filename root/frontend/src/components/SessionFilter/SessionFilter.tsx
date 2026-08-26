@@ -349,166 +349,194 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
 
   return (
     <>
-      {athlete != null ? (
-        <>
-          {athlete.athleteFirstName.toUpperCase()}{" "}
-          {athlete.athleteLastName.toUpperCase()}
+    <div className="pie-filter-box">
+      <div className="details-filters-box">
+        <div className = "pie-info-box">
+          <div className="info-buttons-box">
+            <div className="athlete-info-box">
+                {athlete != null ? (
+                  <>
+                    <h2 className="athlete-name">
+                      {athlete.athleteFirstName.toUpperCase()}{" "}
+                      {athlete.athleteLastName.toUpperCase()}
+                    </h2>
+                  
+                  <div className="athlete-details-box">
+                      <h3>Birthday:{" "}
+                      {athlete.birthday
+                        ? athlete.birthday.split("T")[0]
+                        : ""}
+                      </h3>
 
-          Birthday:{" "}
-          {athlete.birthday
-            ? athlete.birthday.split("T")[0]
-            : ""}
+                      <h3>Club: {currentClub?.name ?? "N/A"}</h3>
 
-          Age Group: {athlete.ageGroup ?? "N/A"}
+                      <h3>Team: {currentTeam?.name ?? "N/A"}</h3>
 
-          Team: {currentTeam?.name ?? "N/A"}
+                      <h3>ACA ID: {athlete.acaId ?? "N/A"}</h3>
 
-          Club: {currentClub?.name ?? "N/A"}
+                      <h3>FIS ID: {athlete.fisId ?? "N/A"}</h3>
+                  </div>
+                  </>
+              ) : (
+                <h2 className="athlete-name">SESSIONS</h2>
+              )}
+            </div>
+            <div className="delete-edit-button-box">
+              {isCoach && (
+                <button
+                  className="main-button"
+                  id="edit-button"
+                  onClick={toggleEditPopup}
+                >
+                  <EditIcon />
+                </button>
+              )}
 
-          ACA ID: {athlete.acaId ?? "N/A"}
+              {showEditPopup && (
+                <EditAthleteForm
+                  athlete={athlete}
+                  onSubmit={editAthleteProfile}
+                />
+              )}
 
-          FIS ID: {athlete.fisId ?? "N/A"}
-        </>
-      ) : (
-        "SESSIONS"
-      )}
+              {isCoach && (
+                <button
+                  className="main-button"
+                  id="delete-button"
+                  onClick={toggleDeletePopup}
+                >
+                  <DeleteIcon />
+                </button>
+              )}
 
-      {isCoach && (
-        <button
-          className="main-button"
-          onClick={toggleEditPopup}
-        >
-          <EditIcon />
-          Edit Athlete
-        </button>
-      )}
+              {showDeletePopup && (
+                <>
+                  Are you sure you want to delete this athlete?
 
-      {showEditPopup && (
-        <EditAthleteForm
-          athlete={athlete}
-          onSubmit={editAthleteProfile}
-        />
-      )}
+                  <button
+                    className="main-button"
+                    onClick={deleteAthlete}
+                  >
+                    Yes, delete the athlete
+                  </button>
 
-      {isCoach && (
-        <button
-          className="main-button"
-          onClick={toggleDeletePopup}
-        >
-          <DeleteIcon />
-          Delete Athlete
-        </button>
-      )}
+                  <button
+                    className="main-button"
+                    onClick={toggleDeletePopup}
+                  >
+                    No, keep the athlete
+                  </button>
+                </>
+              )}
+            </div>
+            
+          
+            {isCoach && (
+              <div className="buttons-box">
+                <div className="generate-invite-butt">
+                    <div className="generate-invite-box">
+                      <h3>Invite an Athlete:</h3>
 
-      {showDeletePopup && (
-        <>
-          Are you sure you want to delete this athlete?
+                      <GenerateInviteButton
+                        athleteId={athlete.athleteId}
+                        role="athlete"
+                      />
+                    </div>
+                    
+                    <div className="generate-invite-box">
+                      <h3>Invite a Parent:</h3>
 
-          <button
-            className="main-button"
-            onClick={deleteAthlete}
-          >
-            Yes, delete the athlete
-          </button>
+                      <GenerateInviteButton
+                        athleteId={athlete.athleteId}
+                        role="parent"
+                      />
+                    </div>
+                </div>
+              </div>
+            )}
 
-          <button
-            className="main-button"
-            onClick={toggleDeletePopup}
-          >
-            No, keep the athlete
-          </button>
-        </>
-      )}
+          </div>
 
-      {isCoach && (
-        <>
-          Invite an Athlete:
+          <div className="pie-chart">
+            <PieChart
+              selection={"sessions"}
+              athleteId={athlete?.athleteId}
+            />
+          </div>
 
-          <GenerateInviteButton
-            athleteId={athlete.athleteId}
-            role="athlete"
-          />
-
-          Invite a Parent:
-
-          <GenerateInviteButton
-            athleteId={athlete.athleteId}
-            role="parent"
-          />
-        </>
-      )}
-
-      <PieChart
-        selection={"sessions"}
-        athleteId={athlete?.athleteId}
-      />
-
-      <form onSubmit={handleSubmit}>
-        <div className="filters-lab-in">
-          <label>Start Date: </label>
-          <input
-            type="date"
-            ref={startDateRef}
-          />
         </div>
 
-        <div className="filters-lab-in">
-          <label>End Date: </label>
-          <input
-            type="date"
-            ref={endDateRef}
-          />
+        <div className="search-sessions-list-box">
+
+          <form className= "filters-form" onSubmit={handleSubmit}>
+            <div className="filters-form-labels">
+              <div className="filters-lab-in">
+                <label>Start Date: </label>
+                <input
+                  type="date"
+                  ref={startDateRef}
+                />
+              </div>
+
+              <div className="filters-lab-in">
+                <label>End Date: </label>
+                <input
+                  type="date"
+                  ref={endDateRef}
+                />
+              </div>
+
+              <div className="filters-lab-in">
+                <label>Location: </label>
+                <input
+                  type="text"
+                  ref={locationRef}
+                />
+              </div>
+
+              <div className="filters-lab-in">
+                <label>Discipline: </label>
+                <input
+                  type="text"
+                  ref={disciplineRef}
+                />
+              </div>
+
+              <div className="filters-lab-in">
+                <label>Snow Conditions: </label>
+                <input
+                  type="text"
+                  ref={snowConditionsRef}
+                />
+              </div>
+
+              <div className="filters-lab-in">
+                <label>Visibility Conditions: </label>
+                <input
+                  type="text"
+                  ref={visConditionsRef}
+                />
+              </div>
+
+              <div className="filters-lab-in">
+                <label>Terrain Type: </label>
+                <input
+                  type="text"
+                  ref={terrainTypeRef}
+                />
+              </div>
+            </div>
+            <button
+              className="main-button"
+              id="apply-filters-button"
+              type="submit"
+            >
+              Apply Filters
+            </button>
+          </form>
         </div>
-
-        <div className="filters-lab-in">
-          <label>Location: </label>
-          <input
-            type="text"
-            ref={locationRef}
-          />
-        </div>
-
-        <div className="filters-lab-in">
-          <label>Discipline: </label>
-          <input
-            type="text"
-            ref={disciplineRef}
-          />
-        </div>
-
-        <div className="filters-lab-in">
-          <label>Snow Conditions: </label>
-          <input
-            type="text"
-            ref={snowConditionsRef}
-          />
-        </div>
-
-        <div className="filters-lab-in">
-          <label>Visibility Conditions: </label>
-          <input
-            type="text"
-            ref={visConditionsRef}
-          />
-        </div>
-
-        <div className="filters-lab-in">
-          <label>Terrain Type: </label>
-          <input
-            type="text"
-            ref={terrainTypeRef}
-          />
-        </div>
-
-        <button
-          className="main-button"
-          id="apply-filters-button"
-          type="submit"
-        >
-          Apply Filters
-        </button>
-      </form>
-
+       </div>
+    </div>
       <SessionsList
         sessions={filteredSessions}
       />

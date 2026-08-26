@@ -195,216 +195,220 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div>
-      <h2>Create Athlete</h2>
+    <div className="create-athlete-box">
+      <div className="light-tan-box">
+        <h2 className="box-h2-title">Create Athlete</h2>
+        <div className="white-box">
+          <form className="create-athlete-form" onSubmit={handleSubmit}>
 
-      <form onSubmit={handleSubmit}>
+            <div className="one-column-form">
+              {/* First Name */}
+              <div className="form-group">
+                <label>First Name: </label>
 
-        {/* First Name */}
-        <div className="form-group">
-          <label>First Name: </label>
+                <input
+                  type="text"
+                  required
+                  name="athleteFirstName"
+                  value={formData.athleteFirstName}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <input
-            type="text"
-            required
-            name="athleteFirstName"
-            value={formData.athleteFirstName}
-            onChange={handleChange}
-          />
-        </div>
+              {/* Last Name */}
+              <div className="form-group">
+                <label>Last Name: </label>
 
-        {/* Last Name */}
-        <div className="form-group">
-          <label>Last Name: </label>
+                <input
+                  type="text"
+                  required
+                  name="athleteLastName"
+                  value={formData.athleteLastName}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <input
-            type="text"
-            required
-            name="athleteLastName"
-            value={formData.athleteLastName}
-            onChange={handleChange}
-          />
-        </div>
+              {/* Birthday */}
+              <div className="form-group">
+                <label>Birthday: </label>
 
-        {/* Birthday */}
-        <div className="form-group">
-          <label>Birthday: </label>
+                <input
+                  required
+                  name="birthday"
+                  type="date"
+                  value={formData.birthday}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <input
-            required
-            name="birthday"
-            type="date"
-            value={formData.birthday}
-            onChange={handleChange}
-          />
-        </div>
+              {/* Gender */}
+              <div className="form-group">
+                <label>Gender: </label>
 
-        {/* Gender */}
-        <div className="form-group">
-          <label>Gender: </label>
+                <select
+                  required
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">
+                    Select gender
+                  </option>
 
-          <select
-            required
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-          >
-            <option value="">
-              Select gender
-            </option>
+                  <option value="Male">
+                    Male
+                  </option>
 
-            <option value="Male">
-              Male
-            </option>
+                  <option value="Female">
+                    Female
+                  </option>
+                </select>
 
-            <option value="Female">
-              Female
-            </option>
-          </select>
+                {errors.gender && (
+                  <p className="error-text">
+                    {errors.gender}
+                  </p>
+                )}
+              </div>
 
-          {errors.gender && (
-            <p className="error-text">
-              {errors.gender}
-            </p>
-          )}
-        </div>
+              {/* ACA ID */}
+              <div className="form-group">
+                <label>ACA ID: </label>
 
-        {/* ACA ID */}
-        <div className="form-group">
-          <label>ACA ID: </label>
+                <input
+                  type="number"
+                  name="acaId"
+                  value={formData.acaId}
+                  onChange={handleChange}
+                  placeholder="Optional"
+                />
+              </div>
 
-          <input
-            type="number"
-            name="acaId"
-            value={formData.acaId}
-            onChange={handleChange}
-            placeholder="Optional"
-          />
-        </div>
+              {/* FIS ID */}
+              <div className="form-group">
+                <label>FIS ID: </label>
 
-        {/* FIS ID */}
-        <div className="form-group">
-          <label>FIS ID: </label>
+                <input
+                  type="number"
+                  name="fisId"
+                  value={formData.fisId}
+                  onChange={handleChange}
+                  placeholder="Optional"
+                />
+              </div>
 
-          <input
-            type="number"
-            name="fisId"
-            value={formData.fisId}
-            onChange={handleChange}
-            placeholder="Optional"
-          />
-        </div>
+              {/* Club */}
+              <div className="form-group">
+                <label>Club: </label>
 
-        {/* Club */}
-        <div className="form-group">
-          <label>Club: </label>
+                <select
+                  required
+                  name="clubId"
+                  value={formData.clubId}
+                  onChange={handleChange}
+                >
+                  <option value="">
+                    Select club
+                  </option>
 
-          <select
-            required
-            name="clubId"
-            value={formData.clubId}
-            onChange={handleChange}
-          >
-            <option value="">
-              Select club
-            </option>
+                  {clubs.map((club) => (
+                    <option
+                      key={club.clubId}
+                      value={club.clubId}
+                    >
+                      {club.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {clubs.map((club) => (
-              <option
-                key={club.clubId}
-                value={club.clubId}
+              {/* Team */}
+              <div className="form-group">
+                <label>Team: </label>
+
+                <select
+                  required
+                  name="teamId"
+                  value={formData.teamId}
+                  onChange={handleChange}
+                  disabled={!formData.clubId}
+                >
+                  <option value="">
+                    {formData.clubId
+                      ? 'Select team'
+                      : 'Select a club first'}
+                  </option>
+
+                  {teams.map((team) => (
+                    <option
+                      key={team.teamId}
+                      value={team.teamId}
+                    >
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.teamId && (
+                  <p className="error-text">
+                    {errors.teamId}
+                  </p>
+                )}
+              </div>
+
+              {/* Age Group */}
+              <div className="form-group">
+                <label>Age Group: </label>
+
+                <select
+                  name="ageGroup"
+                  value={formData.ageGroup}
+                  onChange={handleChange}
+                >
+                  <option value="">
+                    Select age group
+                  </option>
+
+                  <option value="U10">
+                    U10
+                  </option>
+
+                  <option value="U12">
+                    U12
+                  </option>
+
+                  <option value="U14">
+                    U14
+                  </option>
+
+                  <option value="U16">
+                    U16
+                  </option>
+
+                  <option value="FIS">
+                    FIS
+                  </option>
+                </select>
+
+                {errors.ageGroup && (
+                  <p className="error-text">
+                    {errors.ageGroup}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="main-button"
+                id="create-athlete-profile-button"
               >
-                {club.name}
-              </option>
-            ))}
-          </select>
+                Create Athlete Profile
+              </button>
+            </div>
+          </form>
         </div>
-
-        {/* Team */}
-        <div className="form-group">
-          <label>Team: </label>
-
-          <select
-            required
-            name="teamId"
-            value={formData.teamId}
-            onChange={handleChange}
-            disabled={!formData.clubId}
-          >
-            <option value="">
-              {formData.clubId
-                ? 'Select team'
-                : 'Select a club first'}
-            </option>
-
-            {teams.map((team) => (
-              <option
-                key={team.teamId}
-                value={team.teamId}
-              >
-                {team.name}
-              </option>
-            ))}
-          </select>
-
-          {errors.teamId && (
-            <p className="error-text">
-              {errors.teamId}
-            </p>
-          )}
-        </div>
-
-        {/* Age Group */}
-        <div className="form-group">
-          <label>Age Group: </label>
-
-          <select
-            name="ageGroup"
-            value={formData.ageGroup}
-            onChange={handleChange}
-          >
-            <option value="">
-              Select age group
-            </option>
-
-            <option value="U10">
-              U10
-            </option>
-
-            <option value="U12">
-              U12
-            </option>
-
-            <option value="U14">
-              U14
-            </option>
-
-            <option value="U16">
-              U16
-            </option>
-
-            <option value="FIS">
-              FIS
-            </option>
-          </select>
-
-          {errors.ageGroup && (
-            <p className="error-text">
-              {errors.ageGroup}
-            </p>
-          )}
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          className="main-button"
-          id="create-athlete-profile-button"
-        >
-          Create Athlete Profile
-        </button>
-
-      </form>
+      </div>
     </div>
   );
 };

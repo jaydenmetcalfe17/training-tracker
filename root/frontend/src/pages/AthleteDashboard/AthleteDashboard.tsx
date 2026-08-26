@@ -143,19 +143,20 @@ const AthleteDashboard: React.FC = () => {
   if (!athlete) return <>Loading...</>;
 
   return (
-    <div>
-      {isVisible && (
-        <button
-          className="main-button"
-          id="athlete-back-button"
-          aria-label="back-button"
-          data-testid="back-button"
-          onClick={() => handleClick()}
-        >
-          <KeyboardBackspaceIcon />
-        </button>
-      )}
-
+    <div className="athlete-dashboard-wrapper">
+      <div className="coach-only-buttons-box"> 
+        {isVisible && (
+          <button
+            className="main-button"
+            id="athlete-back-button"
+            aria-label="back-button"
+            data-testid="back-button"
+            onClick={() => handleClick()}
+          >
+            <KeyboardBackspaceIcon />
+          </button>
+        )}
+      </div>
       <AthletesSessions athlete={athlete} />
     </div>
   );

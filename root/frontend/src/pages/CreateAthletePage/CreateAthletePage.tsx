@@ -158,7 +158,7 @@ const CreateAthletePage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="create-athlete-page">
       <CreateAthleteForm
         onSubmit={createAthleteProfile}
       />
