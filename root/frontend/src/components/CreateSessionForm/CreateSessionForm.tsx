@@ -59,6 +59,9 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log("AUTH USER:", user);
+    console.log("AUTH USER ID:", user?.userId);
+
     const newSession: Session = {
       sessionDay: sessionDayRef.current?.value || '',
       startTime: startTimeRef.current?.value || '',

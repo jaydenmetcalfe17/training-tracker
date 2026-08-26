@@ -69,6 +69,11 @@ const SessionPage: React.FC = () => {
             generalComments: sessionData.general_comments,
             receivedAttendance: sessionData.attendance.map((a: any) => ({
               attendanceId: a.attendanceId,
+              freeskiRuns: a.freeskiRuns,
+              drillRuns: a.drillRuns,
+              educationalCourseRuns: a.educationalCourseRuns,
+              raceTrainingCourseRuns: a.raceTrainingCourseRuns,
+              raceRuns: a.raceRuns,
               individualComments: a.individualComments,
               athlete: {
                   athleteId: a.athlete.athleteId,

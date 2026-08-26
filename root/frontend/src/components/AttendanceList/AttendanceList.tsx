@@ -21,6 +21,8 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const [attendance, setAttendance] = useState<Attendance[]>(
     session.receivedAttendance ?? []
   );
+
+  
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showEditIndCommPopup, setShowEditIndCommPopup] = useState(false);

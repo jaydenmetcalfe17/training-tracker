@@ -744,7 +744,7 @@ const deleteAthleteAttendanceSingleSession = async (req, res) => {
     }
 };
 
-
+// add an athlete to the attendance list for a session
 const addAthletesToAttendance = async (req, res) => {
     const { athleteIds, sessionId } = req.body;
 
@@ -853,6 +853,7 @@ const addAthletesToAttendance = async (req, res) => {
     }
 };
 
+// update the athlete's individual comments in the attendance table for a specific session
 const updateIndividualComment = async (req, res) => {
     const attendanceId = Number(req.params.attendanceId);
     const { individualComments } = req.body;
@@ -927,7 +928,6 @@ const updateIndividualComment = async (req, res) => {
 };
 
 
-
 // Create a new session
 const createSession = async (req, res) => {
     const {
@@ -962,6 +962,9 @@ const createSession = async (req, res) => {
         "Athletes in attendance:",
         attendance
     );
+
+    console.log("REQ.USER:", req.user);
+    console.log("CREATED BY FROM BODY:", createdBy);
 
     // Format time
     const formatTime = (time) => {
@@ -1430,117 +1433,132 @@ const getSessions = async (req, res) => {
 
         // -------------------------------------------------------------
         // 4. Convert Prisma result to existing frontend response shape
-        // -------------------------------------------------------------
+        // ----------------------------------------------------------
 
         const sessionsWithAttendance =
-            sessions.map((session) => ({
-                sessionId:
-                    session.session_id,
+          sessions.map((session) => ({
+              session_id:
+                  session.session_id,
 
-                sessionDay:
-                    session.session_day,
+              session_day:
+                  session.session_day,
 
-                startTime:
-                    session.start_time,
+              start_time:
+                session.start_time
+                    ? session.start_time.toISOString().slice(11, 16)
+                    : null,
 
-                endTime:
-                    session.end_time,
+            end_time:
+                session.end_time
+                    ? session.end_time.toISOString().slice(11, 16)
+                    : null,
 
-                location:
-                    session.location,
+              location:
+                  session.location,
 
-                discipline:
-                    session.discipline,
+              discipline:
+                  session.discipline,
 
-                snowConditions:
-                    session.snow_conditions,
+              snow_conditions:
+                  session.snow_conditions,
 
-                visConditions:
-                    session.vis_conditions,
+              vis_conditions:
+                  session.vis_conditions,
 
-                terrainType:
-                    session.terrain_type,
+              terrain_type:
+                  session.terrain_type,
 
-                numFreeskiRuns:
-                    session.num_freeski_runs,
+              num_freeski_runs:
+                  session.num_freeski_runs,
 
-                numDrillRuns:
-                    session.num_drill_runs,
+              num_drill_runs:
+                  session.num_drill_runs,
 
-                numEducationalCourseRuns:
-                    session.num_educational_course_runs,
+              num_educational_course_runs:
+                  session.num_educational_course_runs,
 
-                numGatesEducationalCourse:
-                    session.num_gates_educational_course,
+              num_gates_educational_course:
+                  session.num_gates_educational_course,
 
-                numRaceTrainingCourseRuns:
-                    session.num_race_training_course_runs,
+              num_race_training_course_runs:
+                  session.num_race_training_course_runs,
 
-                numGatesRaceTrainingCourse:
-                    session.num_gates_race_training_course,
+              num_gates_race_training_course:
+                  session.num_gates_race_training_course,
 
-                numRaceRuns:
-                    session.num_race_runs,
+              num_race_runs:
+                  session.num_race_runs,
 
-                numGatesRace:
-                    session.num_gates_race,
+              num_gates_race:
+                  session.num_gates_race,
 
-                generalComments:
-                    session.general_comments,
+              general_comments:
+                  session.general_comments,
 
-                createdBy:
-                    session.created_by,
+              created_by:
+                  session.created_by,
 
-                attendance:
-                    session.attendance.map((att) => {
+              attendance:
+                session.attendance.map((att) => {
+                    const membership =
+                        att.athlete.team_memberships[0];
 
-                        const membership =
-                            att.athlete
-                                .team_memberships[0];
+                    return {
+                        attendanceId:
+                            att.attendance_id,
 
-                        return {
-                            attendanceId:
-                                att.attendance_id,
+                        freeskiRuns:
+                            att.freeski_runs,
 
-                            individualComments:
-                                att.individual_comments,
+                        drillRuns:
+                            att.drill_runs,
 
-                            athlete: {
-                                athleteId:
-                                    att.athlete.athlete_id,
+                        educationalCourseRuns:
+                            att.educational_course_runs,
 
-                                athleteFirstName:
-                                    att.athlete
-                                        .athlete_first_name,
+                        raceTrainingCourseRuns:
+                            att.race_training_course_runs,
 
-                                athleteLastName:
-                                    att.athlete
-                                        .athlete_last_name,
+                        raceRuns:
+                            att.race_runs,
 
-                                birthday:
-                                    att.athlete.birthday,
+                        individualComments:
+                            att.individual_comments,
 
-                                gender:
-                                    att.athlete.gender,
+                        athlete: {
+                            athleteId:
+                                att.athlete.athlete_id,
 
-                                userId:
-                                    att.athlete.users?.[0]
-                                        ?.user_id ?? null,
+                            athleteFirstName:
+                                att.athlete.athlete_first_name,
 
-                                team:
-                                    membership?.team?.name
-                                        ?? null,
+                            athleteLastName:
+                                att.athlete.athlete_last_name,
 
-                                club:
-                                    membership?.team?.club?.name
-                                        ?? null,
+                            birthday:
+                                att.athlete.birthday,
 
-                                ageGroup:
-                                    att.athlete.age_group
-                            }
-                        };
-                    })
-            }));
+                            gender:
+                                att.athlete.gender,
+
+                            userId:
+                                att.athlete.users?.[0]
+                                    ?.user_id ?? null,
+
+                            team:
+                                membership?.team?.name
+                                    ?? null,
+
+                            club:
+                                membership?.team?.club?.name
+                                    ?? null,
+
+                            ageGroup:
+                                att.athlete.age_group
+                        }
+                    };
+                })
+          }));
 
         return res.status(200).json(
             sessionsWithAttendance
@@ -1560,6 +1578,7 @@ const getSessions = async (req, res) => {
     }
 };
 
+// load the data used to create pie charts for the dashboard page
 const getPieChartData = async (req, res) => {
 
     const { athleteId, column } = req.params;
@@ -1599,67 +1618,133 @@ const getPieChartData = async (req, res) => {
 
         if (column === "runColumn") {
 
-            const where = athleteId
-                ? {
-                    athlete_id: Number(athleteId)
+            // If an athleteId is provided,
+            // get run totals from that athlete's attendance.
+            if (athleteId) {
+
+                const attendance =
+                    await prisma.attendance.findMany({
+                        where: {
+                            athlete_id: Number(athleteId)
+                        },
+
+                        select: {
+                            freeski_runs: true,
+                            drill_runs: true,
+                            educational_course_runs: true,
+                            race_training_course_runs: true,
+                            race_runs: true
+                        }
+                    });
+
+                if (attendance.length === 0) {
+                    return res.status(404).json({
+                        error: "No data found"
+                    });
                 }
-                : {};
 
-            const attendance =
-                await prisma.attendance.findMany({
-                    where,
+                const labels = [
+                    "Freeski Runs",
+                    "Drill Runs",
+                    "Educational Course Runs",
+                    "Race Training Course Runs",
+                    "Race Runs"
+                ];
 
+                const values = [
+                    attendance.reduce(
+                        (sum, row) =>
+                            sum + (row.freeski_runs || 0),
+                        0
+                    ),
+
+                    attendance.reduce(
+                        (sum, row) =>
+                            sum + (row.drill_runs || 0),
+                        0
+                    ),
+
+                    attendance.reduce(
+                        (sum, row) =>
+                            sum + (row.educational_course_runs || 0),
+                        0
+                    ),
+
+                    attendance.reduce(
+                        (sum, row) =>
+                            sum + (row.race_training_course_runs || 0),
+                        0
+                    ),
+
+                    attendance.reduce(
+                        (sum, row) =>
+                            sum + (row.race_runs || 0),
+                        0
+                    )
+                ];
+
+                return res.status(200).json({
+                    labels,
+                    values
+                });
+            }
+
+            // If there is NO athleteId,
+            // use the run totals stored in the sessions table.
+
+            const sessions =
+                await prisma.sessions.findMany({
                     select: {
-                        freeski_runs: true,
-                        drill_runs: true,
-                        educational_course_runs: true,
-                        race_training_course_runs: true,
-                        race_runs: true
+                        num_freeski_runs: true,
+                        num_drill_runs: true,
+                        num_educational_course_runs: true,
+                        num_race_training_course_runs: true,
+                        num_race_runs: true
                     }
                 });
 
-            if (attendance.length === 0) {
+            if (sessions.length === 0) {
                 return res.status(404).json({
                     error: "No data found"
                 });
             }
 
             const labels = [
-                "freeski_runs",
-                "drill_runs",
-                "educational_course_runs",
-                "race_training_course_runs",
-                "race_runs"
+                "Freeski Runs",
+                "Drill Runs",
+                "Educational Course Runs",
+                "Race Training Course Runs",
+                "Race Runs"
             ];
 
             const values = [
-                attendance.reduce(
-                    (sum, row) =>
-                        sum + (row.freeski_runs || 0),
+                sessions.reduce(
+                    (sum, session) =>
+                        sum + (session.num_freeski_runs || 0),
                     0
                 ),
 
-                attendance.reduce(
-                    (sum, row) =>
-                        sum + (row.drill_runs || 0),
+                sessions.reduce(
+                    (sum, session) =>
+                        sum + (session.num_drill_runs || 0),
                     0
                 ),
 
-                attendance.reduce(
-                    (sum, row) =>
-                        sum + (row.educational_course_runs || 0),
+                sessions.reduce(
+                    (sum, session) =>
+                        sum + (session.num_educational_course_runs || 0),
                     0
                 ),
 
-                attendance.reduce(
-                    (sum, row) =>
-                        sum + (row.race_training_course_runs || 0),
+                sessions.reduce(
+                    (sum, session) =>
+                        sum + (session.num_race_training_course_runs || 0),
                     0
                 ),
 
-                attendance.reduce(
-                    (sum, row) =>
-                        sum + (row.race_runs || 0),
+                sessions.reduce(
+                    (sum, session) =>
+                        sum + (session.num_race_runs || 0),
                     0
                 )
             ];
@@ -1761,221 +1846,290 @@ const getPieChartData = async (req, res) => {
     }
 };
 
+// Update a session
 const updateSession = async (req, res) => {
-    const sessionId = req.params.sessionId;
-    const { 
-        sessionDay, 
+    const sessionId = Number(req.params.sessionId);
+
+    const {
+        sessionDay,
         startTime,
         endTime,
         location,
-        discipline, 
-        snowConditions, 
-        visConditions, 
-        terrainType, 
-        numFreeskiRuns, 
-        numDrillRuns, 
-        numEducationalCourseRuns, 
-        numGatesEducationalCourse, 
+        discipline,
+        snowConditions,
+        visConditions,
+        terrainType,
+        numFreeskiRuns,
+        numDrillRuns,
+        numEducationalCourseRuns,
+        numGatesEducationalCourse,
         numRaceTrainingCourseRuns,
         numGatesRaceTrainingCourse,
         numRaceRuns,
         numGatesRace,
         generalComments,
-     } = req.body;
+    } = req.body;
 
-     const formatTime = (time) => {
-      return time.length === 5 || time.length === 4
-        ? `${time}:00`
-        : time;
-      };
+    const formatTime = (time) => {
+        return time.length === 5 || time.length === 4
+            ? `${time}:00`
+            : time;
+    };
 
     const formStartTime = formatTime(startTime);
     const formEndTime = formatTime(endTime);
 
-    //backend validation
+    // ----------------------------------------
+    // Backend validation
+    // ----------------------------------------
+
     let errors = [];
 
     if (validator.isEmpty(sessionDay)) {
-      errors.push({sessionDay:'Session must have a date'});
+        errors.push({
+            sessionDay: "Session must have a date"
+        });
     }
 
     if (!validator.isDate(sessionDay)) {
-      errors.push({sessionDay:'Session must be of format YYYY-MM-DD'});
+        errors.push({
+            sessionDay: "Session must be of format YYYY-MM-DD"
+        });
     }
 
-    // make this a time (version of type Date?)
     if (validator.isEmpty(formStartTime)) {
-      errors.push({formStartTime:'Session must have a start time'});
+        errors.push({
+            formStartTime: "Session must have a start time"
+        });
     }
 
-    // make this a time (version of type Date? then turn into string for database entry?)
     if (validator.isEmpty(formEndTime)) {
-      errors.push({formEndTime:'Session must have an end time'});
+        errors.push({
+            formEndTime: "Session must have an end time"
+        });
     }
-
 
     if (validator.isEmpty(location)) {
-      errors.push({location:'Session must have a location'});
+        errors.push({
+            location: "Session must have a location"
+        });
     }
 
     if (validator.isEmpty(discipline)) {
-      errors.push({discipline:'Session must have a discipline'});
+        errors.push({
+            discipline: "Session must have a discipline"
+        });
     }
 
-    if (!['SL', 'GS', 'SG', 'DH', 'Other'].includes(discipline)) {
-      errors.push({discipline:'Must choose a valid discipline'});
+    if (!["SL", "GS", "SG", "DH", "Other"].includes(discipline)) {
+        errors.push({
+            discipline: "Must choose a valid discipline"
+        });
     }
 
     if (validator.isEmpty(snowConditions)) {
-      errors.push({snowConditions:'Session must have snow conditions'});
+        errors.push({
+            snowConditions: "Session must have snow conditions"
+        });
     }
 
-    if (!['Soft', 'Compact-soft', 'Hard grippy', 'Ice', 'Wet', 'Salted', 'Non-groomed', 'Ball bearings', 'Powder'].includes(snowConditions)) {
-      errors.push({snowConditions:'Must choose valid snow conditions'});
+    if (![
+        "Soft",
+        "Compact-soft",
+        "Hard grippy",
+        "Ice",
+        "Wet",
+        "Salted",
+        "Non-groomed",
+        "Ball bearings",
+        "Powder"
+    ].includes(snowConditions)) {
+        errors.push({
+            snowConditions: "Must choose valid snow conditions"
+        });
     }
 
     if (validator.isEmpty(visConditions)) {
-      errors.push({visConditions:'Session must have a vis conditions'});
+        errors.push({
+            visConditions: "Session must have a vis conditions"
+        });
     }
 
-    if (!['Sunny', 'Flat light', 'Fog', 'Snowing', 'Variable', 'Rain'].includes(visConditions)) {
-      errors.push({visConditions:'Must choose valid snow conditions'});
+    if (![
+        "Sunny",
+        "Flat light",
+        "Fog",
+        "Snowing",
+        "Variable",
+        "Rain"
+    ].includes(visConditions)) {
+        errors.push({
+            visConditions: "Must choose valid vis conditions"
+        });
     }
 
     if (validator.isEmpty(terrainType)) {
-      errors.push({terrainType:'Session must have terrain type'});
+        errors.push({
+            terrainType: "Session must have terrain type"
+        });
     }
 
-    if (!['Flat', 'Medium', 'Steep', 'Rolly', 'Mixed'].includes(terrainType)) {
-      errors.push({terrainType:'Must choose valid snow conditions'});
+    if (![
+        "Flat",
+        "Medium",
+        "Steep",
+        "Rolly",
+        "Mixed"
+    ].includes(terrainType)) {
+        errors.push({
+            terrainType: "Must choose valid terrain type"
+        });
     }
 
-    // number validation
-    // FOR NOW: isNumeric checks if a STRING is all numbers... doesn't check if type is a number
-    // if (validator.isNumeric(numFreeskiRuns)) {
-    //   errors.push({numFreeskiRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numDrillRuns)) {
-    //   errors.push({numDrillRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numEducationalCourseRuns)) {
-    //   errors.push({numEducationalCourseRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numGatesEducationalCourse)) {
-    //   errors.push({numGatesEducationalCourse:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numRaceTrainingCourseRuns)) {
-    //   errors.push({numRaceTrainingCourseRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numGatesRaceTrainingCourse)) {
-    //   errors.push({numGatesRaceTrainingCourse:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numRaceRuns)) {
-    //   errors.push({numRaceRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numGatesRace)) {
-    //   errors.push({numGatesRace:'Must be a number'});
-    // }
-
-
-    // if any errors:
-     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
     }
 
+    // ----------------------------------------
+    // Update session
+    // ----------------------------------------
 
-
-    console.log("Values for update query:", [
-        sessionId,
-        sessionDay, 
-        formStartTime,
-        formEndTime,
-        location,
-        discipline, 
-        snowConditions, 
-        visConditions, 
-        terrainType, 
-        numFreeskiRuns, 
-        numDrillRuns, 
-        numEducationalCourseRuns, 
-        numGatesEducationalCourse, 
-        numRaceTrainingCourseRuns,
-        numGatesRaceTrainingCourse,
-        numRaceRuns,
-        numGatesRace,
-        generalComments,
-     ]);
     try {
-        const result = await pool.query(queries.sessions.updateSession, [
-            sessionId,
-            sessionDay, 
-            formStartTime,
-            formEndTime,
-            location,
-            discipline, 
-            snowConditions, 
-            visConditions, 
-            terrainType, 
-            numFreeskiRuns, 
-            numDrillRuns, 
-            numEducationalCourseRuns, 
-            numGatesEducationalCourse, 
-            numRaceTrainingCourseRuns,
-            numGatesRaceTrainingCourse,
-            numRaceRuns,
-            numGatesRace,
-            generalComments,
-        ]);
-        const updatedSession = result.rows[0]
-        res.status(201).json(updatedSession);
-        
+        const updatedSession =
+            await prisma.sessions.update({
+                where: {
+                    session_id: sessionId
+                },
+
+                data: {
+                    session_day:
+                        new Date(sessionDay),
+
+                    start_time:
+                        new Date(`1970-01-01T${formStartTime}`),
+
+                    end_time:
+                        new Date(`1970-01-01T${formEndTime}`),
+
+                    location,
+                    discipline,
+
+                    snow_conditions:
+                        snowConditions,
+
+                    vis_conditions:
+                        visConditions,
+
+                    terrain_type:
+                        terrainType,
+
+                    num_freeski_runs:
+                        numFreeskiRuns,
+
+                    num_drill_runs:
+                        numDrillRuns,
+
+                    num_educational_course_runs:
+                        numEducationalCourseRuns,
+
+                    num_gates_educational_course:
+                        numGatesEducationalCourse,
+
+                    num_race_training_course_runs:
+                        numRaceTrainingCourseRuns,
+
+                    num_gates_race_training_course:
+                        numGatesRaceTrainingCourse,
+
+                    num_race_runs:
+                        numRaceRuns,
+
+                    num_gates_race:
+                        numGatesRace,
+
+                    general_comments:
+                        generalComments
+                }
+            });
+
+        console.log(
+            "Updated session:",
+            updatedSession
+        );
+
+        return res.status(200).json({
+            ...updatedSession,
+            start_time: updatedSession.start_time
+                ? updatedSession.start_time.toISOString().slice(11, 16)
+                : null,
+            end_time: updatedSession.end_time
+                ? updatedSession.end_time.toISOString().slice(11, 16)
+                : null
+        });
 
     } catch (error) {
-        console.error('Error updating session: ', error);
-        res.status(500).send( {error: 'Server error updating session'} );
-    }
-}
 
-const deleteSession = async (req, res) => {
-    console.log("ENTERED to Delete session");
+        console.error(
+            "Error updating session:",
+            error
+        );
 
-    const {sessionId} = req.params;
-
-    try {
-
-        const attendanceDelete = await pool.query(queries.sessions.deleteAllAttendanceForSession, [sessionId]);
-
-        // if (attendanceDelete.rows.length === 0) {
-        //     return res.status(404).json({ error: "No sessions found"} );
-        // }
-        // console.log('Sessions result rows:', attendanceDelete.rows);
-        // res.status(200).json(attendanceDelete.rows);
-
-
-        const sessionDelete = await pool.query(queries.sessions.deleteSession, [sessionId]);
-
-        if (sessionDelete.rows.length === 0) {
-            return res.status(404).json({ error: "No sessions found"} );
+        if (error.code === "P2025") {
+            return res.status(404).json({
+                error: "No sessions found"
+            });
         }
-        console.log('Deleted session: ', sessionDelete.rows);
-        return res.status(200).json(sessionDelete.rows);
 
-
-    } catch (error) {
-        console.error('Error deleting session: ', error);
-        res.status(500).send({error: 'Server error deleting session'} );
+        return res.status(500).json({
+            error:
+                "Server error updating session"
+        });
     }
 };
 
+// Delete a session
+const deleteSession = async (req, res) => {
+    console.log("ENTERED to Delete session");
 
+    const sessionId = Number(req.params.sessionId);
 
+    try {
+
+        const deletedSession =
+            await prisma.sessions.delete({
+                where: {
+                    session_id: sessionId
+                }
+            });
+
+        console.log(
+            "Deleted session:",
+            deletedSession
+        );
+
+        return res.status(200).json(
+            deletedSession
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error deleting session:",
+            error
+        );
+
+        if (error.code === "P2025") {
+            return res.status(404).json({
+                error: "No sessions found"
+            });
+        }
+
+        return res.status(500).json({
+            error:
+                "Server error deleting session"
+        });
+    }
+};
 
 // Create user profile
 const createUser = async (req, res) => {
