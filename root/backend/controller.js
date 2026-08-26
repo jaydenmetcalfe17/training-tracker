@@ -1,9 +1,15 @@
 const { session } = require('passport');
+
+// to delete ////////////////
 const pool = require('./config/database');
 const queries = require('./queries.json');
+////////////////////////////////
+
+
+const prisma = require('./prismaClient');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
-const crypto = require ('crypto');
+const crypto = require('crypto');
 
 //encryption here???
 
@@ -16,99 +22,277 @@ const getAllDataFromAthleteProfile = async (req, res) => {
         let result;
 
         if (athleteId) {
-            result = await pool.query(queries.athletes.getAllDataFromAthleteProfileWithAthleteId, [athleteId]);
+            result = await prisma.athletes.findUnique({
+                where: {
+                    athlete_id: Number(athleteId)
+                },
+                include: {
+                    team_memberships: {
+                        include: {
+                            team: {
+                                include: {
+                                    club: true
+                                }
+                            }
+                        },
+                        orderBy: {
+                            start_date: 'desc'
+                        }
+                    }
+                }
+            });
+
         } else if (userId) {
-            result = await pool.query(queries.athletes.getAthleteDataWithUserId, [userId]);
+            const user = await prisma.users.findUnique({
+                where: {
+                    user_id: Number(userId)
+                },
+                include: {
+                    athlete: {
+                        include: {
+                            team_memberships: {
+                                include: {
+                                    team: {
+                                        include: {
+                                            club: true
+                                        }
+                                    }
+                                },
+                                orderBy: {
+                                    start_date: 'desc'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            result = user?.athlete ?? null;
+
         } else {
-            result = await pool.query(queries.athletes.getAllAthletes);
+            result = await prisma.athletes.findMany({
+                include: {
+                    team_memberships: {
+                        include: {
+                            team: {
+                                include: {
+                                    club: true
+                                }
+                            }
+                        },
+                        orderBy: {
+                            start_date: 'desc'
+                        }
+                    }
+                }
+            });
         }
 
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No training data found for this athlete"} );
+        if (
+            !result ||
+            (Array.isArray(result) && result.length === 0)
+        ) {
+            return res.status(404).json({
+                error: "No athlete data found"
+            });
         }
-        res.status(200).json(result.rows);
+
+        return res.status(200).json(result);
 
     } catch (error) {
-        console.error('Error getting athlete data: ', error);
-        res.status(500).send({error: 'Server error retrieving athlete training data'} );
+        console.error('Error getting athlete data:', error);
+
+        return res.status(500).json({
+            error: 'Server error retrieving athlete data'
+        });
     }
 };
 
 
 // Create an athlete profile
 const createAthleteProfile = async (req, res) => {
-    const {athleteFirstName, athleteLastName, birthday, gender, team, ageGroup } = req.body;
-    console.log(athleteFirstName, athleteLastName, birthday, gender, team, ageGroup);
+    const {
+        athleteFirstName,
+        athleteLastName,
+        birthday,
+        gender,
+        acaId,
+        fisId,
+        ageGroup,
+        teamId
+    } = req.body;
 
-    //server side input validation
-     let errors = [];
+    console.log(
+        athleteFirstName,
+        athleteLastName,
+        birthday,
+        gender,
+        acaId,
+        fisId,
+        ageGroup,
+        teamId
+    );
 
-    //validation:
-    if (validator.isEmpty(athleteFirstName)) {
-      errors.push({athleteFirstName:'Must enter a first name'});
+    // Server-side input validation
+    let errors = [];
+
+    // First name
+    if (!athleteFirstName || validator.isEmpty(athleteFirstName)) {
+        errors.push({
+            athleteFirstName: 'Must enter a first name'
+        });
     }
 
-    // if (!validator.isAlpha(athleteFirstName)) {
-    //   errors.push({athleteFirstName:'First name can only be letters'});
-    // }
-
-    if (validator.isEmpty(athleteLastName)) {
-      errors.push({athleteLastName:'Must enter a last name'});
+    // Last name
+    if (!athleteLastName || validator.isEmpty(athleteLastName)) {
+        errors.push({
+            athleteLastName: 'Must enter a last name'
+        });
     }
 
-    //  if (!validator.isAlpha(athleteLastName)) {
-    //   errors.push({athleteFirstName:'Last name can only be letters'});
-    // }
-
-    if (validator.isEmpty(birthday)) {
-      errors.push({birthday:'Must enter a birthday'});
+    // Birthday
+    if (!birthday) {
+        errors.push({
+            birthday: 'Must enter a birthday'
+        });
+    } else if (!validator.isDate(birthday)) {
+        errors.push({
+            birthday: 'Birthday must be format YYYY-MM-DD'
+        });
     }
 
-    // add: is year of birth greater than current date?
-    if (!validator.isDate(birthday)) {
-      errors.push({birthday:'Birthday must be format YYYY-MM-DD'});
+    // Gender
+    if (!gender) {
+        errors.push({
+            gender: 'Must choose a gender'
+        });
+    } else if (!['Male', 'Female'].includes(gender)) {
+        errors.push({
+            gender: 'Gender can only be Male or Female'
+        });
     }
 
-    if (validator.isEmpty(gender)) {
-      errors.push({gender:'Must choose a gender'});
+    // Age group
+    if (!ageGroup) {
+        errors.push({
+            ageGroup: 'Must choose an age group'
+        });
+    } else if (
+        !['U10', 'U12', 'U14', 'U16', 'FIS'].includes(ageGroup)
+    ) {
+        errors.push({
+            ageGroup: 'Must choose a valid age group'
+        });
     }
 
-    if (!['Male', 'Female'].includes(gender)){
-        errors.push({gender:'Gender can only be Male or Female'});
+    // Team
+    if (!teamId) {
+        errors.push({
+            teamId: 'Must choose a team'
+        });
     }
 
-    if (validator.isEmpty(team)) {
-      errors.push({team:'Must choose a team'});
+    // ACA ID
+    if (
+        acaId !== undefined &&
+        acaId !== null &&
+        acaId !== ''
+    ) {
+        if (!Number.isInteger(Number(acaId))) {
+            errors.push({
+                acaId: 'ACA ID must be a number'
+            });
+        }
     }
 
-    if (validator.isEmpty(ageGroup)) {
-      errors.push({ageGroup:'Must choose an age group'});
+    // FIS ID
+    if (
+        fisId !== undefined &&
+        fisId !== null &&
+        fisId !== ''
+    ) {
+        if (!Number.isInteger(Number(fisId))) {
+            errors.push({
+                fisId: 'FIS ID must be a number'
+            });
+        }
     }
 
-    if (!['U10', 'U12', 'U14', 'U16', 'FIS'].includes(ageGroup)) {
-      errors.push({ageGroup:'Must choose a valid age group'});
+    // Return validation errors
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
     }
-
-
-    // if any errors:
-     if (errors.length > 0) {
-      return res.status(400).json({ errors });
-    }
-
-
 
     try {
-        const result = await pool.query(queries.athletes.createAthleteProfile, [athleteFirstName, athleteLastName, birthday, gender, team, ageGroup]);
-        const newAthlete = result.rows[0]
-        res.status(201).json(newAthlete);
-        
+        const result = await prisma.$transaction(async (tx) => {
+
+            // 1. Create the athlete
+            const athlete = await tx.athletes.create({
+                data: {
+                    athlete_first_name: athleteFirstName,
+                    athlete_last_name: athleteLastName,
+                    birthday: new Date(birthday),
+                    gender: gender,
+                    aca_id: acaId
+                        ? Number(acaId)
+                        : null,
+                    fis_id: fisId
+                        ? Number(fisId)
+                        : null,
+                    age_group: ageGroup
+                }
+            });
+
+            // 2. Create the athlete's initial team membership
+            await tx.team_memberships.create({
+                data: {
+                    athlete_id: athlete.athlete_id,
+                    team_id: Number(teamId),
+                    start_date: new Date()
+                }
+            });
+
+            // 3. Fetch the newly-created athlete with
+            //    their complete team/club information
+            const completeAthlete =
+                await tx.athletes.findUnique({
+                    where: {
+                        athlete_id: athlete.athlete_id
+                    },
+                    include: {
+                        team_memberships: {
+                            include: {
+                                team: {
+                                    include: {
+                                        club: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            return completeAthlete;
+        });
+
+        console.log(
+            "Created athlete:",
+            result
+        );
+
+        return res.status(201).json(result);
 
     } catch (error) {
-        console.error('Error creating athlete profile: ', error);
-        res.status(500).send( {error: 'Server error creating athlete profile'} );
+        console.error(
+            'Error creating athlete profile:',
+            error
+        );
+
+        return res.status(500).json({
+            error: 'Server error creating athlete profile'
+        });
     }
-}
+};
 
 const updateAthleteProfile = async (req, res) => {
     const athleteId = req.params.athleteId;
@@ -967,6 +1151,60 @@ const approveInvite = async (req, res) => {
   });
 };
 
+const getClubs = async (req, res) => {
+    try {
+        const clubs = await prisma.clubs.findMany({
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        return res.status(200).json(clubs);
+
+    } catch (error) {
+        console.error('Error getting clubs:', error);
+
+        return res.status(500).json({
+            error: 'Server error retrieving clubs'
+        });
+    }
+};
+
+
+const getTeams = async (req, res) => {
+    const { clubId } = req.query;
+
+    try {
+        let teams;
+
+        if (clubId) {
+            teams = await prisma.teams.findMany({
+                where: {
+                    club_id: Number(clubId)
+                },
+                orderBy: {
+                    name: 'asc'
+                }
+            });
+        } else {
+            teams = await prisma.teams.findMany({
+                orderBy: {
+                    name: 'asc'
+                }
+            });
+        }
+
+        return res.status(200).json(teams);
+
+    } catch (error) {
+        console.error('Error getting teams:', error);
+
+        return res.status(500).json({
+            error: 'Server error retrieving teams'
+        });
+    }
+};
+
 module.exports = {
     getAllDataFromAthleteProfile,
     createAthleteProfile,
@@ -982,5 +1220,7 @@ module.exports = {
     deleteSession,
     createUser,
     createInvite,
-    approveInvite
+    approveInvite,
+    getClubs,
+    getTeams
 }

@@ -1,3 +1,4 @@
+//routes/routes.js
 //for routes related to athletes and sessions (as of now)
 
 const { Router } = require('express');
@@ -5,6 +6,9 @@ const controller = require('../controller');
 // const { requireCoach } = require("../middleware/auth");
 const router = Router();
 
+/*************************************/
+/********** ATHLETE ROUTES ***********/
+/*************************************/
 
 // Example: GET /api/athlete?athleteId=1 or ?userId=1
 router.get("/athlete", controller.getAllDataFromAthleteProfile);
@@ -19,6 +23,11 @@ router.put("/athlete/:athleteId", controller.updateAthleteProfile);
 // Example: DELETE /api/athlete/?athleteId=1 // etc...
 router.delete("/athlete/:athleteId", controller.deleteAthleteProfile);
 
+
+/*************************************/
+/********** SESSION ROUTES ***********/
+/*************************************/
+
 // Example: POST /api/session // etc...
 router.post("/session", controller.createSession);
 
@@ -31,11 +40,19 @@ router.put("/session/:sessionId", controller.updateSession);
 // Example: DELETE /api/session/?sessionId=1 // etc...
 router.delete("/session/:sessionId", controller.deleteSession);
 
+/*************************************/
+/********** DATA ROUTES **************/
+/*************************************/
+
 // Pie chart data for all sessions
 router.get("/data/:column", controller.getPieChartData);
 
 // Pie chart data for specific athlete
 router.get("/data/:athleteId/:column", controller.getPieChartData);
+
+/*************************************/
+/********* ATTENDANCE ROUTES *********/
+/*************************************/
 
 // Example: DELETE /api/attendance/:athleteId/:sessionId
 router.delete("/attendance/:athleteId/:sessionId", controller.deleteAthleteAttendanceSingleSession);
@@ -46,11 +63,28 @@ router.put("/attendance/:attendanceId", controller.updateIndividualComment);
 // Example: PUT /api/attendance/
 router.put("/attendance/", controller.addAthletesToAttendance);
 
+/*************************************/
+/********** INVITE ROUTES ***********/
+/*************************************/
+
 // POST /api/invite
 router.post("/invite", controller.createInvite);
 
 // GET /api/invite/:token
 router.get("/invite/:token", controller.approveInvite);
+
+/*************************************/
+/******** CLUB + TEAM ROUTES *********/
+/*************************************/
+
+// Get all clubs
+router.get("/clubs", controller.getClubs);
+
+// Get teams, optionally filtered by club
+router.get("/teams", controller.getTeams);
+
+
+
 
 
 module.exports = router;

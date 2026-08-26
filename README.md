@@ -23,7 +23,7 @@ Note to self: set up concurrently in root
 
 frontend: `npm run dev`
 
-backend: `nodemon app.js` for development and `node app.js` for production
+backend: `nodemon server.js` for development and `node server.js` for production
 
 python-service: 
 `source .venv/bin/activate` to establish virtual environment
