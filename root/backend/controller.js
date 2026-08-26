@@ -854,32 +854,77 @@ const addAthletesToAttendance = async (req, res) => {
 };
 
 const updateIndividualComment = async (req, res) => {
-  const attendanceId = req.params.attendanceId;
-  const { individualComments } = req.body;
-  console.log(req.body);
+    const attendanceId = Number(req.params.attendanceId);
+    const { individualComments } = req.body;
 
-  console.log("Values for update query:", [
+    console.log("Values for attendance comment update:", [
         attendanceId,
         individualComments
-     ]);
+    ]);
 
-    try {
-        const result = await pool.query(queries.attendance.updateIndividualComment, [attendanceId, individualComments]);
-        if (result.rows.length === 0) {
-          return res.status(404).json({
-            error: "Attendance not found"
-          });
-        }
+    // Server-side input validation
+    let errors = [];
 
-        return res.status(200).json(result.rows[0]);
-        
-
-    } catch (error) {
-        console.error('Error updating attendance individual comment: ', error);
-        res.status(500).send( {error: 'Server error updating individual comment in attendance table'} );
+    // Attendance ID
+    if (!Number.isInteger(attendanceId)) {
+        errors.push({
+            attendanceId: "Invalid attendance ID"
+        });
     }
 
-}
+    // Individual comments
+    if (individualComments === undefined || individualComments === null) {
+        errors.push({
+            individualComments: "Comment is required"
+        });
+    }
+
+    // Return validation errors
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
+    }
+
+    try {
+        const updatedAttendance =
+            await prisma.attendance.update({
+                where: {
+                    attendance_id: attendanceId
+                },
+
+                data: {
+                    individual_comments:
+                        individualComments
+                }
+            });
+
+        console.log(
+            "Updated attendance:",
+            updatedAttendance
+        );
+
+        return res.status(200).json(
+            updatedAttendance
+        );
+
+    } catch (error) {
+        console.error(
+            "Error updating attendance individual comment:",
+            error
+        );
+
+        // Prisma P2025 = record wasn't found
+        if (error.code === "P2025") {
+            return res.status(404).json({
+                error: "Attendance not found"
+            });
+        }
+
+        return res.status(500).json({
+            error:
+                "Server error updating attendance individual comment"
+        });
+    }
+};
 
 
 
