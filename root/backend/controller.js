@@ -931,181 +931,331 @@ const updateIndividualComment = async (req, res) => {
 // Create a new session
 const createSession = async (req, res) => {
     const {
-        sessionDay, 
+        sessionDay,
         location,
         startTime,
         endTime,
-        discipline, 
-        snowConditions, 
-        visConditions, 
-        terrainType, 
-        numFreeskiRuns, 
-        numDrillRuns, 
-        numEducationalCourseRuns, 
-        numGatesEducationalCourse, 
+        discipline,
+        snowConditions,
+        visConditions,
+        terrainType,
+        numFreeskiRuns,
+        numDrillRuns,
+        numEducationalCourseRuns,
+        numGatesEducationalCourse,
         numRaceTrainingCourseRuns,
         numGatesRaceTrainingCourse,
         numRaceRuns,
         numGatesRace,
         generalComments,
         createdBy,
-        attendance} = req.body; 
-    
-    const formatTime = (time) => time.length === (5 || 4) ? `${time}:00` : time;
+        attendance
+    } = req.body;
+
+    console.log(
+        sessionDay,
+        location,
+        discipline
+    );
+
+    console.log(
+        "Athletes in attendance:",
+        attendance
+    );
+
+    // Format time
+    const formatTime = (time) => {
+        return time.length === 5 || time.length === 4
+            ? `${time}:00`
+            : time;
+    };
 
     const formStartTime = formatTime(startTime);
     const formEndTime = formatTime(endTime);
 
-    console.log(sessionDay, location, discipline);
-    console.log("Athletes in attendance: ", attendance[0]);
-
-    //backend validation
+    // Backend validation
     let errors = [];
 
-    if (validator.isEmpty(sessionDay)) {
-      errors.push({sessionDay:'Session must have a date'});
-    }
-
-    if (!validator.isDate(sessionDay)) {
-      errors.push({sessionDay:'Session must be of format YYYY-MM-DD'});
-    }
-
-    // make this a time (version of type Date?)
-    if (validator.isEmpty(formStartTime)) {
-      errors.push({formStartTime:'Session must have a start time'});
-    }
-
-    // make this a time (version of type Date? then turn into string for database entry?)
-    if (validator.isEmpty(formEndTime)) {
-      errors.push({formEndTime:'Session must have an end time'});
-    }
-
-    if (validator.isEmpty(location)) {
-      errors.push({location:'Session must have a location'});
-    }
-
-    if (validator.isEmpty(discipline)) {
-      errors.push({discipline:'Session must have a discipline'});
-    }
-
-    if (!['SL', 'GS', 'SG', 'DH', 'Other'].includes(discipline)) {
-      errors.push({discipline:'Must choose a valid discipline'});
-    }
-
-    if (validator.isEmpty(snowConditions)) {
-      errors.push({snowConditions:'Session must have snow conditions'});
-    }
-
-    if (!['Soft', 'Compact-soft', 'Hard grippy', 'Ice', 'Wet', 'Salted', 'Non-groomed', 'Ball bearings', 'Powder'].includes(snowConditions)) {
-      errors.push({snowConditions:'Must choose valid snow conditions'});
-    }
-
-    if (validator.isEmpty(visConditions)) {
-      errors.push({visConditions:'Session must have a vis conditions'});
-    }
-
-    if (!['Sunny', 'Flat light', 'Fog', 'Snowing', 'Variable', 'Rain'].includes(visConditions)) {
-      errors.push({visConditions:'Must choose valid snow conditions'});
-    }
-
-    if (validator.isEmpty(terrainType)) {
-      errors.push({terrainType:'Session must have terrain type'});
-    }
-
-    if (!['Flat', 'Medium', 'Steep', 'Rolly', 'Mixed'].includes(terrainType)) {
-      errors.push({terrainType:'Must choose valid snow conditions'});
-    }
-
-    // number validation 
-    // FOR NOW: isNumeric checks if a STRING is all numbers... doesn't check if type is a number
-    // if (validator.isNumeric(numFreeskiRuns)) {
-    //   errors.push({numFreeskiRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numDrillRuns)) {
-    //   errors.push({numDrillRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numEducationalCourseRuns)) {
-    //   errors.push({numEducationalCourseRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numGatesEducationalCourse)) {
-    //   errors.push({numGatesEducationalCourse:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numRaceTrainingCourseRuns)) {
-    //   errors.push({numRaceTrainingCourseRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numGatesRaceTrainingCourse)) {
-    //   errors.push({numGatesRaceTrainingCourse:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numRaceRuns)) {
-    //   errors.push({numRaceRuns:'Must be a number'});
-    // }
-
-    // if (validator.isNumeric(numGatesRace)) {
-    //   errors.push({numGatesRace:'Must be a number'});
-    // }
-
-
-    // if any errors:
-     if (errors.length > 0) {
-      return res.status(400).json({ errors });
-    }
-
-
+    // Session day
     if (!sessionDay) {
-        return res.status(400).json( {error: "Missing session day"} );
+        errors.push({
+            sessionDay: "Session must have a date"
+        });
+    } else if (!validator.isDate(sessionDay)) {
+        errors.push({
+            sessionDay:
+                "Session must be of format YYYY-MM-DD"
+        });
+    }
+
+    // Start time
+    if (!formStartTime) {
+        errors.push({
+            formStartTime:
+                "Session must have a start time"
+        });
+    }
+
+    // End time
+    if (!formEndTime) {
+        errors.push({
+            formEndTime:
+                "Session must have an end time"
+        });
+    }
+
+    // Location
+    if (!location) {
+        errors.push({
+            location:
+                "Session must have a location"
+        });
+    }
+
+    // Discipline
+    if (!discipline) {
+        errors.push({
+            discipline:
+                "Session must have a discipline"
+        });
+    } else if (
+        !["SL", "GS", "SG", "DH", "Other"].includes(
+            discipline
+        )
+    ) {
+        errors.push({
+            discipline:
+                "Must choose a valid discipline"
+        });
+    }
+
+    // Snow conditions
+    if (!snowConditions) {
+        errors.push({
+            snowConditions:
+                "Session must have snow conditions"
+        });
+    } else if (
+        ![
+            "Soft",
+            "Compact-soft",
+            "Hard grippy",
+            "Ice",
+            "Wet",
+            "Salted",
+            "Non-groomed",
+            "Ball bearings",
+            "Powder"
+        ].includes(snowConditions)
+    ) {
+        errors.push({
+            snowConditions:
+                "Must choose valid snow conditions"
+        });
+    }
+
+    // Visibility conditions
+    if (!visConditions) {
+        errors.push({
+            visConditions:
+                "Session must have visibility conditions"
+        });
+    } else if (
+        ![
+            "Sunny",
+            "Flat light",
+            "Fog",
+            "Snowing",
+            "Variable",
+            "Rain"
+        ].includes(visConditions)
+    ) {
+        errors.push({
+            visConditions:
+                "Must choose valid visibility conditions"
+        });
+    }
+
+    // Terrain type
+    if (!terrainType) {
+        errors.push({
+            terrainType:
+                "Session must have terrain type"
+        });
+    } else if (
+        ![
+            "Flat",
+            "Medium",
+            "Steep",
+            "Rolly",
+            "Mixed"
+        ].includes(terrainType)
+    ) {
+        errors.push({
+            terrainType:
+                "Must choose valid terrain type"
+        });
+    }
+
+    // Attendance
+    if (!Array.isArray(attendance)) {
+        errors.push({
+            attendance:
+                "Attendance must be an array"
+        });
+    }
+
+    // Return validation errors
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
     }
 
     try {
-        const result = await pool.query(queries.sessions.createSession, [
-            sessionDay, 
-            formStartTime,
-            formEndTime,
-            location,
-            discipline, 
-            snowConditions, 
-            visConditions, 
-            terrainType, 
-            numFreeskiRuns, 
-            numDrillRuns, 
-            numEducationalCourseRuns, 
-            numGatesEducationalCourse, 
-            numRaceTrainingCourseRuns,
-            numGatesRaceTrainingCourse,
-            numRaceRuns,
-            numGatesRace,
-            generalComments,
-            createdBy
-        ]);
-        const newSession = result.rows[0]
-        const sessionId = newSession.session_id;
+        const result = await prisma.$transaction(
+            async (tx) => {
 
-        console.log("Create session: ", sessionId);
+                // ----------------------------------------
+                // 1. Create session
+                // ----------------------------------------
 
-        // loop through athletes in attendance
-       for (const athlete of attendance) {
-            console.log("Adding athlete attendance: ", athlete);
-            await pool.query(queries.attendance.addAthleteAttendance, [athlete, sessionId]);
-        }
-        
+                const newSession =
+                    await tx.sessions.create({
+                        data: {
+                            session_day:
+                                new Date(sessionDay),
 
-        res.status(201).json(newSession);
-        
+                            start_time:
+                                new Date(`1970-01-01T${formStartTime}`),
+
+                            end_time:
+                                new Date(`1970-01-01T${formEndTime}`),
+
+                            location:
+                                location,
+
+                            discipline:
+                                discipline,
+
+                            snow_conditions:
+                                snowConditions,
+
+                            vis_conditions:
+                                visConditions,
+
+                            terrain_type:
+                                terrainType,
+
+                            num_freeski_runs:
+                                numFreeskiRuns != null
+                                    ? Number(numFreeskiRuns)
+                                    : null,
+
+                            num_drill_runs:
+                                numDrillRuns != null
+                                    ? Number(numDrillRuns)
+                                    : null,
+
+                            num_educational_course_runs:
+                                numEducationalCourseRuns != null
+                                    ? Number(
+                                        numEducationalCourseRuns
+                                    )
+                                    : null,
+
+                            num_gates_educational_course:
+                                numGatesEducationalCourse != null
+                                    ? Number(
+                                        numGatesEducationalCourse
+                                    )
+                                    : null,
+
+                            num_race_training_course_runs:
+                                numRaceTrainingCourseRuns != null
+                                    ? Number(
+                                        numRaceTrainingCourseRuns
+                                    )
+                                    : null,
+
+                            num_gates_race_training_course:
+                                numGatesRaceTrainingCourse != null
+                                    ? Number(
+                                        numGatesRaceTrainingCourse
+                                    )
+                                    : null,
+
+                            num_race_runs:
+                                numRaceRuns != null
+                                    ? Number(numRaceRuns)
+                                    : null,
+
+                            num_gates_race:
+                                numGatesRace != null
+                                    ? Number(numGatesRace)
+                                    : null,
+
+                            general_comments:
+                                generalComments || null,
+
+                            created_by:
+                                createdBy
+                                    ? Number(createdBy)
+                                    : null
+                        }
+                    });
+
+                console.log(
+                    "Created session:",
+                    newSession.session_id
+                );
+
+                // ----------------------------------------
+                // 2. Add athletes to attendance
+                // ----------------------------------------
+
+                if (attendance.length > 0) {
+                    await tx.attendance.createMany({
+                        data: attendance.map(
+                            (athleteId) => ({
+                                athlete_id:
+                                    Number(athleteId),
+
+                                session_id:
+                                    newSession.session_id
+                            })
+                        ),
+                        skipDuplicates: true
+                    });
+                }
+
+                // ----------------------------------------
+                // 3. Return created session
+                // ----------------------------------------
+
+                return newSession;
+            }
+        );
+
+        console.log(
+            "Created session:",
+            result
+        );
+
+        return res.status(201).json(result);
 
     } catch (error) {
-        console.error('Error creating session: ', error);
-        res.status(500).json({ error: error.message }); //
+        console.error(
+            "Error creating session:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Server error creating session"
+        });
     }
-}
+};
 
 // Get sessions
 const getSessions = async (req, res) => {
-
     const {
         sessionId,
         athleteId,
@@ -1118,64 +1268,295 @@ const getSessions = async (req, res) => {
         terrainType
     } = req.query;
 
-
-
     try {
-        const values = [
-            athleteId,
-            startDate || null,
-            endDate || null,
-            location || null,
-            discipline || null,
-            snowConditions || null,
-            visConditions || null,
-            terrainType || null
-        ];
+        let sessions;
 
-        console.log("THINGS TO FILTER: ", values);
+        // ----------------------------------------
+        // 1. Get sessions
+        // ----------------------------------------
 
-        let result;
+        if (sessionId) {
 
-        if (athleteId) {
-            result = await pool.query(queries.sessions.oneAthleteSessionsFilterSearch, values);
-        } else if (sessionId) { //getting session by specific session ID
-            result = await pool.query(queries.sessions.getSessionById, [sessionId]);
-        } else {  //getting all sessions
-            result = await pool.query(queries.sessions.getAllSessions);
+            // Get one specific session
+            sessions = await prisma.sessions.findUnique({
+                where: {
+                    session_id: Number(sessionId)
+                },
+
+                include: {
+                    attendance: {
+                        include: {
+                            athlete: {
+                                include: {
+                                    team_memberships: {
+                                        where: {
+                                            end_date: null
+                                        },
+
+                                        orderBy: {
+                                            start_date: "desc"
+                                        },
+
+                                        take: 1,
+
+                                        include: {
+                                            team: {
+                                                include: {
+                                                    club: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (!sessions) {
+                return res.status(404).json({
+                    error: "No sessions found"
+                });
+            }
+
+            sessions = [sessions];
+
+        } else {
+
+            // ----------------------------------------
+            // 2. Build session filters
+            // ----------------------------------------
+
+            const where = {};
+
+            if (startDate || endDate) {
+                where.session_day = {};
+
+                if (startDate) {
+                    where.session_day.gte =
+                        new Date(startDate);
+                }
+
+                if (endDate) {
+                    where.session_day.lte =
+                        new Date(endDate);
+                }
+            }
+
+            if (location) {
+                where.location = {
+                    contains: location,
+                    mode: "insensitive"
+                };
+            }
+
+            if (discipline) {
+                where.discipline = discipline;
+            }
+
+            if (snowConditions) {
+                where.snow_conditions =
+                    snowConditions;
+            }
+
+            if (visConditions) {
+                where.vis_conditions =
+                    visConditions;
+            }
+
+            if (terrainType) {
+                where.terrain_type =
+                    terrainType;
+            }
+
+            // If filtering by athlete, only return sessions where that athlete has attendance.
+            if (athleteId) {
+                where.attendance = {
+                    some: {
+                        athlete_id: Number(athleteId)
+                    }
+                };
+            }
+
+            // ----------------------------------------
+            // 3. Get matching sessions + attendance
+            // ----------------------------------------
+
+            sessions = await prisma.sessions.findMany({
+                where,
+
+                orderBy: {
+                    session_day: "desc"
+                },
+
+                include: {
+                    attendance: {
+                        include: {
+                            athlete: {
+                                include: {
+                                    team_memberships: {
+                                        where: {
+                                            end_date: null
+                                        },
+
+                                        orderBy: {
+                                            start_date: "desc"
+                                        },
+
+                                        take: 1,
+
+                                        include: {
+                                            team: {
+                                                include: {
+                                                    club: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No sessions found"} );
+
+        if (sessions.length === 0) {
+            return res.status(404).json({
+                error: "No sessions found"
+            });
         }
 
-        const attendance = await pool.query(queries.sessions.getAllAthletesAttendanceFromSession, [sessionId]);
+        // -------------------------------------------------------------
+        // 4. Convert Prisma result to existing frontend response shape
+        // -------------------------------------------------------------
 
-        const sessionsWithAttendance = result.rows.map((session) => ({
-            ...session,
-            attendance: attendance.rows
-                .filter(att => att.session_id === session.session_id)
-                .map(att => ({
-                    attendanceId: att.attendance_id,
-                    individualComments: att.individual_comments,
-                    athlete: {
-                        athleteId: att.athlete_id,
-                        athleteFirstName: att.athlete_first_name,
-                        athleteLastName: att.athlete_last_name,
-                        birthday: att.birthday,
-                        gender: att.gender,
-                        userId: att.user_id,
-                        team: att.team,
-                        ageGroup: att.age_group,
-                    },
-                })),
-        }));
+        const sessionsWithAttendance =
+            sessions.map((session) => ({
+                sessionId:
+                    session.session_id,
 
-        res.status(200).json(sessionsWithAttendance);
+                sessionDay:
+                    session.session_day,
 
+                startTime:
+                    session.start_time,
+
+                endTime:
+                    session.end_time,
+
+                location:
+                    session.location,
+
+                discipline:
+                    session.discipline,
+
+                snowConditions:
+                    session.snow_conditions,
+
+                visConditions:
+                    session.vis_conditions,
+
+                terrainType:
+                    session.terrain_type,
+
+                numFreeskiRuns:
+                    session.num_freeski_runs,
+
+                numDrillRuns:
+                    session.num_drill_runs,
+
+                numEducationalCourseRuns:
+                    session.num_educational_course_runs,
+
+                numGatesEducationalCourse:
+                    session.num_gates_educational_course,
+
+                numRaceTrainingCourseRuns:
+                    session.num_race_training_course_runs,
+
+                numGatesRaceTrainingCourse:
+                    session.num_gates_race_training_course,
+
+                numRaceRuns:
+                    session.num_race_runs,
+
+                numGatesRace:
+                    session.num_gates_race,
+
+                generalComments:
+                    session.general_comments,
+
+                createdBy:
+                    session.created_by,
+
+                attendance:
+                    session.attendance.map((att) => {
+
+                        const membership =
+                            att.athlete
+                                .team_memberships[0];
+
+                        return {
+                            attendanceId:
+                                att.attendance_id,
+
+                            individualComments:
+                                att.individual_comments,
+
+                            athlete: {
+                                athleteId:
+                                    att.athlete.athlete_id,
+
+                                athleteFirstName:
+                                    att.athlete
+                                        .athlete_first_name,
+
+                                athleteLastName:
+                                    att.athlete
+                                        .athlete_last_name,
+
+                                birthday:
+                                    att.athlete.birthday,
+
+                                gender:
+                                    att.athlete.gender,
+
+                                userId:
+                                    att.athlete.users?.[0]
+                                        ?.user_id ?? null,
+
+                                team:
+                                    membership?.team?.name
+                                        ?? null,
+
+                                club:
+                                    membership?.team?.club?.name
+                                        ?? null,
+
+                                ageGroup:
+                                    att.athlete.age_group
+                            }
+                        };
+                    })
+            }));
+
+        return res.status(200).json(
+            sessionsWithAttendance
+        );
 
     } catch (error) {
-        console.error('Error getting sessions: ', error);
-        res.status(500).send({error: 'Server error retrieving sessions'} );
+
+        console.error(
+            "Error getting sessions:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error retrieving sessions"
+        });
     }
 };
 
