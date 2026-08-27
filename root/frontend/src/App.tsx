@@ -14,6 +14,7 @@ import { useContext } from 'react';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ClubDashboard from './dashboards/ClubDashboard/ClubDashboard';
 import TeamDashboard from './dashboards/TeamDashboard/TeamDashboard';
+import AcceptInvitePage from './pages/AcceptInvitePage/AcceptInvitePage';
 
 
 const App: React.FC = () => {
@@ -29,7 +30,8 @@ const App: React.FC = () => {
 			<Route path="/" element = {<MainLayout/>}>
 				<Route path="/createAthlete" element={<ProtectedRoute allowedRoles={["coach"]}><CreateAthletePage/></ProtectedRoute>}/>
 				<Route path="/createSession" element={<ProtectedRoute allowedRoles={["coach"]}><CreateSessionPage/></ProtectedRoute>}/>
-				<Route path="/register/:inviteToken" element={<CreateUserPage />} />
+				<Route path="/register/:inviteToken" element={<AcceptInvitePage />} />
+				<Route path="/register/:inviteToken/create" element={<CreateUserPage />} />
 				<Route path="/login" element={<LoginPage/>}/>
 				<Route index path="/dashboard" element={<ProtectedRoute allowedRoles={["coach", "athlete", "parent"]}><Dashboard/></ProtectedRoute>}/>
 				<Route path="/athlete/:athleteId" element={<ProtectedRoute allowedRoles={["coach"]}><AthleteDashboard/></ProtectedRoute>}/>

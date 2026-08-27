@@ -16,11 +16,11 @@ const Header: React.FC<HeaderProps> = ({ user, logout }) => {
                     <Nav>
                         <div className="header-box">
                             <h1>TRAINING TRACKER</h1>
-                            <button className="main-button" id="logout-button" onClick={logout}>Logout</button>
+                            <button className="main-button" id="logout-button" onClick={logout}>Log Out</button>
                         </div>
                     </Nav>
                 ) : (
-                    <button className="main-button" id="login-button"><Link to="/login">Login</Link></button>
+                    <button className="main-button" id="login-button"><Link to="/login">Log In</Link></button>
                 )}
             </Container>
         </Navbar>

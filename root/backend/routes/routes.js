@@ -89,8 +89,11 @@ router.put("/attendance/", requireClubCoach, controller.addAthletesToAttendance)
 // POST /api/invite
 router.post("/invite", requireCoach, controller.createInvite);
 
+// accept an invite and mark it as used
+router.post("/invite/:token/accept", requireAuth, controller.acceptInvite);
+
 // GET /api/invite/:token
-router.get("/invite/:token", controller.approveInvite);
+router.get("/invite/:token", controller.getInviteDetails);
 
 /*************************************/
 /******** CLUB + TEAM ROUTES *********/

@@ -7,7 +7,6 @@ import type { Team } from "../../types/Team";
 import type { Athlete } from "../../types/Athlete";
 import type { Session } from "../../types/Session";
 
-import GenerateInviteButton from "../../components/GenerateInviteButton/GenerateInviteButton";
 import PieChart from "../../components/PieChart/PieChart";
 import MiniAthletesList from "../../components/MiniAthletesList/MiniAthletesList";
 import MiniSessionsList from "../../components/MiniSessionsList/MiniSessionsList";
@@ -330,21 +329,6 @@ const ClubDashboard: React.FC = () => {
         <div className="club-dashboard">
 
           <h2>{club.name}</h2>
-
-          <div
-            className="generate-invite-butt"
-            id="coach-invite"
-          >
-            <div className="generate-invite-box">
-
-              <h3>Invite a Coach</h3>
-
-              <GenerateInviteButton
-                role="coach"
-              />
-
-            </div>
-          </div>
 
           <div className="teams-box">
             <h3>Teams</h3>

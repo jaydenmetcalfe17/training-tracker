@@ -2,7 +2,7 @@
 
 import type { FC } from 'react';
 import "./Dashboard.scss";
-// import ParentDashboard from "../../pages/ParentDashboard";
+import ParentDashboard from "../../dashboards/ParentDashboard/ParentDashboard";
 import AthleteDashboard from "../../dashboards/AthleteDashboard/AthleteDashboard";
 import DashboardErrorPage from "../../dashboards/DashboardErrorPage/DashboardErrorPage";
 
@@ -31,9 +31,8 @@ const Dashboard: React.FC = () => {
       DashboardComponent = AthleteDashboard;
       break;
 
-    // ParentDashboard blank component exists if wanting to change in future/if there becomes a difference between the two 
     case 'parent':
-      DashboardComponent = AthleteDashboard; 
+      DashboardComponent = ParentDashboard; 
       break;
     
     default: 

@@ -49,7 +49,7 @@ const TeamDashboard: React.FC = () => {
           <div className="generate-invite-butt" id="coach-invite">
             <div className="generate-invite-box">
               <h3>Invite a Coach</h3>
-              <GenerateInviteButton role="coach" />
+              <GenerateInviteButton role="coach" teamId={Number(teamId)}/>
             </div>
           </div>
 

@@ -20,6 +20,7 @@ const getAllDataFromAthleteProfile = async (req, res) => {
     const {
         athleteId,
         userId,
+        parentUserId,
         teamId,
         clubId,
         acaId,
@@ -40,6 +41,7 @@ const getAllDataFromAthleteProfile = async (req, res) => {
         let parsedClubId = null;
         let parsedAthleteId = null;
         let parsedUserId = null;
+        let parsedParentUserId = null;
         let parsedAcaId = null;
         let parsedFisId = null;
 
@@ -111,6 +113,24 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
                 return res.status(400).json({
                     error: "Invalid userId"
+                });
+            }
+        }
+
+
+        if (parentUserId) {
+
+            parsedParentUserId =
+                Number(parentUserId);
+
+            if (
+                !Number.isInteger(
+                    parsedParentUserId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error: "Invalid parentUserId"
                 });
             }
         }
@@ -334,6 +354,37 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
                         athlete_id:
                             parsedAthleteId
+                    },
+
+                    include: {
+
+                        team_memberships:
+                            membershipInclude
+                    }
+                });
+
+
+        // ----------------------------------------
+        // Get athletes associated with parent user
+        // ----------------------------------------
+
+        } else if (
+            parsedParentUserId !== null
+        ) {
+
+            result =
+                await prisma.athletes.findMany({
+
+                    where: {
+
+                        parents: {
+
+                            some: {
+
+                                user_id:
+                                    parsedParentUserId
+                            }
+                        }
                     },
 
                     include: {
@@ -4240,36 +4291,199 @@ const createUser = async (req, res) => {
 
 // coach can create an invite link for another coach, parent or athlete to register with the system
 const createInvite = async (req, res) => {
-    const { athleteId, role, currentURL } = req.body;
+    const {
+        athleteId,
+        teamId,
+        role,
+        currentURL
+    } = req.body;
 
-    if (!role || !["athlete", "parent", "coach"].includes(role)) {
-        return res.status(400).json({ error: "Invalid role" });
+    // ----------------------------------------
+    // Validate role
+    // ----------------------------------------
+
+    if (
+        !role ||
+        !["athlete", "parent", "coach"].includes(role)
+    ) {
+        return res.status(400).json({
+            error: "Invalid role"
+        });
+    }
+
+    // ----------------------------------------
+    // Validate invite target
+    // ----------------------------------------
+
+    const parsedAthleteId =
+        athleteId != null
+            ? Number(athleteId)
+            : null;
+
+    const parsedTeamId =
+        teamId != null
+            ? Number(teamId)
+            : null;
+
+    if (
+        role === "athlete" ||
+        role === "parent"
+    ) {
+        if (
+            parsedAthleteId === null ||
+            !Number.isInteger(parsedAthleteId)
+        ) {
+            return res.status(400).json({
+                error:
+                    "An athleteId is required for this invite."
+            });
+        }
+
+        if (parsedTeamId !== null) {
+            return res.status(400).json({
+                error:
+                    "A teamId cannot be supplied for this invite."
+            });
+        }
+    }
+
+    if (role === "coach") {
+        if (
+            parsedTeamId === null ||
+            !Number.isInteger(parsedTeamId)
+        ) {
+            return res.status(400).json({
+                error:
+                    "A teamId is required for a coach invite."
+            });
+        }
+
+        if (parsedAthleteId !== null) {
+            return res.status(400).json({
+                error:
+                    "An athleteId cannot be supplied for a coach invite."
+            });
+        }
     }
 
     try {
-        // Generate random token
-        const token = crypto.randomBytes(32).toString("hex");
 
-        // Expires in 7 days
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7);
+        // ----------------------------------------
+        // Verify target exists
+        // ----------------------------------------
 
-        const invite = await prisma.invites.create({
-            data: {
-                athlete_id:
-                    athleteId != null
-                        ? Number(athleteId)
-                        : null,
+        if (
+            role === "athlete" ||
+            role === "parent"
+        ) {
+            const athlete =
+                await prisma.athletes.findUnique({
+                    where: {
+                        athlete_id:
+                            parsedAthleteId
+                    }
+                });
 
-                token: token,
-
-                role: role,
-
-                expires_at: expiresAt,
-
-                used: false
+            if (!athlete) {
+                return res.status(404).json({
+                    error:
+                        "Athlete not found."
+                });
             }
-        });
+        }
+
+        if (role === "coach") {
+            const team =
+                await prisma.teams.findUnique({
+                    where: {
+                        team_id:
+                            parsedTeamId
+                    }
+                });
+
+            if (!team) {
+                return res.status(404).json({
+                    error:
+                        "Team not found."
+                });
+            }
+        }
+
+        // ----------------------------------------
+        // Check whether athlete already has
+        // an athlete account
+        // ----------------------------------------
+
+        if (
+            role === "athlete"
+        ) {
+            const existingAthleteUser =
+                await prisma.users.findFirst({
+                    where: {
+                        athlete_id:
+                            parsedAthleteId,
+
+                        status:
+                            "athlete"
+                    }
+                });
+
+            if (existingAthleteUser) {
+                return res.status(400).json({
+                    error:
+                        "An athlete account is already associated with this athlete. Please have the athlete log in instead."
+                });
+            }
+        }
+
+        // ----------------------------------------
+        // Generate token
+        // ----------------------------------------
+
+        const token =
+            crypto
+                .randomBytes(32)
+                .toString("hex");
+
+        // ----------------------------------------
+        // Expires in 7 days
+        // ----------------------------------------
+
+        const expiresAt =
+            new Date();
+
+        expiresAt.setDate(
+            expiresAt.getDate() + 7
+        );
+
+        // ----------------------------------------
+        // Create invite
+        // ----------------------------------------
+
+        const invite =
+            await prisma.invites.create({
+                data: {
+                    athlete_id:
+                        role === "athlete" ||
+                        role === "parent"
+                            ? parsedAthleteId
+                            : null,
+
+                    team_id:
+                        role === "coach"
+                            ? parsedTeamId
+                            : null,
+
+                    token,
+
+                    role,
+
+                    expires_at:
+                        expiresAt,
+
+                    used: false
+                }
+            });
 
         const inviteLink =
             `${currentURL}/register/${invite.token}`;
@@ -4279,65 +4493,528 @@ const createInvite = async (req, res) => {
         });
 
     } catch (error) {
+
         console.error(
             "Error generating invite:",
             error
         );
 
         return res.status(500).json({
-            error: "Failed to generate invite link"
+            error:
+                "Failed to generate invite link"
         });
     }
 };
 
 // ensures that the invite link is valid and returns the role and athleteId if applicable
-const approveInvite = async (req, res) => {
+const getInviteDetails = async (req, res) => {
     const { token } = req.params;
 
     try {
-        const invite = await prisma.invites.findUnique({
-            where: {
-                token: token
-            }
-        });
 
+        const invite =
+            await prisma.invites.findUnique({
+                where: {
+                    token
+                },
+                include: {
+                    athlete: true,
+                    team: {
+                        include: {
+                            club: true
+                        }
+                    }
+                }
+            });
+
+        // ----------------------------------------
         // Invite doesn't exist
+        // ----------------------------------------
+
         if (!invite) {
             return res.status(404).json({
-                error: "Invalid invite link."
+                error:
+                    "Invalid invite link."
             });
         }
 
-        // Invite has already been used
+        // ----------------------------------------
+        // Invite already used
+        // ----------------------------------------
+
         if (invite.used) {
             return res.status(400).json({
-                error: "This invite link has already been used."
+                error:
+                    "This invite link has already been used."
             });
         }
 
-        // Invite has expired
-        if (invite.expires_at < new Date()) {
+        // ----------------------------------------
+        // Invite expired
+        // ----------------------------------------
+
+        if (
+            invite.expires_at < new Date()
+        ) {
             return res.status(400).json({
-                error: "This invite link has expired."
+                error:
+                    "This invite link has expired."
             });
         }
 
-        // Invite is valid
+        // ----------------------------------------
+        // Return invite details
+        // ----------------------------------------
+
         return res.status(200).json({
-            athleteId: invite.athlete_id,
-            role: invite.role,
-            used: invite.used,
-            expiresAt: invite.expires_at
+
+            role:
+                invite.role,
+
+            athleteId:
+                invite.athlete_id,
+
+            teamId:
+                invite.team_id,
+
+            athlete:
+                invite.athlete
+                    ? {
+                        athleteId:
+                            invite.athlete.athlete_id,
+
+                        firstName:
+                            invite.athlete.athlete_first_name,
+
+                        lastName:
+                            invite.athlete.athlete_last_name
+                    }
+                    : null,
+
+            team:
+                invite.team
+                    ? {
+                        teamId:
+                            invite.team.team_id,
+
+                        name:
+                            invite.team.name,
+
+                        club:
+                            invite.team.club
+                                ? {
+                                    clubId:
+                                        invite.team.club.club_id,
+
+                                    name:
+                                        invite.team.club.name
+                                }
+                                : null
+                    }
+                    : null,
+
+            used:
+                invite.used,
+
+            expiresAt:
+                invite.expires_at
+
         });
 
     } catch (error) {
+
         console.error(
-            "Error approving invite:",
+            "Error getting invite details:",
             error
         );
 
         return res.status(500).json({
-            error: "Server error validating invite"
+            error:
+                "Server error validating invite"
+        });
+    }
+};
+
+// Accept an invite for an existing authenticated user
+const acceptInvite = async (req, res) => {
+    const { token } = req.params;
+
+    try {
+
+        // ----------------------------------------
+        // 1. Get authenticated user
+        // ----------------------------------------
+
+        const userId =
+            req.user?.user_id;
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "You must be logged in to accept this invite."
+            });
+        }
+
+
+        // ----------------------------------------
+        // 2. Get authenticated user
+        // ----------------------------------------
+
+        const user =
+            await prisma.users.findUnique({
+                where: {
+                    user_id:
+                        userId
+                }
+            });
+
+        if (!user) {
+            return res.status(404).json({
+                error:
+                    "Authenticated user not found."
+            });
+        }
+
+
+        // ----------------------------------------
+        // 3. Get invite
+        // ----------------------------------------
+
+        const invite =
+            await prisma.invites.findUnique({
+                where: {
+                    token:
+                        token
+                }
+            });
+
+        if (!invite) {
+            return res.status(404).json({
+                error:
+                    "Invalid invite link."
+            });
+        }
+
+
+        // ----------------------------------------
+        // 4. Check whether invite is already used
+        // ----------------------------------------
+
+        if (invite.used) {
+            return res.status(400).json({
+                error:
+                    "This invite link has already been used."
+            });
+        }
+
+
+        // ----------------------------------------
+        // 5. Check whether invite has expired
+        // ----------------------------------------
+
+        if (
+            invite.expires_at <
+            new Date()
+        ) {
+            return res.status(400).json({
+                error:
+                    "This invite link has expired."
+            });
+        }
+
+
+        // ----------------------------------------
+        // 6. Accept invite inside transaction
+        // ----------------------------------------
+
+        await prisma.$transaction(
+            async (tx) => {
+
+                // ========================================
+                // PARENT INVITE
+                // ========================================
+
+                if (
+                    invite.role === "parent"
+                ) {
+
+                    if (
+                        invite.athlete_id === null
+                    ) {
+                        throw new Error(
+                            "This parent invite is missing an athlete."
+                        );
+                    }
+
+
+                    // Verify athlete exists
+
+                    const athlete =
+                        await tx.athletes.findUnique({
+                            where: {
+                                athlete_id:
+                                    invite.athlete_id
+                            }
+                        });
+
+                    if (!athlete) {
+                        throw new Error(
+                            "The athlete associated with this invite could not be found."
+                        );
+                    }
+
+
+                    // Create parent → athlete
+                    // relationship.
+                    //
+                    // If the parent is already associated
+                    // with this athlete, upsert does nothing.
+                    //
+                    // This prevents duplicate relationships.
+
+                    await tx.parents.upsert({
+
+                        where: {
+                            athlete_id_user_id: {
+                                athlete_id:
+                                    invite.athlete_id,
+
+                                user_id:
+                                    userId
+                            }
+                        },
+
+                        update: {},
+
+                        create: {
+                            athlete_id:
+                                invite.athlete_id,
+
+                            user_id:
+                                userId
+                        }
+                    });
+                }
+
+
+                // ========================================
+                // ATHLETE INVITE
+                // ========================================
+
+                else if (
+                    invite.role === "athlete"
+                ) {
+
+                    if (
+                        invite.athlete_id === null
+                    ) {
+                        throw new Error(
+                            "This athlete invite is missing an athlete."
+                        );
+                    }
+
+
+                    // An existing athlete account
+                    // must already be associated with
+                    // the athlete in the invite.
+
+                    if (
+                        user.athlete_id !==
+                        invite.athlete_id
+                    ) {
+                        throw new Error(
+                            "This invite does not belong to your athlete account."
+                        );
+                    }
+
+
+                    // Nothing else needs to be created.
+                    //
+                    // The athlete already has:
+                    //
+                    // users.athlete_id
+                    //
+                    // so accepting the invite simply
+                    // validates that this is their invite.
+                }
+
+
+                // ========================================
+                // COACH INVITE
+                // ========================================
+
+                else if (
+                    invite.role === "coach"
+                ) {
+
+                    if (
+                        invite.team_id === null
+                    ) {
+                        throw new Error(
+                            "This coach invite is missing a team."
+                        );
+                    }
+
+
+                    // Verify team exists
+
+                    const team =
+                        await tx.teams.findUnique({
+                            where: {
+                                team_id:
+                                    invite.team_id
+                            }
+                        });
+
+                    if (!team) {
+                        throw new Error(
+                            "The team associated with this invite could not be found."
+                        );
+                    }
+
+
+                    // Create coach → team membership.
+                    //
+                    // If the coach is already a member
+                    // of this team, upsert does nothing.
+                    //
+                    // This prevents duplicate memberships.
+
+                    await tx.coach_memberships.upsert({
+
+                        where: {
+                            user_id_team_id: {
+                                user_id:
+                                    userId,
+
+                                team_id:
+                                    invite.team_id
+                            }
+                        },
+
+                        update: {},
+
+                        create: {
+                            user_id:
+                                userId,
+
+                            team_id:
+                                invite.team_id
+                        }
+                    });
+                }
+
+
+                // ========================================
+                // INVALID ROLE
+                // ========================================
+
+                else {
+
+                    throw new Error(
+                        "Invalid invite role."
+                    );
+                }
+
+
+                // ========================================
+                // MARK INVITE AS USED
+                // ========================================
+
+                // This happens INSIDE the transaction.
+                //
+                // Therefore, if any of the operations above
+                // fails, the transaction rolls back and the
+                // invite remains unused.
+
+                await tx.invites.update({
+
+                    where: {
+                        invite_id:
+                            invite.invite_id
+                    },
+
+                    data: {
+                        used:
+                            true
+                    }
+                });
+            }
+        );
+
+
+        // ----------------------------------------
+        // 7. Return success
+        // ----------------------------------------
+
+        return res.status(200).json({
+
+            success:
+                true,
+
+            message:
+                "Invite accepted successfully.",
+
+            role:
+                invite.role,
+
+            athleteId:
+                invite.athlete_id,
+
+            teamId:
+                invite.team_id
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Error accepting invite:",
+            error
+        );
+
+
+        // ----------------------------------------
+        // Known invite/business errors
+        // ----------------------------------------
+
+        const knownErrors = [
+
+            "This parent invite is missing an athlete.",
+
+            "The athlete associated with this invite could not be found.",
+
+            "This athlete invite is missing an athlete.",
+
+            "This invite does not belong to your athlete account.",
+
+            "This coach invite is missing a team.",
+
+            "The team associated with this invite could not be found.",
+
+            "Invalid invite role."
+        ];
+
+
+        if (
+            error instanceof Error &&
+            knownErrors.includes(error.message)
+        ) {
+
+            return res.status(400).json({
+                error:
+                    error.message
+            });
+        }
+
+
+        // ----------------------------------------
+        // Unexpected server error
+        // ----------------------------------------
+
+        return res.status(500).json({
+            error:
+                "Server error accepting invite."
         });
     }
 };
@@ -5343,7 +6020,8 @@ module.exports = {
     deleteSession,
     createUser,
     createInvite,
-    approveInvite,
+    getInviteDetails,
+    acceptInvite,
     getClubs,
     getTeams,
     getAthleteTeamMemberships,

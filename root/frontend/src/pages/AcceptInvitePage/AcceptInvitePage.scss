@@ -1,0 +1,30 @@
+//pages/AcceptInvitePage/AcceptInvitePage.scss
+
+.accept-invite-page {
+    text-align: center;
+    padding: 1.5rem
+}
+
+.accept-invite-page p {
+    margin-bottom: 1rem;
+}
+
+.accept-invite-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.accept-invite-buttons button {
+    min-width: 140px;
+    justify-content: center;
+}
+
+.error-text {
+    color: red;
+}
+
+.choose-text{
+    display: flex;
+}
