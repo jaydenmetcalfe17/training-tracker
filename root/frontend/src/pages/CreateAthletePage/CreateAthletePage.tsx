@@ -17,20 +17,30 @@ interface CreateAthletePageProps {
 const mapAthlete = (athlete: any): Athlete => ({
   athleteId: athlete.athlete_id,
 
-  athleteFirstName: athlete.athlete_first_name,
-  athleteLastName: athlete.athlete_last_name,
+  athleteFirstName:
+    athlete.athlete_first_name,
 
-  birthday: athlete.birthday
-    ? new Date(athlete.birthday)
-        .toISOString()
-        .split("T")[0]
-    : "",
+  athleteLastName:
+    athlete.athlete_last_name,
 
-  gender: athlete.gender,
+  birthday:
+    athlete.birthday
+      ? new Date(athlete.birthday)
+          .toISOString()
+          .split("T")[0]
+      : "",
 
-  acaId: athlete.aca_id,
-  fisId: athlete.fis_id,
-  ageGroup: athlete.age_group,
+  gender:
+    athlete.gender,
+
+  acaId:
+    athlete.aca_id,
+
+  fisId:
+    athlete.fis_id,
+
+  ageGroup:
+    athlete.age_group,
 
   teamMemberships:
     athlete.team_memberships?.map(
@@ -50,55 +60,66 @@ const mapAthlete = (athlete: any): Athlete => ({
         endDate:
           membership.end_date,
 
-        team: membership.team
-          ? {
-              teamId:
-                membership.team.team_id,
+        team:
+          membership.team
+            ? {
+                teamId:
+                  membership.team.team_id,
 
-              clubId:
-                membership.team.club_id,
+                clubId:
+                  membership.team.club_id,
 
-              name:
-                membership.team.name,
+                name:
+                  membership.team.name,
 
-              club: membership.team.club
-                ? {
-                    clubId:
-                      membership.team.club.club_id,
+                club:
+                  membership.team.club
+                    ? {
+                        clubId:
+                          membership.team.club.club_id,
 
-                    name:
-                      membership.team.club.name,
-                  }
-                : undefined,
-            }
-          : undefined,
+                        name:
+                          membership.team.club.name,
+                      }
+                    : undefined,
+              }
+            : undefined,
       })
     ) ?? [],
 });
 
+
 const CreateAthletePage: React.FC<
   CreateAthletePageProps
-> = ({ teamId, clubId }) => {
+> = ({
+  teamId,
+  clubId,
+}) => {
 
   const [athletes, setAthletes] =
     useState<Athlete[]>([]);
 
   // ----------------------------------------
-  // Load athletes
+  // Load athletes currently on this team
   // ----------------------------------------
 
   useEffect(() => {
 
-    const url = teamId
-      ? `/api/athlete?teamId=${teamId}`
-      : `/api/athlete`;
+    if (!teamId) {
+      setAthletes([]);
+      return;
+    }
 
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    fetch(
+      `/api/athlete?teamId=${teamId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+      }
+    )
       .then((res) => {
 
         if (!res.ok) {
@@ -111,12 +132,8 @@ const CreateAthletePage: React.FC<
       })
       .then((data) => {
 
-        console.log(
-          "ATHLETE DATA:",
-          data
-        );
-
-        const loadedAthletes: Athlete[] =
+        const loadedAthletes:
+          Athlete[] =
           data.map(mapAthlete);
 
         setAthletes(
@@ -129,80 +146,133 @@ const CreateAthletePage: React.FC<
           "Unable to find athletes:",
           err
         );
+
+        setAthletes([]);
       });
 
   }, [teamId]);
 
+
   // ----------------------------------------
-  // Create Athlete Profile
+  // Create new athlete OR add existing athlete
   // ----------------------------------------
 
-  const createAthleteProfile = (
-    newAthlete: CreateAthleteRequest
+  const handleAthleteSubmit = async (
+    athlete: CreateAthleteRequest
   ) => {
 
-    console.log(
-      "CREATING ATHLETE:",
-      newAthlete
-    );
+    if (!teamId) {
 
-    fetch(`/api/athlete`, {
-      method: "POST",
+      console.error(
+        "Cannot add athlete without a team"
+      );
 
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
+      throw new Error(
+        "No team selected"
+      );
+    }
 
-      body: JSON.stringify(
-        newAthlete
-      ),
-    })
-      .then(async (res) => {
 
-        const data =
-          await res.json();
+    try {
 
-        if (!res.ok) {
-          throw new Error(
-            data.error ||
-              "Failed to create athlete"
-          );
+      const response =
+        await fetch(
+          `/api/athlete`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+
+              ...athlete,
+
+              // The backend expects an array
+              // of team IDs.
+              teamIds: [
+                teamId
+              ],
+
+              // Keep teamId as well for compatibility
+              // with the existing create-athlete logic.
+              teamId: teamId,
+            }),
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Failed to add athlete"
+        );
+      }
+
+
+      console.log(
+        "Athlete added:",
+        data
+      );
+
+
+      const addedAthlete =
+        mapAthlete(data);
+
+
+      // --------------------------------------
+      // Add athlete to local list
+      // --------------------------------------
+
+      setAthletes(
+        (prev) => {
+
+          const alreadyExists =
+            prev.some(
+              (existing) =>
+                existing.athleteId ===
+                addedAthlete.athleteId
+            );
+
+
+          if (alreadyExists) {
+            return prev;
+          }
+
+
+          return [
+            ...prev,
+            addedAthlete,
+          ];
         }
+      );
 
-        return data;
-      })
 
-      .then((data) => {
+      // --------------------------------------
+      // Refresh page
+      // --------------------------------------
 
-        console.log(
-          "Athlete created:",
-          data
-        );
+      window.location.reload();
 
-        const createdAthlete =
-          mapAthlete(data);
 
-        setAthletes((prev) => [
-          ...prev,
-          createdAthlete,
-        ]);
+    } catch (error) {
 
-        window.location.reload();
-      })
+      console.error(
+        "Failed to add athlete:",
+        error
+      );
 
-      .catch((err) => {
-
-        console.error(
-          "Failed to create athlete:",
-          err
-        );
-      });
+      throw error;
+    }
   };
 
-  // ----------------------------------------
-  // Render
-  // ----------------------------------------
 
   return (
     <div className="create-athlete-page">
@@ -213,14 +283,21 @@ const CreateAthletePage: React.FC<
 
       <CreateAthleteForm
         onSubmit={
-          createAthleteProfile
+          handleAthleteSubmit
         }
-        // teamId={teamId}
-        clubId={clubId}
+
+        teamId={
+          teamId
+        }
+
+        clubId={
+          clubId
+        }
       />
 
     </div>
   );
 };
+
 
 export default CreateAthletePage;

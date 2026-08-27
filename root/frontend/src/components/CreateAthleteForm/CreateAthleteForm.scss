@@ -19,3 +19,40 @@
     display: flex;
     flex-direction: column; /* Stacks label and input vertically */
 }
+
+.athlete-create-section {
+    display: grid;
+    justify-items: center;
+}
+
+h3 {
+    margin-bottom: 0;
+}
+.create-athlete-form{
+    padding-top: 0;
+}
+
+#create-white-box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.athlete-search-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.athlete-search-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.athlete-search-result {
+    padding-top: 1rem;
+}

@@ -16,15 +16,21 @@ const crypto = require('crypto');
 
 // Get all data from a specific athlete's profile
 const getAllDataFromAthleteProfile = async (req, res) => {
+
     const {
         athleteId,
         userId,
         teamId,
-        clubId
+        clubId,
+        acaId,
+        fisId
     } = req.query;
 
+
     try {
+
         let result;
+
 
         // ----------------------------------------
         // Validate IDs
@@ -32,32 +38,134 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
         let parsedTeamId = null;
         let parsedClubId = null;
+        let parsedAthleteId = null;
+        let parsedUserId = null;
+        let parsedAcaId = null;
+        let parsedFisId = null;
+
 
         if (teamId) {
-            parsedTeamId = Number(teamId);
 
-            if (!Number.isInteger(parsedTeamId)) {
+            parsedTeamId =
+                Number(teamId);
+
+            if (
+                !Number.isInteger(
+                    parsedTeamId
+                )
+            ) {
+
                 return res.status(400).json({
                     error: "Invalid teamId"
                 });
             }
         }
 
-        if (clubId) {
-            parsedClubId = Number(clubId);
 
-            if (!Number.isInteger(parsedClubId)) {
+        if (clubId) {
+
+            parsedClubId =
+                Number(clubId);
+
+            if (
+                !Number.isInteger(
+                    parsedClubId
+                )
+            ) {
+
                 return res.status(400).json({
                     error: "Invalid clubId"
                 });
             }
         }
 
+
+        if (athleteId) {
+
+            parsedAthleteId =
+                Number(athleteId);
+
+            if (
+                !Number.isInteger(
+                    parsedAthleteId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error: "Invalid athleteId"
+                });
+            }
+        }
+
+
+        if (userId) {
+
+            parsedUserId =
+                Number(userId);
+
+            if (
+                !Number.isInteger(
+                    parsedUserId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error: "Invalid userId"
+                });
+            }
+        }
+
+
+        if (
+            acaId !== undefined &&
+            acaId !== null &&
+            acaId !== ""
+        ) {
+
+            parsedAcaId =
+                Number(acaId);
+
+            if (
+                !Number.isInteger(
+                    parsedAcaId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error: "Invalid ACA ID"
+                });
+            }
+        }
+
+
+        if (
+            fisId !== undefined &&
+            fisId !== null &&
+            fisId !== ""
+        ) {
+
+            parsedFisId =
+                Number(fisId);
+
+            if (
+                !Number.isInteger(
+                    parsedFisId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error: "Invalid FIS ID"
+                });
+            }
+        }
+
+
         // ----------------------------------------
         // Common membership include
         // ----------------------------------------
 
         const membershipInclude = {
+
             where: {
                 end_date: null
             },
@@ -67,6 +175,7 @@ const getAllDataFromAthleteProfile = async (req, res) => {
             },
 
             include: {
+
                 team: {
                     include: {
                         club: true
@@ -75,110 +184,189 @@ const getAllDataFromAthleteProfile = async (req, res) => {
             }
         };
 
+
+        // ----------------------------------------
+        // Search by ACA ID
+        // ----------------------------------------
+
+        if (parsedAcaId !== null) {
+
+            result =
+                await prisma.athletes.findUnique({
+
+                    where: {
+                        aca_id:
+                            parsedAcaId
+                    },
+
+                    include: {
+                        team_memberships:
+                            membershipInclude
+                    }
+                });
+
+
+        // ----------------------------------------
+        // Search by FIS ID
+        // ----------------------------------------
+
+        } else if (
+            parsedFisId !== null
+        ) {
+
+            result =
+                await prisma.athletes.findUnique({
+
+                    where: {
+                        fis_id:
+                            parsedFisId
+                    },
+
+                    include: {
+                        team_memberships:
+                            membershipInclude
+                    }
+                });
+
+
         // ----------------------------------------
         // Get athletes belonging to a team
         // ----------------------------------------
 
-        if (parsedTeamId !== null) {
+        } else if (
+            parsedTeamId !== null
+        ) {
 
             const teamWhere = {
-                team_id: parsedTeamId,
-                end_date: null
+
+                team_id:
+                    parsedTeamId,
+
+                end_date:
+                    null
             };
 
-            // If clubId is also supplied, make sure
-            // the team belongs to that club.
-            if (parsedClubId !== null) {
+
+            // If clubId is also supplied,
+            // make sure the team belongs
+            // to that club.
+
+            if (
+                parsedClubId !== null
+            ) {
+
                 teamWhere.team = {
-                    club_id: parsedClubId
+                    club_id:
+                        parsedClubId
                 };
             }
 
-            result = await prisma.athletes.findMany({
-                where: {
-                    team_memberships: {
-                        some: teamWhere
-                    }
-                },
 
-                include: {
-                    team_memberships: membershipInclude
-                }
-            });
+            result =
+                await prisma.athletes.findMany({
+
+                    where: {
+
+                        team_memberships: {
+
+                            some:
+                                teamWhere
+                        }
+                    },
+
+                    include: {
+
+                        team_memberships:
+                            membershipInclude
+                    }
+                });
+
 
         // ----------------------------------------
         // Get athletes belonging to a club
         // ----------------------------------------
 
-        } else if (parsedClubId !== null) {
+        } else if (
+            parsedClubId !== null
+        ) {
 
-            result = await prisma.athletes.findMany({
-                where: {
-                    team_memberships: {
-                        some: {
-                            team: {
-                                club_id: parsedClubId
-                            },
+            result =
+                await prisma.athletes.findMany({
 
-                            end_date: null
+                    where: {
+
+                        team_memberships: {
+
+                            some: {
+
+                                team: {
+
+                                    club_id:
+                                        parsedClubId
+                                },
+
+                                end_date:
+                                    null
+                            }
                         }
-                    }
-                },
+                    },
 
-                include: {
-                    team_memberships: membershipInclude
-                }
-            });
+                    include: {
+
+                        team_memberships:
+                            membershipInclude
+                    }
+                });
+
 
         // ----------------------------------------
         // Get one athlete by athleteId
         // ----------------------------------------
 
-        } else if (athleteId) {
+        } else if (
+            parsedAthleteId !== null
+        ) {
 
-            const parsedAthleteId =
-                Number(athleteId);
+            result =
+                await prisma.athletes.findUnique({
 
-            if (!Number.isInteger(parsedAthleteId)) {
-                return res.status(400).json({
-                    error: "Invalid athleteId"
+                    where: {
+
+                        athlete_id:
+                            parsedAthleteId
+                    },
+
+                    include: {
+
+                        team_memberships:
+                            membershipInclude
+                    }
                 });
-            }
 
-            result = await prisma.athletes.findUnique({
-                where: {
-                    athlete_id: parsedAthleteId
-                },
-
-                include: {
-                    team_memberships: membershipInclude
-                }
-            });
 
         // ----------------------------------------
         // Get athlete associated with user
         // ----------------------------------------
 
-        } else if (userId) {
-
-            const parsedUserId =
-                Number(userId);
-
-            if (!Number.isInteger(parsedUserId)) {
-                return res.status(400).json({
-                    error: "Invalid userId"
-                });
-            }
+        } else if (
+            parsedUserId !== null
+        ) {
 
             const user =
                 await prisma.users.findUnique({
+
                     where: {
-                        user_id: parsedUserId
+
+                        user_id:
+                            parsedUserId
                     },
 
                     include: {
+
                         athlete: {
+
                             include: {
+
                                 team_memberships:
                                     membershipInclude
                             }
@@ -186,8 +374,10 @@ const getAllDataFromAthleteProfile = async (req, res) => {
                     }
                 });
 
+
             result =
                 user?.athlete ?? null;
+
 
         // ----------------------------------------
         // Get all athletes
@@ -197,30 +387,40 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
             result =
                 await prisma.athletes.findMany({
+
                     include: {
+
                         team_memberships:
                             membershipInclude
                     }
                 });
         }
 
+
         // ----------------------------------------
         // No results
         // ----------------------------------------
 
-        // Collection requests should return an empty array.
-        // A missing individual athlete is still a 404.
-
         if (
-            (athleteId || userId) &&
-            !result
+            !result ||
+            (
+                Array.isArray(result) &&
+                result.length === 0
+            )
         ) {
+
             return res.status(404).json({
-                error: "No athlete data found"
+
+                error:
+                    "No athlete data found"
             });
         }
 
-        return res.status(200).json(result);
+
+        return res.status(200).json(
+            result
+        );
+
 
     } catch (error) {
 
@@ -229,15 +429,18 @@ const getAllDataFromAthleteProfile = async (req, res) => {
             error
         );
 
+
         return res.status(500).json({
+
             error:
                 "Server error retrieving athlete data"
         });
     }
 };
 
-// Create an athlete profile
+// Create an athlete profile OR add an existing athlete to a team
 const createAthleteProfile = async (req, res) => {
+
     const {
         athleteFirstName,
         athleteLastName,
@@ -249,177 +452,469 @@ const createAthleteProfile = async (req, res) => {
         teamId
     } = req.body;
 
-    console.log(
-        athleteFirstName,
-        athleteLastName,
-        birthday,
-        gender,
-        acaId,
-        fisId,
-        ageGroup,
-        teamId
-    );
 
-    // Server-side input validation
+    // ----------------------------------------
+    // Validation
+    // ----------------------------------------
+
     let errors = [];
 
-    // First name
-    if (!athleteFirstName || validator.isEmpty(athleteFirstName)) {
-        errors.push({
-            athleteFirstName: 'Must enter a first name'
-        });
-    }
 
-    // Last name
-    if (!athleteLastName || validator.isEmpty(athleteLastName)) {
-        errors.push({
-            athleteLastName: 'Must enter a last name'
-        });
-    }
-
-    // Birthday
-    if (!birthday) {
-        errors.push({
-            birthday: 'Must enter a birthday'
-        });
-    } else if (!validator.isDate(birthday)) {
-        errors.push({
-            birthday: 'Birthday must be format YYYY-MM-DD'
-        });
-    }
-
-    // Gender
-    if (!gender) {
-        errors.push({
-            gender: 'Must choose a gender'
-        });
-    } else if (!['Male', 'Female'].includes(gender)) {
-        errors.push({
-            gender: 'Gender can only be Male or Female'
-        });
-    }
-
-    // Age group
-    if (!ageGroup) {
-        errors.push({
-            ageGroup: 'Must choose an age group'
-        });
-    } else if (
-        !['U10', 'U12', 'U14', 'U16', 'FIS'].includes(ageGroup)
+    if (
+        !athleteFirstName ||
+        validator.isEmpty(
+            athleteFirstName
+        )
     ) {
+
         errors.push({
-            ageGroup: 'Must choose a valid age group'
+            athleteFirstName:
+                "Must enter a first name"
         });
     }
 
-    // Team
+
+    if (
+        !athleteLastName ||
+        validator.isEmpty(
+            athleteLastName
+        )
+    ) {
+
+        errors.push({
+            athleteLastName:
+                "Must enter a last name"
+        });
+    }
+
+
+    if (!birthday) {
+
+        errors.push({
+            birthday:
+                "Must enter a birthday"
+        });
+
+    } else if (
+        !validator.isDate(
+            birthday
+        )
+    ) {
+
+        errors.push({
+            birthday:
+                "Birthday must be format YYYY-MM-DD"
+        });
+    }
+
+
+    if (!gender) {
+
+        errors.push({
+            gender:
+                "Must choose a gender"
+        });
+
+    } else if (
+        ![
+            "Male",
+            "Female"
+        ].includes(gender)
+    ) {
+
+        errors.push({
+            gender:
+                "Gender can only be Male or Female"
+        });
+    }
+
+
     if (!teamId) {
+
         errors.push({
-            teamId: 'Must choose a team'
+            teamId:
+                "Must choose a team"
         });
     }
 
-    // ACA ID
+
     if (
         acaId !== undefined &&
         acaId !== null &&
-        acaId !== ''
+        acaId !== ""
     ) {
-        if (!Number.isInteger(Number(acaId))) {
+
+        if (
+            !Number.isInteger(
+                Number(acaId)
+            )
+        ) {
+
             errors.push({
-                acaId: 'ACA ID must be a number'
+                acaId:
+                    "ACA ID must be a number"
             });
         }
     }
 
-    // FIS ID
+
     if (
         fisId !== undefined &&
         fisId !== null &&
-        fisId !== ''
+        fisId !== ""
     ) {
-        if (!Number.isInteger(Number(fisId))) {
+
+        if (
+            !Number.isInteger(
+                Number(fisId)
+            )
+        ) {
+
             errors.push({
-                fisId: 'FIS ID must be a number'
+                fisId:
+                    "FIS ID must be a number"
             });
         }
     }
 
-    // Return validation errors
-    if (errors.length > 0) {
-        return res.status(400).json({ errors });
+
+    if (
+        ageGroup &&
+        ![
+            "U10",
+            "U12",
+            "U14",
+            "U16",
+            "FIS"
+        ].includes(ageGroup)
+    ) {
+
+        errors.push({
+            ageGroup:
+                "Must choose a valid age group"
+        });
     }
 
+
+    if (errors.length > 0) {
+
+        return res.status(400).json({
+            errors
+        });
+    }
+
+
     try {
-        const result = await prisma.$transaction(async (tx) => {
 
-            // 1. Create the athlete
-            const athlete = await tx.athletes.create({
-                data: {
-                    athlete_first_name: athleteFirstName,
-                    athlete_last_name: athleteLastName,
-                    birthday: new Date(birthday),
-                    gender: gender,
-                    aca_id: acaId
-                        ? Number(acaId)
-                        : null,
-                    fis_id: fisId
-                        ? Number(fisId)
-                        : null,
-                    age_group: ageGroup
+        const parsedTeamId =
+            Number(teamId);
+
+        const parsedAcaId =
+            acaId !== undefined &&
+            acaId !== null &&
+            acaId !== ""
+                ? Number(acaId)
+                : null;
+
+        const parsedFisId =
+            fisId !== undefined &&
+            fisId !== null &&
+            fisId !== ""
+                ? Number(fisId)
+                : null;
+
+
+        // ----------------------------------------
+        // Make sure team exists
+        // ----------------------------------------
+
+        const team =
+            await prisma.teams.findUnique({
+                where: {
+                    team_id:
+                        parsedTeamId
                 }
             });
 
-            // 2. Create the athlete's initial team membership
-            await tx.team_memberships.create({
-                data: {
-                    athlete_id: athlete.athlete_id,
-                    team_id: Number(teamId),
-                    start_date: new Date()
-                }
-            });
 
-            // 3. Fetch the newly-created athlete with
-            //    their complete team/club information
-            const completeAthlete =
-                await tx.athletes.findUnique({
-                    where: {
-                        athlete_id: athlete.athlete_id
-                    },
-                    include: {
-                        team_memberships: {
+        if (!team) {
+
+            return res.status(404).json({
+                error:
+                    "Team not found"
+            });
+        }
+
+
+        // ----------------------------------------
+        // Transaction
+        // ----------------------------------------
+
+        const result =
+            await prisma.$transaction(
+                async (tx) => {
+
+                    let athlete = null;
+
+
+                    // ========================================
+                    // LOOK FOR EXISTING ATHLETE
+                    // ========================================
+
+                    if (
+                        parsedAcaId !== null
+                    ) {
+
+                        athlete =
+                            await tx.athletes.findUnique({
+                                where: {
+                                    aca_id:
+                                        parsedAcaId
+                                }
+                            });
+                    }
+
+
+                    // If ACA did not find anyone,
+                    // search by FIS ID.
+
+                    if (
+                        !athlete &&
+                        parsedFisId !== null
+                    ) {
+
+                        athlete =
+                            await tx.athletes.findUnique({
+                                where: {
+                                    fis_id:
+                                        parsedFisId
+                                }
+                            });
+                    }
+
+
+                    // ========================================
+                    // EXISTING ATHLETE
+                    // ========================================
+
+                    if (athlete) {
+
+                        // Check whether this athlete
+                        // is already on this team.
+
+                        const existingMembership =
+                            await tx.team_memberships.findFirst({
+
+                                where: {
+
+                                    athlete_id:
+                                        athlete.athlete_id,
+
+                                    team_id:
+                                        parsedTeamId,
+
+                                    end_date:
+                                        null
+                                }
+                            });
+
+
+                        if (
+                            existingMembership
+                        ) {
+
+                            throw new Error(
+                                "Athlete is already a member of this team"
+                            );
+                        }
+
+
+                        // ------------------------------------
+                        // Add ONLY a new membership.
+                        //
+                        // Do NOT modify existing memberships.
+                        // ------------------------------------
+
+                        await tx.team_memberships.create({
+
+                            data: {
+
+                                athlete_id:
+                                    athlete.athlete_id,
+
+                                team_id:
+                                    parsedTeamId,
+
+                                start_date:
+                                    new Date(),
+
+                                end_date:
+                                    null
+                            }
+                        });
+
+
+                    } else {
+
+                        // ====================================
+                        // NEW ATHLETE
+                        // ====================================
+
+                        athlete =
+                            await tx.athletes.create({
+
+                                data: {
+
+                                    athlete_first_name:
+                                        athleteFirstName,
+
+                                    athlete_last_name:
+                                        athleteLastName,
+
+                                    birthday:
+                                        new Date(
+                                            birthday
+                                        ),
+
+                                    gender:
+                                        gender,
+
+                                    aca_id:
+                                        parsedAcaId,
+
+                                    fis_id:
+                                        parsedFisId,
+
+                                    age_group:
+                                        ageGroup
+                                            || null
+                                }
+                            });
+
+
+                        // ------------------------------------
+                        // Create initial membership
+                        // ------------------------------------
+
+                        await tx.team_memberships.create({
+
+                            data: {
+
+                                athlete_id:
+                                    athlete.athlete_id,
+
+                                team_id:
+                                    parsedTeamId,
+
+                                start_date:
+                                    new Date(),
+
+                                end_date:
+                                    null
+                            }
+                        });
+                    }
+
+
+                    // ========================================
+                    // Return complete athlete
+                    // ========================================
+
+                    const completeAthlete =
+                        await tx.athletes.findUnique({
+
+                            where: {
+
+                                athlete_id:
+                                    athlete.athlete_id
+                            },
+
                             include: {
-                                team: {
+
+                                team_memberships: {
+
                                     include: {
-                                        club: true
+
+                                        team: {
+
+                                            include: {
+                                                club: true
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
-                });
+                        });
 
-            return completeAthlete;
-        });
+
+                    return completeAthlete;
+                }
+            );
+
 
         console.log(
-            "Created athlete:",
+            "Athlete added/created:",
             result
         );
 
-        return res.status(201).json(result);
+
+        return res.status(201).json(
+            result
+        );
+
 
     } catch (error) {
+
         console.error(
-            'Error creating athlete profile:',
+            "Error creating/adding athlete:",
             error
         );
 
+
+        // ----------------------------------------
+        // Already on team
+        // ----------------------------------------
+
+        if (
+            error instanceof Error &&
+            error.message ===
+                "Athlete is already a member of this team"
+        ) {
+
+            return res.status(409).json({
+
+                error:
+                    "Athlete is already a member of this team"
+            });
+        }
+
+
+        // ----------------------------------------
+        // Unique ID race condition
+        // ----------------------------------------
+
+        if (
+            error?.code ===
+            "P2002"
+        ) {
+
+            return res.status(409).json({
+
+                error:
+                    "An athlete with this ACA ID or FIS ID already exists"
+            });
+        }
+
+
         return res.status(500).json({
-            error: 'Server error creating athlete profile'
+
+            error:
+                "Server error creating athlete profile"
         });
     }
 };
+
+
 
 // edit an athlete's profile
 const updateAthleteProfile = async (req, res) => {
