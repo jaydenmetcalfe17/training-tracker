@@ -136,15 +136,15 @@ const AthleteDashboard: React.FC = () => {
       );
   }, [user]);
 
-  const handleClick = () => {
-    navigate(`/team/${athlete.teamId}`);
-  };
+  // const handleClick = () => {
+  //   navigate(`/club/${athlete.clubId}`);
+  // };
 
   if (!athlete) return <>Loading...</>;
 
   return (
     <div className="athlete-dashboard-wrapper">
-      <div className="coach-only-buttons-box"> 
+      {/* <div className="coach-only-buttons-box"> 
         {isVisible && (
           <button
             className="main-button"
@@ -156,7 +156,7 @@ const AthleteDashboard: React.FC = () => {
             <KeyboardBackspaceIcon />
           </button>
         )}
-      </div>
+      </div> */}
       <AthletesSessions athlete={athlete} />
     </div>
   );

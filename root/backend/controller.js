@@ -2837,11 +2837,49 @@ const getTeams = async (req, res) => {
     try {
         let teams;
 
-        // ----------------------------------------
+        // --------------------------------------------------
+        // If logged-in user is a coach, determine which
+        // clubs they belong to.
+        // --------------------------------------------------
+
+        let coachClubIds = [];
+
+        if (req.user && req.user.status === "coach") {
+
+            const memberships =
+                await prisma.coach_memberships.findMany({
+                    where: {
+                        user_id: req.user.user_id
+                    },
+
+                    include: {
+                        team: {
+                            select: {
+                                team_id: true,
+                                club_id: true
+                            }
+                        }
+                    }
+                });
+
+            coachClubIds = [
+                ...new Set(
+                    memberships
+                        .map(
+                            membership =>
+                                membership.team.club_id
+                        )
+                )
+            ];
+        }
+
+
+        // --------------------------------------------------
         // Get a specific team
-        // ----------------------------------------
+        // --------------------------------------------------
 
         if (teamId) {
+
             const parsedTeamId = Number(teamId);
 
             if (!Number.isInteger(parsedTeamId)) {
@@ -2866,15 +2904,34 @@ const getTeams = async (req, res) => {
                 });
             }
 
+
+            // --------------------------------------------------
+            // Coach permission check
+            // --------------------------------------------------
+
+            if (
+                req.user &&
+                req.user.status === "coach" &&
+                !coachClubIds.includes(team.club_id)
+            ) {
+                return res.status(403).json({
+                    error:
+                        "You do not have permission to access this team"
+                });
+            }
+
+
             // Return as an array so the response shape stays
             // consistent with the existing /api/teams endpoint.
             teams = [team];
 
-        // ----------------------------------------
+
+        // --------------------------------------------------
         // Get teams associated with coach
-        // ----------------------------------------
+        // --------------------------------------------------
 
         } else if (coachId) {
+
             const parsedCoachId = Number(coachId);
 
             if (!Number.isInteger(parsedCoachId)) {
@@ -2882,6 +2939,24 @@ const getTeams = async (req, res) => {
                     error: "Invalid coachId"
                 });
             }
+
+
+            // --------------------------------------------------
+            // If the logged-in user is a coach, only allow
+            // them to request their own teams.
+            // --------------------------------------------------
+
+            if (
+                req.user &&
+                req.user.status === "coach" &&
+                parsedCoachId !== req.user.user_id
+            ) {
+                return res.status(403).json({
+                    error:
+                        "You do not have permission to access this coach's teams"
+                });
+            }
+
 
             const memberships =
                 await prisma.coach_memberships.findMany({
@@ -2898,17 +2973,26 @@ const getTeams = async (req, res) => {
                     }
                 });
 
+
             teams = memberships
-                .map((membership) => membership.team)
-                .sort((a, b) =>
-                    a.name.localeCompare(b.name)
+                .map(
+                    (membership) =>
+                        membership.team
+                )
+                .sort(
+                    (a, b) =>
+                        a.name.localeCompare(
+                            b.name
+                        )
                 );
 
-        // ----------------------------------------
+
+        // --------------------------------------------------
         // Get teams filtered by club
-        // ----------------------------------------
+        // --------------------------------------------------
 
         } else if (clubId) {
+
             const parsedClubId = Number(clubId);
 
             if (!Number.isInteger(parsedClubId)) {
@@ -2916,6 +3000,23 @@ const getTeams = async (req, res) => {
                     error: "Invalid clubId"
                 });
             }
+
+
+            // --------------------------------------------------
+            // Coach permission check
+            // --------------------------------------------------
+
+            if (
+                req.user &&
+                req.user.status === "coach" &&
+                !coachClubIds.includes(parsedClubId)
+            ) {
+                return res.status(403).json({
+                    error:
+                        "You do not have permission to access this club"
+                });
+            }
+
 
             teams = await prisma.teams.findMany({
                 where: {
@@ -2931,32 +3032,67 @@ const getTeams = async (req, res) => {
                 }
             });
 
-        // ----------------------------------------
+
+        // --------------------------------------------------
         // Get all teams
-        // ----------------------------------------
+        // --------------------------------------------------
 
         } else {
-            teams = await prisma.teams.findMany({
-                include: {
-                    club: true
-                },
 
-                orderBy: {
-                    name: "asc"
-                }
-            });
+            // --------------------------------------------------
+            // Coaches can only see teams from their clubs.
+            // --------------------------------------------------
+
+            if (
+                req.user &&
+                req.user.status === "coach"
+            ) {
+
+                teams = await prisma.teams.findMany({
+                    where: {
+                        club_id: {
+                            in: coachClubIds
+                        }
+                    },
+
+                    include: {
+                        club: true
+                    },
+
+                    orderBy: {
+                        name: "asc"
+                    }
+                });
+
+            } else {
+
+                // Non-coaches retain the existing behaviour
+                // for now.
+                teams = await prisma.teams.findMany({
+                    include: {
+                        club: true
+                    },
+
+                    orderBy: {
+                        name: "asc"
+                    }
+                });
+            }
         }
+
 
         return res.status(200).json(teams);
 
     } catch (error) {
+
         console.error(
             "Error getting teams:",
             error
         );
 
         return res.status(500).json({
-            error: "Server error retrieving teams"
+            error:
+                "Server error retrieving teams"
         });
     }
 };
