@@ -25,6 +25,7 @@ model teams {
   club              clubs               @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
   members           team_memberships[]
   coach_memberships coach_memberships[]
+  sessions          sessions_teams[]
 
   @@unique([club_id, name])
 }
@@ -97,6 +98,20 @@ model sessions {
 
   attendance attendance[]
   creator    users?       @relation(fields: [created_by], references: [user_id], onDelete: SetNull)
+  session_teams  sessions_teams[]
+}
+
+model sessions_teams {
+  session_team_id Int @id @default(autoincrement())
+  session_id      Int
+  team_id         Int
+
+  session sessions @relation(fields: [session_id], references: [session_id], onDelete: Cascade)
+  team    teams    @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+
+  @@unique([session_id, team_id])
+  @@index([session_id])
+  @@index([team_id])
 }
 
 // =========================

@@ -6,6 +6,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import './AttendanceList.scss';
 import type { Attendance } from "../../types/Attendance";
+import type { TeamMembership } from "../../types/TeamMembership";
+import type { Team } from "../../types/Team";
 import AuthContext from "../../context/AuthContext";
 import EditAttendanceForm from "../EditAttendanceForm/EditAttendanceForm";
 
@@ -29,7 +31,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
 
   useEffect(() => {
-
     fetch(`/api/athlete`)
       .then(res => res.json())
       .then(data => {
@@ -39,15 +40,46 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
           athleteLastName: athlete.athlete_last_name,
           birthday: athlete.birthday,
           gender: athlete.gender,
-          team: athlete.team,
+          acaId: athlete.aca_id,
+          fisId: athlete.fis_id,
           ageGroup: athlete.age_group,
+
+          teamMemberships: athlete.team_memberships?.map(
+            (membership: any): TeamMembership => ({
+              teamMembershipId: membership.team_membership_id,
+              athleteId: membership.athlete_id,
+              teamId: membership.team_id,
+              startDate: membership.start_date,
+              endDate: membership.end_date,
+
+              team: membership.team
+                ? ({
+                    teamId: membership.team.team_id,
+                    clubId: membership.team.club_id,
+                    name: membership.team.name,
+                    club: membership.team.club,
+                  } as Team)
+                : undefined,
+            })
+          ),
         }));
 
-        const attendanceIds = attendance.map(a => a.athlete!.athleteId);
-        const includeThem = mappedAthletes.filter(a => !attendanceIds.includes(a.athleteId));
+        // These athletes are ONLY for the "Add Athlete"
+        // dropdown, so current memberships are appropriate here.
+        const attendanceIds = attendance.map(
+          a => a.athlete?.athleteId
+        );
+
+        const includeThem = mappedAthletes.filter(
+          athlete =>
+            !attendanceIds.includes(athlete.athleteId)
+        );
+
         setAvailableAthletes(includeThem);
       })
-      .catch(err => console.error('Failed to load athletes', err));
+      .catch(err =>
+        console.error('Failed to load athletes', err)
+      );
   }, [user]);
 
   // keep availableAthletes in sync after attendance changes
@@ -127,7 +159,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
           {showEditPopup && (
             <div className="popup-overlay">
               <div className="popup-content">
-                <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange} />
+                <MultiSelectEx athletes={availableAthletes} type="athlete" onChange={handleAttendanceChange} />
               </div>
             </div>
           )}
@@ -137,6 +169,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
               <tr>
                 <th>First Name</th>
                 <th>Last Name</th>
+                <th>Team</th>
                 <th>Individual Comments</th>
                 <th>
                   {isVisible}
@@ -148,6 +181,30 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                 <tr key={a.attendanceId}>
                   <td>{a.athlete!.athleteFirstName}</td>
                   <td>{a.athlete!.athleteLastName}</td>
+                  <td>
+                    {a.athlete?.teamMemberships
+                      ?.filter(membership => {
+                        const sessionDate = session.sessionDay;
+
+                        if (!membership.startDate || !sessionDate) {
+                          return false;
+                        }
+
+                        // Membership is active on the session date if:
+                        // - it started on/before the session date, AND
+                        // - it has no end date OR it ended on/after the session date
+                        return (
+                          membership.startDate <= sessionDate &&
+                          (
+                            membership.endDate == null ||
+                            membership.endDate >= sessionDate
+                          )
+                        );
+                      })
+                      .map(membership => membership.team?.name)
+                      .filter(Boolean)
+                      .join(", ")}
+                  </td>
                   <td>{a.individualComments}</td>
                   <td className="button-box">
                     {isVisible && (

@@ -137,7 +137,7 @@ const AthleteDashboard: React.FC = () => {
   }, [user]);
 
   const handleClick = () => {
-    navigate(`/dashboard`);
+    navigate(`/team/${athlete.teamId}`);
   };
 
   if (!athlete) return <>Loading...</>;

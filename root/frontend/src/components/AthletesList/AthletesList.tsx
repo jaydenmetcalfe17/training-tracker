@@ -25,37 +25,25 @@ const AthletesList: React.FC<AthleteListProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const tableData: AthleteTableRow[] = athletes.map(
-    (athlete) => {
+  const tableData: AthleteTableRow[] = athletes
+    .map((athlete) => {
       const currentMembership =
         athlete.teamMemberships?.[0];
 
       return {
         athleteId: athlete.athleteId,
-
-        athleteFirstName:
-          athlete.athleteFirstName,
-
-        athleteLastName:
-          athlete.athleteLastName,
-
-        birthday:
-          athlete.birthday,
-
-        gender:
-          athlete.gender,
-
-        team:
-          currentMembership?.team?.name ?? "",
-
-        club:
-          currentMembership?.team?.club?.name ?? "",
-
-        ageGroup:
-          athlete.ageGroup ?? "",
+        athleteFirstName: athlete.athleteFirstName,
+        athleteLastName: athlete.athleteLastName,
+        birthday: athlete.birthday,
+        gender: athlete.gender,
+        team: currentMembership?.team?.name ?? "",
+        club: currentMembership?.team?.club?.name ?? "",
+        ageGroup: athlete.ageGroup ?? "",
       };
-    }
-  );
+    })
+    .sort((a, b) =>
+      a.athleteFirstName.localeCompare(b.athleteFirstName)
+    );
 
   const headers: {
     key: keyof AthleteTableRow;

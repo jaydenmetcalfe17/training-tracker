@@ -11,7 +11,6 @@ interface SessionListProps {
 
 
 const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
-  console.log("found sessions: ", sessions);
 
   const navigate = useNavigate();
 
@@ -26,7 +25,17 @@ const SessionsList: React.FC<SessionListProps> = ({ sessions }) => {
   ];
 
   return (
-    <SortableTable<Session> headers={headers} data={sessions} onRowClick={(session) => navigate(`/session/${session.sessionId}`)} />
+    <SortableTable
+      headers={headers}
+      data={[...sessions].sort(
+        (a, b) =>
+          new Date(b.sessionDay).getTime() -
+          new Date(a.sessionDay).getTime()
+      )}
+      onRowClick={(session) =>
+        navigate(`/session/${session.sessionId}`)
+      }
+    />
   );
 };
 

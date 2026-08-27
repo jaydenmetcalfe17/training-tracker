@@ -2,13 +2,13 @@
 
 import type { FC } from 'react';
 import "./Dashboard.scss";
-import CoachDashboard from "../../pages/CoachDashboard/CoachDashboard";
 // import ParentDashboard from "../../pages/ParentDashboard";
-import AthleteDashboard from "../../pages/AthleteDashboard/AthleteDashboard";
-import DashboardErrorPage from "../../pages/DashboardErrorPage/DashboardErrorPage";
+import AthleteDashboard from "../../dashboards/AthleteDashboard/AthleteDashboard";
+import DashboardErrorPage from "../../dashboards/DashboardErrorPage/DashboardErrorPage";
 
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
+import CoachDashboard from '../../dashboards/CoachDashboard/CoachDashboard';
 
 
 const Dashboard: React.FC = () => {

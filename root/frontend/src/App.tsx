@@ -7,11 +7,13 @@ import CreateUserPage from './pages/CreateUserPage/CreateUserPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import Dashboard from './layout/Dashboard/Dashboard';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
-import AthleteDashboard from './pages/AthleteDashboard/AthleteDashboard';
+import AthleteDashboard from './dashboards/AthleteDashboard/AthleteDashboard';
 import SessionPage from './pages/SessionPage/SessionPage';
 import AuthContext from './context/AuthContext';
 import { useContext } from 'react';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import ClubDashboard from './dashboards/ClubDashboard/ClubDashboard';
+import TeamDashboard from './dashboards/TeamDashboard/TeamDashboard';
 
 
 const App: React.FC = () => {
@@ -32,6 +34,8 @@ const App: React.FC = () => {
 				<Route index path="/dashboard" element={<ProtectedRoute allowedRoles={["coach", "athlete", "parent"]}><Dashboard/></ProtectedRoute>}/>
 				<Route path="/athlete/:athleteId" element={<ProtectedRoute allowedRoles={["coach"]}><AthleteDashboard/></ProtectedRoute>}/>
 				<Route path="/session/:sessionId" element={<ProtectedRoute allowedRoles={["coach"]}><SessionPage/></ProtectedRoute>}/>
+				<Route path="/club/:clubId" element={<ProtectedRoute allowedRoles={["coach"]}><ClubDashboard/></ProtectedRoute>}/>
+				<Route path="/team/:teamId" element={<ProtectedRoute allowedRoles={["coach"]}><TeamDashboard/></ProtectedRoute>}/>
 				{<Route path="*" element={<NotFoundPage/>}/>}
 			</Route>
 		</Routes>

@@ -1,5 +1,9 @@
+//pages/SessionPage/SessionPage.tsx
+
 import { useContext, useEffect, useState } from 'react';
 import type { Session } from '../../types/Session';
+import type { TeamMembership } from '../../types/TeamMembership';
+import type { Team } from '../../types/Team';
 import SessionsList from '../../components/SessionsList/SessionsList';
 import { useNavigate, useParams } from 'react-router-dom';
 import EditSessionForm from '../../components/EditSessionForm/EditSessionForm';
@@ -50,6 +54,9 @@ const SessionPage: React.FC = () => {
 
           const mappedSession: Session = {
             sessionId: sessionData.session_id,
+            teamIds: sessionData.teams?.map(
+              (team: any) => team.teamId
+            ) ?? [],
             sessionDay: new Date(sessionData.session_day).toISOString().split("T")[0],
             startTime: sessionData.start_time.slice(0, 5),
             endTime: sessionData.end_time.slice(0, 5),
@@ -75,16 +82,62 @@ const SessionPage: React.FC = () => {
               raceTrainingCourseRuns: a.raceTrainingCourseRuns,
               raceRuns: a.raceRuns,
               individualComments: a.individualComments,
+
               athlete: {
-                  athleteId: a.athlete.athleteId,
-                  athleteFirstName: a.athlete.athleteFirstName,
-                  athleteLastName: a.athlete.athleteLastName,
-                  birthday: a.athlete.birthday,
-                  gender: a.athlete.gender,
-                  userId: a.athlete.userId,
-                  team: a.athlete.team,
-                  ageGroup: a.athlete.ageGroup,
-                },
+                athleteId: a.athlete.athleteId,
+                athleteFirstName: a.athlete.athleteFirstName,
+                athleteLastName: a.athlete.athleteLastName,
+                birthday: a.athlete.birthday,
+                gender: a.athlete.gender,
+                userId: a.athlete.userId,
+                ageGroup: a.athlete.ageGroup,
+
+                teamMemberships: (
+                  a.athlete.teamMemberships ??
+                  a.athlete.team_memberships ??
+                  []
+                ).map((membership: any): TeamMembership => ({
+                  teamMembershipId:
+                    membership.teamMembershipId ??
+                    membership.team_membership_id,
+
+                  athleteId:
+                    membership.athleteId ??
+                    membership.athlete_id,
+
+                  teamId:
+                    membership.teamId ??
+                    membership.team_id,
+
+                  startDate:
+                    membership.startDate ??
+                    membership.start_date,
+
+                  endDate:
+                    membership.endDate ??
+                    membership.end_date,
+
+                  team: (
+                    membership.team
+                      ? {
+                          teamId:
+                            membership.team.teamId ??
+                            membership.team.team_id,
+
+                          clubId:
+                            membership.team.clubId ??
+                            membership.team.club_id,
+
+                          name:
+                            membership.team.name,
+
+                          club:
+                            membership.team.club
+                        } as Team
+                      : undefined
+                  )
+                }))
+              }
             })),
           };
           console.log("RECEIVED ATTENDANCE: ", mappedSession.receivedAttendance);

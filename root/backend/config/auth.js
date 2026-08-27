@@ -5,8 +5,13 @@ require('dotenv').config({ path: './.env' }); // explicit path
 const passport = require('passport');
 // const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const {Strategy: LocalStrategy } = require('passport-local');
+
+// REMOVE AFTER MIGRATION
 const pool = require('./database');
 const queries = require('../queries.json');
+/////////
+
+const prisma = require('../prismaClient');
 const bcrypt = require('bcrypt');
 
 
@@ -16,25 +21,30 @@ passport.use(new LocalStrategy ({
 },
     async (email, password, done) => {
         try {
-            const results = await pool.query(queries.users.findUserByEmail, [email]); 
-
-            if (results.rows.length > 0) {
-                // user exists
-                const user = results.rows[0];
-
-                // compare passwords
-                const isMatch = await bcrypt.compare(password, user.password)
-
-                if (isMatch) {
-                    return done(null, user);
-                } else {
-                    return done(null, false, {message: 'Incorrect password!'}); 
+            const user = await prisma.users.findUnique({
+                where: {
+                    email: email
                 }
+            });
 
-            } else {
-                // no users found in database
-                return done(null, false, {message: 'No account associated with this email.'});
+            if (!user) {
+                return done(null, false, {
+                    message: 'No account associated with this email.'
+                });
             }
+
+            const isMatch = await bcrypt.compare(
+                password,
+                user.password
+            );
+
+            if (isMatch) {
+                return done(null, user);
+            }
+
+            return done(null, false, {
+                message: 'Incorrect password!'
+            });
         } catch (error) {
             return done(error);
         }

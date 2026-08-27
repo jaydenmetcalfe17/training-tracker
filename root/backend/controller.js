@@ -16,50 +16,120 @@ const crypto = require('crypto');
 
 // Get all data from a specific athlete's profile
 const getAllDataFromAthleteProfile = async (req, res) => {
-    const { athleteId, userId } = req.query;
+    const {
+        athleteId,
+        userId,
+        teamId
+    } = req.query;
 
     try {
         let result;
 
-        if (athleteId) {
-            result = await prisma.athletes.findUnique({
+        // ----------------------------------------
+        // Get athletes belonging to a team
+        // ----------------------------------------
+
+        if (teamId) {
+            const parsedTeamId = Number(teamId);
+
+            if (!Number.isInteger(parsedTeamId)) {
+                return res.status(400).json({
+                    error: "Invalid teamId"
+                });
+            }
+
+            result = await prisma.athletes.findMany({
                 where: {
-                    athlete_id: Number(athleteId)
+                    team_memberships: {
+                        some: {
+                            team_id: parsedTeamId,
+                            end_date: null
+                        }
+                    }
                 },
+
                 include: {
                     team_memberships: {
+                        where: {
+                            end_date: null
+                        },
+
+                        orderBy: {
+                            start_date: "desc"
+                        },
+
                         include: {
                             team: {
                                 include: {
                                     club: true
                                 }
                             }
-                        },
-                        orderBy: {
-                            start_date: 'desc'
                         }
                     }
                 }
             });
 
+        // ----------------------------------------
+        // Get one athlete by athleteId
+        // ----------------------------------------
+
+        } else if (athleteId) {
+
+            result = await prisma.athletes.findUnique({
+                where: {
+                    athlete_id: Number(athleteId)
+                },
+
+                include: {
+                    team_memberships: {
+                        where: {
+                            end_date: null
+                        },
+
+                        orderBy: {
+                            start_date: "desc"
+                        },
+
+                        include: {
+                            team: {
+                                include: {
+                                    club: true
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        // ----------------------------------------
+        // Get athlete associated with user
+        // ----------------------------------------
+
         } else if (userId) {
+
             const user = await prisma.users.findUnique({
                 where: {
                     user_id: Number(userId)
                 },
+
                 include: {
                     athlete: {
                         include: {
                             team_memberships: {
+                                where: {
+                                    end_date: null
+                                },
+
+                                orderBy: {
+                                    start_date: "desc"
+                                },
+
                                 include: {
                                     team: {
                                         include: {
                                             club: true
                                         }
                                     }
-                                },
-                                orderBy: {
-                                    start_date: 'desc'
                                 }
                             }
                         }
@@ -69,24 +139,38 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
             result = user?.athlete ?? null;
 
+        // ----------------------------------------
+        // Get all athletes
+        // ----------------------------------------
+
         } else {
+
             result = await prisma.athletes.findMany({
                 include: {
                     team_memberships: {
+                        where: {
+                            end_date: null
+                        },
+
+                        orderBy: {
+                            start_date: "desc"
+                        },
+
                         include: {
                             team: {
                                 include: {
                                     club: true
                                 }
                             }
-                        },
-                        orderBy: {
-                            start_date: 'desc'
                         }
                     }
                 }
             });
         }
+
+        // ----------------------------------------
+        // No results
+        // ----------------------------------------
 
         if (
             !result ||
@@ -100,10 +184,14 @@ const getAllDataFromAthleteProfile = async (req, res) => {
         return res.status(200).json(result);
 
     } catch (error) {
-        console.error('Error getting athlete data:', error);
+
+        console.error(
+            "Error getting athlete data:",
+            error
+        );
 
         return res.status(500).json({
-            error: 'Server error retrieving athlete data'
+            error: "Server error retrieving athlete data"
         });
     }
 };
@@ -949,7 +1037,8 @@ const createSession = async (req, res) => {
         numGatesRace,
         generalComments,
         createdBy,
-        attendance
+        attendance,
+        teamIds
     } = req.body;
 
     console.log(
@@ -962,6 +1051,8 @@ const createSession = async (req, res) => {
         "Athletes in attendance:",
         attendance
     );
+
+    console.log("Team IDs:", teamIds);
 
     console.log("REQ.USER:", req.user);
     console.log("CREATED BY FROM BODY:", createdBy);
@@ -1108,6 +1199,14 @@ const createSession = async (req, res) => {
         });
     }
 
+    // Team IDs
+    if (!Array.isArray(teamIds) || teamIds.length === 0) {
+        errors.push({
+            teamIds:
+                "Session must have at least one team"
+        });
+    }
+
     // Return validation errors
     if (errors.length > 0) {
         return res.status(400).json({ errors });
@@ -1128,10 +1227,14 @@ const createSession = async (req, res) => {
                                 new Date(sessionDay),
 
                             start_time:
-                                new Date(`1970-01-01T${formStartTime}`),
+                                new Date(
+                                    `1970-01-01T${formStartTime}`
+                                ),
 
                             end_time:
-                                new Date(`1970-01-01T${formEndTime}`),
+                                new Date(
+                                    `1970-01-01T${formEndTime}`
+                                ),
 
                             location:
                                 location,
@@ -1212,7 +1315,22 @@ const createSession = async (req, res) => {
                 );
 
                 // ----------------------------------------
-                // 2. Add athletes to attendance
+                // 2. Associate session with teams
+                // ----------------------------------------
+
+                await tx.sessions_teams.createMany({
+                    data: teamIds.map((teamId) => ({
+                        session_id:
+                            newSession.session_id,
+
+                        team_id:
+                            Number(teamId)
+                    })),
+                    skipDuplicates: true
+                });
+
+                // ----------------------------------------
+                // 3. Add athletes to attendance
                 // ----------------------------------------
 
                 if (attendance.length > 0) {
@@ -1231,7 +1349,7 @@ const createSession = async (req, res) => {
                 }
 
                 // ----------------------------------------
-                // 3. Return created session
+                // 4. Return created session
                 // ----------------------------------------
 
                 return newSession;
@@ -1262,6 +1380,7 @@ const getSessions = async (req, res) => {
     const {
         sessionId,
         athleteId,
+        teamId,
         startDate,
         endDate,
         location,
@@ -1275,33 +1394,63 @@ const getSessions = async (req, res) => {
         let sessions;
 
         // ----------------------------------------
-        // 1. Get sessions
+        // Validate teamId
+        // ----------------------------------------
+
+        let parsedTeamId = null;
+
+        if (teamId) {
+            parsedTeamId = Number(teamId);
+
+            if (!Number.isInteger(parsedTeamId)) {
+                return res.status(400).json({
+                    error: "Invalid teamId"
+                });
+            }
+        }
+
+        // ----------------------------------------
+        // 1. Get one specific session
         // ----------------------------------------
 
         if (sessionId) {
 
-            // Get one specific session
-            sessions = await prisma.sessions.findUnique({
-                where: {
-                    session_id: Number(sessionId)
-                },
+            const where = {
+                session_id: Number(sessionId)
+            };
+
+            // If teamId is also supplied, make sure
+            // the session belongs to that team.
+            if (parsedTeamId !== null) {
+                where.session_teams = {
+                    some: {
+                        team_id: parsedTeamId
+                    }
+                };
+            }
+
+            sessions = await prisma.sessions.findFirst({
+                where,
 
                 include: {
+                    session_teams: {
+                        include: {
+                            team: {
+                                include: {
+                                    club: true
+                                }
+                            }
+                        }
+                    },
+
                     attendance: {
                         include: {
                             athlete: {
                                 include: {
                                     team_memberships: {
-                                        where: {
-                                            end_date: null
-                                        },
-
                                         orderBy: {
                                             start_date: "desc"
                                         },
-
-                                        take: 1,
-
                                         include: {
                                             team: {
                                                 include: {
@@ -1373,11 +1522,27 @@ const getSessions = async (req, res) => {
                     terrainType;
             }
 
-            // If filtering by athlete, only return sessions where that athlete has attendance.
+            // ----------------------------------------
+            // Filter by athlete
+            // ----------------------------------------
+
             if (athleteId) {
                 where.attendance = {
                     some: {
-                        athlete_id: Number(athleteId)
+                        athlete_id:
+                            Number(athleteId)
+                    }
+                };
+            }
+
+            // ----------------------------------------
+            // Filter by team
+            // ----------------------------------------
+
+            if (parsedTeamId !== null) {
+                where.session_teams = {
+                    some: {
+                        team_id: parsedTeamId
                     }
                 };
             }
@@ -1394,21 +1559,24 @@ const getSessions = async (req, res) => {
                 },
 
                 include: {
+                    session_teams: {
+                        include: {
+                            team: {
+                                include: {
+                                    club: true
+                                }
+                            }
+                        }
+                    },
+
                     attendance: {
                         include: {
                             athlete: {
                                 include: {
                                     team_memberships: {
-                                        where: {
-                                            end_date: null
-                                        },
-
                                         orderBy: {
                                             start_date: "desc"
                                         },
-
-                                        take: 1,
-
                                         include: {
                                             team: {
                                                 include: {
@@ -1425,140 +1593,213 @@ const getSessions = async (req, res) => {
             });
         }
 
+        // ----------------------------------------
+        // No sessions found
+        // ----------------------------------------
+
         if (sessions.length === 0) {
             return res.status(404).json({
                 error: "No sessions found"
             });
         }
 
-        // -------------------------------------------------------------
-        // 4. Convert Prisma result to existing frontend response shape
-        // ----------------------------------------------------------
+        // ----------------------------------------
+        // 4. Convert Prisma result to frontend shape
+        // ----------------------------------------
 
         const sessionsWithAttendance =
-          sessions.map((session) => ({
-              session_id:
-                  session.session_id,
+            sessions.map((session) => ({
+                session_id:
+                    session.session_id,
 
-              session_day:
-                  session.session_day,
+                // ----------------------------------------
+                // Teams associated with this session
+                // ----------------------------------------
 
-              start_time:
-                session.start_time
-                    ? session.start_time.toISOString().slice(11, 16)
-                    : null,
+                teams:
+                    session.session_teams.map(
+                        (sessionTeam) => ({
+                            teamId:
+                                sessionTeam.team.team_id,
 
-            end_time:
-                session.end_time
-                    ? session.end_time.toISOString().slice(11, 16)
-                    : null,
+                            teamName:
+                                sessionTeam.team.name,
 
-              location:
-                  session.location,
+                            clubId:
+                                sessionTeam.team.club.club_id,
 
-              discipline:
-                  session.discipline,
+                            clubName:
+                                sessionTeam.team.club.name
+                        })
+                    ),
 
-              snow_conditions:
-                  session.snow_conditions,
+                session_day:
+                    session.session_day,
 
-              vis_conditions:
-                  session.vis_conditions,
+                start_time:
+                    session.start_time
+                        ? session.start_time
+                            .toISOString()
+                            .slice(11, 16)
+                        : null,
 
-              terrain_type:
-                  session.terrain_type,
+                end_time:
+                    session.end_time
+                        ? session.end_time
+                            .toISOString()
+                            .slice(11, 16)
+                        : null,
 
-              num_freeski_runs:
-                  session.num_freeski_runs,
+                location:
+                    session.location,
 
-              num_drill_runs:
-                  session.num_drill_runs,
+                discipline:
+                    session.discipline,
 
-              num_educational_course_runs:
-                  session.num_educational_course_runs,
+                snow_conditions:
+                    session.snow_conditions,
 
-              num_gates_educational_course:
-                  session.num_gates_educational_course,
+                vis_conditions:
+                    session.vis_conditions,
 
-              num_race_training_course_runs:
-                  session.num_race_training_course_runs,
+                terrain_type:
+                    session.terrain_type,
 
-              num_gates_race_training_course:
-                  session.num_gates_race_training_course,
+                num_freeski_runs:
+                    session.num_freeski_runs,
 
-              num_race_runs:
-                  session.num_race_runs,
+                num_drill_runs:
+                    session.num_drill_runs,
 
-              num_gates_race:
-                  session.num_gates_race,
+                num_educational_course_runs:
+                    session.num_educational_course_runs,
 
-              general_comments:
-                  session.general_comments,
+                num_gates_educational_course:
+                    session.num_gates_educational_course,
 
-              created_by:
-                  session.created_by,
+                num_race_training_course_runs:
+                    session.num_race_training_course_runs,
 
-              attendance:
-                session.attendance.map((att) => {
-                    const membership =
-                        att.athlete.team_memberships[0];
+                num_gates_race_training_course:
+                    session.num_gates_race_training_course,
 
-                    return {
-                        attendanceId:
-                            att.attendance_id,
+                num_race_runs:
+                    session.num_race_runs,
 
-                        freeskiRuns:
-                            att.freeski_runs,
+                num_gates_race:
+                    session.num_gates_race,
 
-                        drillRuns:
-                            att.drill_runs,
+                general_comments:
+                    session.general_comments,
 
-                        educationalCourseRuns:
-                            att.educational_course_runs,
+                created_by:
+                    session.created_by,
 
-                        raceTrainingCourseRuns:
-                            att.race_training_course_runs,
+                // ----------------------------------------
+                // Attendance
+                // ----------------------------------------
 
-                        raceRuns:
-                            att.race_runs,
+                attendance:
+                    session.attendance.map(
+                        (att) => ({
+                            attendanceId:
+                                att.attendance_id,
 
-                        individualComments:
-                            att.individual_comments,
+                            freeskiRuns:
+                                att.freeski_runs,
 
-                        athlete: {
-                            athleteId:
-                                att.athlete.athlete_id,
+                            drillRuns:
+                                att.drill_runs,
 
-                            athleteFirstName:
-                                att.athlete.athlete_first_name,
+                            educationalCourseRuns:
+                                att.educational_course_runs,
 
-                            athleteLastName:
-                                att.athlete.athlete_last_name,
+                            raceTrainingCourseRuns:
+                                att.race_training_course_runs,
 
-                            birthday:
-                                att.athlete.birthday,
+                            raceRuns:
+                                att.race_runs,
 
-                            gender:
-                                att.athlete.gender,
+                            individualComments:
+                                att.individual_comments,
 
-                            userId:
-                                att.athlete.users?.[0]
-                                    ?.user_id ?? null,
+                            athlete: {
 
-                            team:
-                                membership?.team?.name
-                                    ?? null,
+                                athleteId:
+                                    att.athlete.athlete_id,
 
-                            club:
-                                membership?.team?.club?.name
-                                    ?? null,
+                                athleteFirstName:
+                                    att.athlete.athlete_first_name,
 
-                            ageGroup:
-                                att.athlete.age_group
-                        }
-                    };
-                })
-          }));
+                                athleteLastName:
+                                    att.athlete.athlete_last_name,
+
+                                birthday:
+                                    att.athlete.birthday,
+
+                                gender:
+                                    att.athlete.gender,
+
+                                userId:
+                                    att.athlete.users?.[0]
+                                        ?.user_id ?? null,
+
+                                ageGroup:
+                                    att.athlete.age_group,
+
+                                // ----------------------------------------
+                                // ALL team membership history
+                                // ----------------------------------------
+
+                                teamMemberships:
+                                    att.athlete.team_memberships
+                                        .map(
+                                            (membership) => ({
+                                                teamMembershipId:
+                                                    membership.team_membership_id,
+
+                                                athleteId:
+                                                    membership.athlete_id,
+
+                                                teamId:
+                                                    membership.team_id,
+
+                                                startDate:
+                                                    membership.start_date,
+
+                                                endDate:
+                                                    membership.end_date,
+
+                                                team:
+                                                    membership.team
+                                                        ? {
+                                                            teamId:
+                                                                membership.team.team_id,
+
+                                                            clubId:
+                                                                membership.team.club_id,
+
+                                                            name:
+                                                                membership.team.name,
+
+                                                            club:
+                                                                membership.team.club
+                                                                    ? {
+                                                                        clubId:
+                                                                            membership.team.club.club_id,
+
+                                                                        name:
+                                                                            membership.team.club.name
+                                                                    }
+                                                                    : undefined
+                                                        }
+                                                        : undefined
+                                            })
+                                        )
+                            }
+                        })
+                    )
+            }));
 
         return res.status(200).json(
             sessionsWithAttendance
@@ -1868,6 +2109,7 @@ const updateSession = async (req, res) => {
         numRaceRuns,
         numGatesRace,
         generalComments,
+        teamIds
     } = req.body;
 
     const formatTime = (time) => {
@@ -1986,85 +2228,182 @@ const updateSession = async (req, res) => {
         });
     }
 
+    // ----------------------------------------
+    // Validate team IDs
+    // ----------------------------------------
+
+    if (!Array.isArray(teamIds) || teamIds.length === 0) {
+        errors.push({
+            teamIds: "Session must have at least one team"
+        });
+    }
+
     if (errors.length > 0) {
         return res.status(400).json({ errors });
     }
 
     // ----------------------------------------
-    // Update session
+    // Update session + teams
     // ----------------------------------------
 
     try {
-        const updatedSession =
-            await prisma.sessions.update({
-                where: {
-                    session_id: sessionId
-                },
 
-                data: {
-                    session_day:
-                        new Date(sessionDay),
+        const result = await prisma.$transaction(
+            async (tx) => {
 
-                    start_time:
-                        new Date(`1970-01-01T${formStartTime}`),
+                // ----------------------------------------
+                // 1. Update session
+                // ----------------------------------------
 
-                    end_time:
-                        new Date(`1970-01-01T${formEndTime}`),
+                const updatedSession =
+                    await tx.sessions.update({
+                        where: {
+                            session_id: sessionId
+                        },
 
-                    location,
-                    discipline,
+                        data: {
+                            session_day:
+                                new Date(sessionDay),
 
-                    snow_conditions:
-                        snowConditions,
+                            start_time:
+                                new Date(
+                                    `1970-01-01T${formStartTime}`
+                                ),
 
-                    vis_conditions:
-                        visConditions,
+                            end_time:
+                                new Date(
+                                    `1970-01-01T${formEndTime}`
+                                ),
 
-                    terrain_type:
-                        terrainType,
+                            location,
+                            discipline,
 
-                    num_freeski_runs:
-                        numFreeskiRuns,
+                            snow_conditions:
+                                snowConditions,
 
-                    num_drill_runs:
-                        numDrillRuns,
+                            vis_conditions:
+                                visConditions,
 
-                    num_educational_course_runs:
-                        numEducationalCourseRuns,
+                            terrain_type:
+                                terrainType,
 
-                    num_gates_educational_course:
-                        numGatesEducationalCourse,
+                            num_freeski_runs:
+                                numFreeskiRuns,
 
-                    num_race_training_course_runs:
-                        numRaceTrainingCourseRuns,
+                            num_drill_runs:
+                                numDrillRuns,
 
-                    num_gates_race_training_course:
-                        numGatesRaceTrainingCourse,
+                            num_educational_course_runs:
+                                numEducationalCourseRuns,
 
-                    num_race_runs:
-                        numRaceRuns,
+                            num_gates_educational_course:
+                                numGatesEducationalCourse,
 
-                    num_gates_race:
-                        numGatesRace,
+                            num_race_training_course_runs:
+                                numRaceTrainingCourseRuns,
 
-                    general_comments:
-                        generalComments
-                }
-            });
+                            num_gates_race_training_course:
+                                numGatesRaceTrainingCourse,
+
+                            num_race_runs:
+                                numRaceRuns,
+
+                            num_gates_race:
+                                numGatesRace,
+
+                            general_comments:
+                                generalComments
+                        }
+                    });
+
+                // ----------------------------------------
+                // 2. Remove existing team associations
+                // ----------------------------------------
+
+                await tx.sessions_teams.deleteMany({
+                    where: {
+                        session_id: sessionId
+                    }
+                });
+
+                // ----------------------------------------
+                // 3. Add new team associations
+                // ----------------------------------------
+
+                await tx.sessions_teams.createMany({
+                    data: teamIds.map((teamId) => ({
+                        session_id:
+                            sessionId,
+
+                        team_id:
+                            Number(teamId)
+                    })),
+
+                    skipDuplicates: true
+                });
+
+                // ----------------------------------------
+                // 4. Get updated session with teams
+                // ----------------------------------------
+
+                return await tx.sessions.findUnique({
+                    where: {
+                        session_id: sessionId
+                    },
+
+                    include: {
+                        session_teams: {
+                            include: {
+                                team: {
+                                    include: {
+                                        club: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        );
 
         console.log(
             "Updated session:",
-            updatedSession
+            result
         );
 
         return res.status(200).json({
-            ...updatedSession,
-            start_time: updatedSession.start_time
-                ? updatedSession.start_time.toISOString().slice(11, 16)
-                : null,
-            end_time: updatedSession.end_time
-                ? updatedSession.end_time.toISOString().slice(11, 16)
-                : null
+            ...result,
+
+            start_time:
+                result.start_time
+                    ? result.start_time
+                        .toISOString()
+                        .slice(11, 16)
+                    : null,
+
+            end_time:
+                result.end_time
+                    ? result.end_time
+                        .toISOString()
+                        .slice(11, 16)
+                    : null,
+
+            teams:
+                result.session_teams.map(
+                    (sessionTeam) => ({
+                        teamId:
+                            sessionTeam.team.team_id,
+
+                        teamName:
+                            sessionTeam.team.name,
+
+                        clubId:
+                            sessionTeam.team.club.club_id,
+
+                        clubName:
+                            sessionTeam.team.club.name
+                    })
+                )
         });
 
     } catch (error) {
@@ -2471,41 +2810,139 @@ const getClubs = async (req, res) => {
     try {
         const clubs = await prisma.clubs.findMany({
             orderBy: {
-                name: 'asc'
+                name: "asc"
             }
         });
 
-        return res.status(200).json(clubs);
+        const mappedClubs = clubs.map((club) => ({
+            clubId: club.club_id,
+            name: club.name
+        }));
+
+        return res.status(200).json(mappedClubs);
 
     } catch (error) {
-        console.error('Error getting clubs:', error);
+        console.error("Error getting clubs:", error);
 
         return res.status(500).json({
-            error: 'Server error retrieving clubs'
+            error: "Server error retrieving clubs"
         });
     }
 };
 
-// get all teams in the database, optionally filtered by clubId, ordered by name
+// get all teams in the database, optionally filtered by clubId or filtered by coachId
 const getTeams = async (req, res) => {
-    const { clubId } = req.query;
+    const { teamId, clubId, coachId } = req.query;
 
     try {
         let teams;
 
-        if (clubId) {
-            teams = await prisma.teams.findMany({
+        // ----------------------------------------
+        // Get a specific team
+        // ----------------------------------------
+
+        if (teamId) {
+            const parsedTeamId = Number(teamId);
+
+            if (!Number.isInteger(parsedTeamId)) {
+                return res.status(400).json({
+                    error: "Invalid teamId"
+                });
+            }
+
+            const team = await prisma.teams.findUnique({
                 where: {
-                    club_id: Number(clubId)
+                    team_id: parsedTeamId
                 },
-                orderBy: {
-                    name: 'asc'
+
+                include: {
+                    club: true
                 }
             });
+
+            if (!team) {
+                return res.status(404).json({
+                    error: "Team not found"
+                });
+            }
+
+            // Return as an array so the response shape stays
+            // consistent with the existing /api/teams endpoint.
+            teams = [team];
+
+        // ----------------------------------------
+        // Get teams associated with coach
+        // ----------------------------------------
+
+        } else if (coachId) {
+            const parsedCoachId = Number(coachId);
+
+            if (!Number.isInteger(parsedCoachId)) {
+                return res.status(400).json({
+                    error: "Invalid coachId"
+                });
+            }
+
+            const memberships =
+                await prisma.coach_memberships.findMany({
+                    where: {
+                        user_id: parsedCoachId
+                    },
+
+                    include: {
+                        team: {
+                            include: {
+                                club: true
+                            }
+                        }
+                    }
+                });
+
+            teams = memberships
+                .map((membership) => membership.team)
+                .sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
+
+        // ----------------------------------------
+        // Get teams filtered by club
+        // ----------------------------------------
+
+        } else if (clubId) {
+            const parsedClubId = Number(clubId);
+
+            if (!Number.isInteger(parsedClubId)) {
+                return res.status(400).json({
+                    error: "Invalid clubId"
+                });
+            }
+
+            teams = await prisma.teams.findMany({
+                where: {
+                    club_id: parsedClubId
+                },
+
+                include: {
+                    club: true
+                },
+
+                orderBy: {
+                    name: "asc"
+                }
+            });
+
+        // ----------------------------------------
+        // Get all teams
+        // ----------------------------------------
+
         } else {
             teams = await prisma.teams.findMany({
+                include: {
+                    club: true
+                },
+
                 orderBy: {
-                    name: 'asc'
+                    name: "asc"
                 }
             });
         }
@@ -2513,10 +2950,13 @@ const getTeams = async (req, res) => {
         return res.status(200).json(teams);
 
     } catch (error) {
-        console.error('Error getting teams:', error);
+        console.error(
+            "Error getting teams:",
+            error
+        );
 
         return res.status(500).json({
-            error: 'Server error retrieving teams'
+            error: "Server error retrieving teams"
         });
     }
 };

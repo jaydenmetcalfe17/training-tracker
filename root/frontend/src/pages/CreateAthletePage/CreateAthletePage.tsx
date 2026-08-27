@@ -1,13 +1,18 @@
-// pages/CreateAthletePage.tsx
+// pages/CreateAthletePage/CreateAthletePage.tsx
 
 import "./CreateAthletePage.scss";
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import type { Athlete } from '../../types/Athlete';
-import type { CreateAthleteRequest } from '../../types/CreateAthleteRequest';
+import type { Athlete } from "../../types/Athlete";
+import type { CreateAthleteRequest } from "../../types/CreateAthleteRequest";
 
-import AthletesList from '../../components/AthletesList/AthletesList';
-import CreateAthleteForm from '../../components/CreateAthleteForm/CreateAthleteForm';
+import AthletesList from "../../components/AthletesList/AthletesList";
+import CreateAthleteForm from "../../components/CreateAthleteForm/CreateAthleteForm";
+
+interface CreateAthletePageProps {
+  teamId?: number;
+  clubId?: number;
+}
 
 const mapAthlete = (athlete: any): Athlete => ({
   athleteId: athlete.athlete_id,
@@ -71,76 +76,112 @@ const mapAthlete = (athlete: any): Athlete => ({
     ) ?? [],
 });
 
-const CreateAthletePage: React.FC = () => {
-  const [athletes, setAthletes] = useState<Athlete[]>([]);
+const CreateAthletePage: React.FC<
+  CreateAthletePageProps
+> = ({ teamId, clubId }) => {
 
-  // Load all athletes
+  const [athletes, setAthletes] =
+    useState<Athlete[]>([]);
+
+  // ----------------------------------------
+  // Load athletes
+  // ----------------------------------------
+
   useEffect(() => {
-    fetch(`/api/athlete`, {
-      method: 'GET',
+
+    const url = teamId
+      ? `/api/athlete?teamId=${teamId}`
+      : `/api/athlete`;
+
+    fetch(url, {
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
+
         if (!res.ok) {
-          throw new Error('Failed to load athletes');
+          throw new Error(
+            "Failed to load athletes"
+          );
         }
 
         return res.json();
       })
       .then((data) => {
-        console.log("ATHLETE DATA: ", data);
+
+        console.log(
+          "ATHLETE DATA:",
+          data
+        );
 
         const loadedAthletes: Athlete[] =
           data.map(mapAthlete);
 
-        setAthletes(loadedAthletes);
-
+        setAthletes(
+          loadedAthletes
+        );
       })
-      .catch((err) =>
-        console.log(
-          'Unable to find athletes: ',
-          err
-        )
-      );
-  }, []);
+      .catch((err) => {
 
+        console.error(
+          "Unable to find athletes:",
+          err
+        );
+      });
+
+  }, [teamId]);
+
+  // ----------------------------------------
   // Create Athlete Profile
+  // ----------------------------------------
+
   const createAthleteProfile = (
     newAthlete: CreateAthleteRequest
   ) => {
+
     console.log(
-      'CREATING ATHLETE:',
+      "CREATING ATHLETE:",
       newAthlete
     );
 
     fetch(`/api/athlete`, {
-      method: 'POST',
+      method: "POST",
+
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type":
+          "application/json",
       },
-      body: JSON.stringify(newAthlete),
+
+      body: JSON.stringify(
+        newAthlete
+      ),
     })
       .then(async (res) => {
-        const data = await res.json();
+
+        const data =
+          await res.json();
 
         if (!res.ok) {
           throw new Error(
             data.error ||
-            'Failed to create athlete'
+              "Failed to create athlete"
           );
         }
 
         return data;
       })
+
       .then((data) => {
+
         console.log(
-          'Athlete created:',
+          "Athlete created:",
           data
         );
 
-        const createdAthlete = mapAthlete(data);
+        const createdAthlete =
+          mapAthlete(data);
 
         setAthletes((prev) => [
           ...prev,
@@ -149,23 +190,35 @@ const CreateAthletePage: React.FC = () => {
 
         window.location.reload();
       })
+
       .catch((err) => {
+
         console.error(
-          'Failed to create athlete:',
+          "Failed to create athlete:",
           err
         );
       });
   };
 
+  // ----------------------------------------
+  // Render
+  // ----------------------------------------
+
   return (
     <div className="create-athlete-page">
-      <CreateAthleteForm
-        onSubmit={createAthleteProfile}
-      />
 
       <AthletesList
         athletes={athletes}
       />
+
+      <CreateAthleteForm
+        onSubmit={
+          createAthleteProfile
+        }
+        // teamId={teamId}
+        clubId={clubId}
+      />
+
     </div>
   );
 };

@@ -1,0 +1,17 @@
+// pages/TeamDashboard.scss
+
+.team-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.athlete-session-box{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#coach-invite{
+    padding-left: 1rem;
+}

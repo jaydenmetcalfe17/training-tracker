@@ -8,9 +8,13 @@ import './CreateAthleteForm.scss';
 
 interface AthleteFormProps {
   onSubmit: (athlete: CreateAthleteRequest) => void;
+  clubId?: number;
 }
 
-const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
+const CreateAthleteForm: React.FC<AthleteFormProps> = ({
+  onSubmit,
+  clubId,
+}) => {
   const [formData, setFormData] = useState({
     athleteFirstName: '',
     athleteLastName: '',
@@ -19,7 +23,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
     acaId: '',
     fisId: '',
     ageGroup: '',
-    clubId: '',
+    clubId: clubId ? String(clubId) : '',
     teamId: '',
   });
 
@@ -27,7 +31,10 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // Load clubs when the form loads
+  // ----------------------------------------
+  // Load clubs
+  // ----------------------------------------
+
   useEffect(() => {
     fetch('/api/clubs')
       .then((res) => {
@@ -41,7 +48,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
         console.log('CLUB DATA:', data);
 
         const loadedClubs: Club[] = data.map((club: any) => ({
-          clubId: club.club_id,
+          clubId: club.clubId,
           name: club.name,
           teams: club.teams ?? [],
         }));
@@ -53,7 +60,24 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
       });
   }, []);
 
+  // ----------------------------------------
+  // If we're on a specific team page, automatically determine its club.
+  // ----------------------------------------
+
+  useEffect(() => {
+    if (clubId) {
+      setFormData((prev) => ({
+        ...prev,
+        clubId: String(clubId),
+        teamId: '',
+      }));
+    }
+  }, [clubId]);
+
+  // ----------------------------------------
   // Load teams whenever a club is selected
+  // ----------------------------------------
+
   useEffect(() => {
     if (!formData.clubId) {
       setTeams([]);
@@ -200,7 +224,6 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
         <h2 className="box-h2-title">Create Athlete</h2>
         <div className="white-box">
           <form className="create-athlete-form" onSubmit={handleSubmit}>
-
             <div className="one-column-form">
               {/* First Name */}
               <div className="form-group">
@@ -306,6 +329,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
                   name="clubId"
                   value={formData.clubId}
                   onChange={handleChange}
+                  disabled={!!clubId}
                 >
                   <option value="">
                     Select club
@@ -313,8 +337,8 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
 
                   {clubs.map((club) => (
                     <option
-                      key={club.clubId}
-                      value={club.clubId}
+                      key={`club-${club.clubId}-${club.name}`}
+                      value={String(club.clubId)}
                     >
                       {club.name}
                     </option>
@@ -341,7 +365,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
 
                   {teams.map((team) => (
                     <option
-                      key={team.teamId}
+                      key={`team-${team.teamId}-${team.name}`}
                       value={team.teamId}
                     >
                       {team.name}
@@ -357,7 +381,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
               </div>
 
               {/* Age Group */}
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label>Age Group: </label>
 
                 <select
@@ -395,7 +419,7 @@ const CreateAthleteForm: React.FC<AthleteFormProps> = ({ onSubmit }) => {
                     {errors.ageGroup}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               {/* Submit */}
               <button

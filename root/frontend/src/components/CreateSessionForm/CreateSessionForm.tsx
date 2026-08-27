@@ -1,7 +1,8 @@
-// components/SessionForm.tsx
+// components/CreateSessionForm/CreateSessionForm.tsx
 import { useContext, useEffect, useRef, useState } from 'react';
 import type { Session } from "../../types/Session";
 import type { Athlete } from '../../types/Athlete';
+import type { Team } from '../../types/Team';
 import MultiSelectEx from '../Multiselect/Multiselect';
 import AuthContext from '../../context/AuthContext';
 import "./CreateSessionForm.scss";
@@ -15,27 +16,102 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
 
   // Keep available athletes in state (async fetch)
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
+  const [availableTeams, setAvailableTeams] = useState<Team[]>([]);
+  const [selectedTeams, setSelectedTeams] = useState<number[]>([]);
+
   useEffect(() => {
-    fetch(`/api/athlete`)
-      .then(res => res.json())
-      .then(data => {
-        const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
-          athleteId: athlete.athlete_id,
-          athleteFirstName: athlete.athlete_first_name,
-          athleteLastName: athlete.athlete_last_name,
-          birthday: athlete.birthday,
-          gender: athlete.gender,
-          team: athlete.team,
-          ageGroup: athlete.age_group,
-        }));
-        setAvailableAthletes(mappedAthletes);
-      })
-      .catch(err => console.error('Failed to load athletes', err));
+    if (!user?.userId) {
+        console.log("No user ID available:", user);
+        return;
+    }
+
+    console.log("Fetching teams for coach:", user.userId);
+
+    fetch(`/api/teams?coachId=${user.userId}`)
+        .then(res => {
+
+            if (!res.ok) {
+                throw new Error(
+                    `Failed to load teams: ${res.status}`
+                );
+            }
+
+            return res.json();
+        })
+        .then(data => {
+
+            const mappedTeams: Team[] = data.map((team: any) => ({
+                teamId: team.team_id,
+                clubId: team.club_id,
+                name: team.name,
+                club: team.club
+            }));
+
+            console.log("Mapped coach teams:", mappedTeams);
+
+            setAvailableTeams(mappedTeams);
+        })
+        .catch(err => {
+            console.error(
+                "Failed to load teams:",
+                err
+            );
+        });
+  }, [user]);
+
+  useEffect(() => {
+  fetch(`/api/athlete`)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Failed to load athletes: ${res.status}`);
+      }
+
+      return res.json();
+    })
+    .then(data => {
+      const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
+        athleteId: athlete.athlete_id,
+        athleteFirstName: athlete.athlete_first_name,
+        athleteLastName: athlete.athlete_last_name,
+        birthday: athlete.birthday,
+        gender: athlete.gender,
+        acaId: athlete.aca_id,
+        fisId: athlete.fis_id,
+
+        teamMemberships: athlete.team_memberships?.map((membership: any) => ({
+          teamMembershipId: membership.team_membership_id,
+          athleteId: membership.athlete_id,
+          teamId: membership.team_id,
+          startDate: membership.start_date,
+          endDate: membership.end_date,
+
+          team: membership.team
+            ? {
+                teamId: membership.team.team_id,
+                clubId: membership.team.club_id,
+                name: membership.team.name,
+                club: membership.team.club,
+              }
+            : undefined,
+        })),
+      }));
+
+      console.log("Athletes with team memberships:", mappedAthletes);
+
+      setAvailableAthletes(mappedAthletes);
+    })
+    .catch(err =>
+      console.error("Failed to load athletes", err)
+    );
   }, []);
 
   // Attendance state
   const [attendance, setAttendance] = useState<number[]>([]);
   const handleAttendanceChange = (selectedIds: number[]) => setAttendance(selectedIds);
+
+  const handleTeamChange = (selectedIds: number[]) => {
+    setSelectedTeams(selectedIds);
+  };
 
   // Refs for all other inputs
   const sessionDayRef = useRef<HTMLInputElement>(null);
@@ -81,6 +157,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
       numGatesRace: Number(numGatesRaceRef.current?.value) || 0,
       generalComments: generalCommentsRef.current?.value || '',
       attendance,
+      teamIds: selectedTeams,
       createdBy: user?.userId,
     };
 
@@ -98,6 +175,7 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
     });
 
     setAttendance([]); // reset attendance
+    setSelectedTeams([]); // reset selected teams
   };
 
   return (
@@ -108,8 +186,16 @@ const CreateSessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
           <form className="create-session-form" onSubmit={handleSubmit}>
             <div className="three-column-form">
               <div className="form-group">
+                <label>Teams:</label>
+                <MultiSelectEx teams={availableTeams} type="team" onChange={handleTeamChange} />
+              </div>
+              <div className="form-group">
                 <label>Attendance:</label>
-                <MultiSelectEx athletes={availableAthletes} onChange={handleAttendanceChange} />
+                <MultiSelectEx
+                  athletes={availableAthletes}
+                  type="athlete"
+                  onChange={handleAttendanceChange}
+                />
               </div>
               
               <div className="form-group">
