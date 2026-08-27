@@ -23,15 +23,15 @@ const SessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const [session, setSession] = useState<Session | null>(null);
   const { user } = useContext(AuthContext);
-  // const [isVisible, setIsVisible] = useState(true);
-  const isVisible = (user?.status === 'coach');
+  const isCoach = user?.status === 'coach';
+  const canEditSession = isCoach && session !== null;
   
   // let sessions: Session[] = session ? [session] : [];
 
   useEffect(() => {
     // console.log("USE EFFECT USING");
     //  if (user?.status == 'athlete'){
-    //   setIsVisible(!isVisible);
+    //   isCoach(!isCoach);
     //   console.log("NOT VISIBLE, ATHLETE PAGE");
     // }
 
@@ -235,7 +235,7 @@ const SessionPage: React.FC = () => {
         </div>
         <div className="delete-edit-button-box">
           <div>
-            {isVisible && <button className="main-button" id="edit-button" aria-label="edit-button" data-testid="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
+            {canEditSession && <button className="main-button" id="edit-button" aria-label="edit-button" data-testid="edit-button" onClick={toggleEditPopup}><EditIcon/></button>}
               {showEditPopup && (
                 <div className="popup-overlay">
                   <div className="popup-content" data-testid="edit-popup">
@@ -246,7 +246,7 @@ const SessionPage: React.FC = () => {
               )}
           </div>
           <div>
-            {isVisible && <button className="main-button" id="delete-button" aria-label="delete-button" data-testid="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
+            {canEditSession && <button className="main-button" id="delete-button" aria-label="delete-button" data-testid="delete-button" onClick={toggleDeletePopup}><DeleteIcon/></button>}
               {showDeletePopup && (
                 <div className="popup-overlay">
                   <div className="popup-content">
@@ -267,7 +267,7 @@ const SessionPage: React.FC = () => {
         {session ? (
           <>
             <SessionsList sessions={[session]} />
-            {isVisible && <AttendanceList data-testid="attendance-list" session={session} />}
+            {isCoach && <AttendanceList data-testid="attendance-list" session={session} />}
           </>
           ) : (
             <p>You do not have access to this session</p> 

@@ -23,6 +23,7 @@ import GenerateInviteButton from "../GenerateInviteButton/GenerateInviteButton";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AthleteAffiliations from "../AthleteAffiliations/AthleteAffiliations";
 
 interface FilterSessionsProps {
   athlete?: Athlete | null;
@@ -407,40 +408,7 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
                         : ""}
                       </h3>
 
-                      <div className="athlete-affiliations">
-                        <h3>Affiliations:</h3>
-
-                        {affiliations.length === 0 ? (
-                          <p>No active affiliations</p>
-                        ) : (
-                          affiliations.map(
-                            (affiliation) => (
-                              <div
-                                className="affiliation"
-                                key={
-                                  affiliation.club.clubId
-                                }
-                              >
-                                <h4>
-                                  {affiliation.club.name}
-                                </h4>
-
-                                <ul>
-                                  {affiliation.teams.map(
-                                    (team) => (
-                                      <li
-                                        key={team.teamId}
-                                      >
-                                        {team.name}
-                                      </li>
-                                    )
-                                  )}
-                                </ul>
-                              </div>
-                            )
-                          )
-                        )}
-                      </div>
+                      <AthleteAffiliations athleteId={athlete.athleteId!} isCoach={isCoach}/>
 
                       <h3>ACA ID: {athlete.acaId ?? "N/A"}</h3>
 

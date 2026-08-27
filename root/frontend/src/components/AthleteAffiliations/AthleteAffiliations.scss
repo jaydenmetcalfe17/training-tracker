@@ -1,0 +1,192 @@
+//components/AthleteAffiliations/AthleteAffiliations.scss
+
+// components/AthleteAffiliations/AthleteAffiliations.scss
+
+.athlete-affiliations {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.affiliations-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.affiliations-header h3 {
+  margin: 0;
+}
+
+.current-affiliations {
+  margin-top: 1rem;
+}
+
+.current-affiliations h4,
+.affiliation-editor h4 {
+  margin-bottom: 0.75rem;
+}
+
+.affiliation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.affiliation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.affiliation strong {
+  font-size: 1rem;
+}
+
+.affiliation span {
+  font-size: 0.9rem;
+}
+
+.affiliation-history {
+  margin-top: 1rem;
+}
+
+.affiliation-history summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 0;
+}
+
+.affiliation-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.affiliation-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #ffffff;
+  border-radius: 6px;
+}
+
+.affiliation-history-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.affiliation-history-row span {
+  font-size: 0.9rem;
+}
+
+.affiliation-editor {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.membership-editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.membership-editor {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 1rem;
+  align-items: end;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.membership-editor-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.membership-editor-name span {
+  font-size: 0.9rem;
+}
+
+.membership-editor label,
+.add-affiliation label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.membership-editor input,
+.add-affiliation select,
+.add-affiliation input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-affiliation {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.add-affiliation h5 {
+  margin-bottom: 0.75rem;
+}
+
+.add-affiliation-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.affiliation-editor-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.secondary-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.error-message {
+  margin-top: 0.75rem;
+  color: #b00020;
+}
+
+@media (max-width: 700px) {
+
+  .membership-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .add-affiliation-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .affiliation-history-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+}

@@ -6,7 +6,8 @@ const controller = require('../controller');
 const {
     requireAuth,
     requireCoach,
-    requireClubCoach
+    requireClubCoach,
+    requireAthleteAffiliationCoach
 } = require('../middleware/auth');
 const router = Router();
 
@@ -101,9 +102,11 @@ router.get("/clubs", controller.getClubs);
 // Get teams, optionally filtered by club
 router.get("/teams", requireAuth, controller.getTeams);
 
+// Get all teams an athlete has been apart of
+router.get("/athlete/:athleteId/team-memberships", requireAuth, controller.getAthleteTeamMemberships)
 
-
-
+// update an athlete's team membership(s)
+router.put("/athlete/:athleteId/team-memberships", requireAthleteAffiliationCoach, controller.updateAthleteTeamMemberships);
 
 
 module.exports = router;

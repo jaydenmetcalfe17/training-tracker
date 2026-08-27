@@ -19,53 +19,114 @@ const getAllDataFromAthleteProfile = async (req, res) => {
     const {
         athleteId,
         userId,
-        teamId
+        teamId,
+        clubId
     } = req.query;
 
     try {
         let result;
 
         // ----------------------------------------
-        // Get athletes belonging to a team
+        // Validate IDs
         // ----------------------------------------
 
+        let parsedTeamId = null;
+        let parsedClubId = null;
+
         if (teamId) {
-            const parsedTeamId = Number(teamId);
+            parsedTeamId = Number(teamId);
 
             if (!Number.isInteger(parsedTeamId)) {
                 return res.status(400).json({
                     error: "Invalid teamId"
                 });
             }
+        }
+
+        if (clubId) {
+            parsedClubId = Number(clubId);
+
+            if (!Number.isInteger(parsedClubId)) {
+                return res.status(400).json({
+                    error: "Invalid clubId"
+                });
+            }
+        }
+
+        // ----------------------------------------
+        // Common membership include
+        // ----------------------------------------
+
+        const membershipInclude = {
+            where: {
+                end_date: null
+            },
+
+            orderBy: {
+                start_date: "desc"
+            },
+
+            include: {
+                team: {
+                    include: {
+                        club: true
+                    }
+                }
+            }
+        };
+
+        // ----------------------------------------
+        // Get athletes belonging to a team
+        // ----------------------------------------
+
+        if (parsedTeamId !== null) {
+
+            const teamWhere = {
+                team_id: parsedTeamId,
+                end_date: null
+            };
+
+            // If clubId is also supplied, make sure
+            // the team belongs to that club.
+            if (parsedClubId !== null) {
+                teamWhere.team = {
+                    club_id: parsedClubId
+                };
+            }
+
+            result = await prisma.athletes.findMany({
+                where: {
+                    team_memberships: {
+                        some: teamWhere
+                    }
+                },
+
+                include: {
+                    team_memberships: membershipInclude
+                }
+            });
+
+        // ----------------------------------------
+        // Get athletes belonging to a club
+        // ----------------------------------------
+
+        } else if (parsedClubId !== null) {
 
             result = await prisma.athletes.findMany({
                 where: {
                     team_memberships: {
                         some: {
-                            team_id: parsedTeamId,
+                            team: {
+                                club_id: parsedClubId
+                            },
+
                             end_date: null
                         }
                     }
                 },
 
                 include: {
-                    team_memberships: {
-                        where: {
-                            end_date: null
-                        },
-
-                        orderBy: {
-                            start_date: "desc"
-                        },
-
-                        include: {
-                            team: {
-                                include: {
-                                    club: true
-                                }
-                            }
-                        }
-                    }
+                    team_memberships: membershipInclude
                 }
             });
 
@@ -75,29 +136,22 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
         } else if (athleteId) {
 
+            const parsedAthleteId =
+                Number(athleteId);
+
+            if (!Number.isInteger(parsedAthleteId)) {
+                return res.status(400).json({
+                    error: "Invalid athleteId"
+                });
+            }
+
             result = await prisma.athletes.findUnique({
                 where: {
-                    athlete_id: Number(athleteId)
+                    athlete_id: parsedAthleteId
                 },
 
                 include: {
-                    team_memberships: {
-                        where: {
-                            end_date: null
-                        },
-
-                        orderBy: {
-                            start_date: "desc"
-                        },
-
-                        include: {
-                            team: {
-                                include: {
-                                    club: true
-                                }
-                            }
-                        }
-                    }
+                    team_memberships: membershipInclude
                 }
             });
 
@@ -107,37 +161,33 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
         } else if (userId) {
 
-            const user = await prisma.users.findUnique({
-                where: {
-                    user_id: Number(userId)
-                },
+            const parsedUserId =
+                Number(userId);
 
-                include: {
-                    athlete: {
-                        include: {
-                            team_memberships: {
-                                where: {
-                                    end_date: null
-                                },
+            if (!Number.isInteger(parsedUserId)) {
+                return res.status(400).json({
+                    error: "Invalid userId"
+                });
+            }
 
-                                orderBy: {
-                                    start_date: "desc"
-                                },
+            const user =
+                await prisma.users.findUnique({
+                    where: {
+                        user_id: parsedUserId
+                    },
 
-                                include: {
-                                    team: {
-                                        include: {
-                                            club: true
-                                        }
-                                    }
-                                }
+                    include: {
+                        athlete: {
+                            include: {
+                                team_memberships:
+                                    membershipInclude
                             }
                         }
                     }
-                }
-            });
+                });
 
-            result = user?.athlete ?? null;
+            result =
+                user?.athlete ?? null;
 
         // ----------------------------------------
         // Get all athletes
@@ -145,36 +195,25 @@ const getAllDataFromAthleteProfile = async (req, res) => {
 
         } else {
 
-            result = await prisma.athletes.findMany({
-                include: {
-                    team_memberships: {
-                        where: {
-                            end_date: null
-                        },
-
-                        orderBy: {
-                            start_date: "desc"
-                        },
-
-                        include: {
-                            team: {
-                                include: {
-                                    club: true
-                                }
-                            }
-                        }
+            result =
+                await prisma.athletes.findMany({
+                    include: {
+                        team_memberships:
+                            membershipInclude
                     }
-                }
-            });
+                });
         }
 
         // ----------------------------------------
         // No results
         // ----------------------------------------
 
+        // Collection requests should return an empty array.
+        // A missing individual athlete is still a 404.
+
         if (
-            !result ||
-            (Array.isArray(result) && result.length === 0)
+            (athleteId || userId) &&
+            !result
         ) {
             return res.status(404).json({
                 error: "No athlete data found"
@@ -191,7 +230,8 @@ const getAllDataFromAthleteProfile = async (req, res) => {
         );
 
         return res.status(500).json({
-            error: "Server error retrieving athlete data"
+            error:
+                "Server error retrieving athlete data"
         });
     }
 };
@@ -1377,10 +1417,12 @@ const createSession = async (req, res) => {
 
 // Get sessions
 const getSessions = async (req, res) => {
+
     const {
         sessionId,
         athleteId,
         teamId,
+        clubId,
         startDate,
         endDate,
         location,
@@ -1390,71 +1432,464 @@ const getSessions = async (req, res) => {
         terrainType
     } = req.query;
 
+
     try {
-        let sessions;
 
-        // ----------------------------------------
-        // Validate teamId
-        // ----------------------------------------
+        // ==================================================
+        // VALIDATE IDs
+        // ==================================================
 
+        let parsedSessionId = null;
+        let parsedAthleteId = null;
         let parsedTeamId = null;
+        let parsedClubId = null;
 
-        if (teamId) {
-            parsedTeamId = Number(teamId);
-
-            if (!Number.isInteger(parsedTeamId)) {
-                return res.status(400).json({
-                    error: "Invalid teamId"
-                });
-            }
-        }
-
-        // ----------------------------------------
-        // 1. Get one specific session
-        // ----------------------------------------
 
         if (sessionId) {
 
-            const where = {
-                session_id: Number(sessionId)
-            };
+            parsedSessionId =
+                Number(sessionId);
 
-            // If teamId is also supplied, make sure
-            // the session belongs to that team.
-            if (parsedTeamId !== null) {
+            if (
+                !Number.isInteger(
+                    parsedSessionId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Invalid sessionId"
+                });
+            }
+        }
+
+
+        if (athleteId) {
+
+            parsedAthleteId =
+                Number(athleteId);
+
+            if (
+                !Number.isInteger(
+                    parsedAthleteId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Invalid athleteId"
+                });
+            }
+        }
+
+
+        if (teamId) {
+
+            parsedTeamId =
+                Number(teamId);
+
+            if (
+                !Number.isInteger(
+                    parsedTeamId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Invalid teamId"
+                });
+            }
+        }
+
+
+        if (clubId) {
+
+            parsedClubId =
+                Number(clubId);
+
+            if (
+                !Number.isInteger(
+                    parsedClubId
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Invalid clubId"
+                });
+            }
+        }
+
+
+        // ==================================================
+        // GET COACH'S CLUBS
+        // ==================================================
+        //
+        // This is the source of truth for authorization.
+        //
+        // A coach can only see sessions associated with
+        // clubs they are actually a member of.
+        //
+        // ==================================================
+
+        let coachClubIds = null;
+
+
+        if (
+            req.user &&
+            req.user.status === "coach"
+        ) {
+
+            const coachMemberships =
+                await prisma.coach_memberships.findMany({
+
+                    where: {
+                        user_id:
+                            req.user.user_id
+                    },
+
+                    select: {
+                        team: {
+                            select: {
+                                club_id:
+                                    true
+                            }
+                        }
+                    }
+                });
+
+
+            coachClubIds =
+                [
+                    ...new Set(
+                        coachMemberships.map(
+                            membership =>
+                                membership
+                                    .team
+                                    .club_id
+                        )
+                    )
+                ];
+        }
+
+
+        // ==================================================
+        // BUILD WHERE CLAUSE
+        // ==================================================
+
+        const where = {};
+
+
+        // ==================================================
+        // SPECIFIC SESSION
+        // ==================================================
+
+        if (
+            parsedSessionId !== null
+        ) {
+
+            where.session_id =
+                parsedSessionId;
+        }
+
+
+        // ==================================================
+        // ATHLETE FILTER
+        // ==================================================
+
+        if (
+            parsedAthleteId !== null
+        ) {
+
+            where.attendance = {
+                some: {
+                    athlete_id:
+                        parsedAthleteId
+                }
+            };
+        }
+
+
+        // ==================================================
+        // TEAM FILTER
+        // ==================================================
+        //
+        // Session must belong to this exact team.
+        //
+        // ==================================================
+
+        if (
+            parsedTeamId !== null
+        ) {
+
+            where.session_teams = {
+                some: {
+                    team_id:
+                        parsedTeamId
+                }
+            };
+        }
+
+
+        // ==================================================
+        // CLUB FILTER
+        // ==================================================
+        //
+        // Session must belong to at least one team
+        // belonging to this exact club.
+        //
+        // ==================================================
+
+        if (
+            parsedClubId !== null
+        ) {
+
+            where.session_teams = {
+                some: {
+                    team: {
+                        club_id:
+                            parsedClubId
+                    }
+                }
+            };
+        }
+
+
+        // ==================================================
+        // COACH AUTHORIZATION
+        // ==================================================
+        //
+        // IMPORTANT:
+        //
+        // This is applied based on the requested resource.
+        //
+        // A coach cannot see:
+        //
+        // Test Club sessions
+        // unless Test Club is one of their clubs.
+        //
+        // ==================================================
+
+        if (
+            coachClubIds !== null
+        ) {
+
+            // --------------------------------------------------
+            // If requesting a specific club
+            // --------------------------------------------------
+
+            if (
+                parsedClubId !== null
+            ) {
+
+                if (
+                    !coachClubIds.includes(
+                        parsedClubId
+                    )
+                ) {
+
+                    return res.status(403).json({
+                        error:
+                            "You do not have permission to access this club"
+                    });
+                }
+
+
+            // --------------------------------------------------
+            // If requesting a specific team
+            // --------------------------------------------------
+
+            } else if (
+                parsedTeamId !== null
+            ) {
+
                 where.session_teams = {
                     some: {
-                        team_id: parsedTeamId
+                        team_id:
+                            parsedTeamId,
+
+                        team: {
+                            club_id: {
+                                in:
+                                    coachClubIds
+                            }
+                        }
+                    }
+                };
+
+
+            // --------------------------------------------------
+            // If requesting an athlete
+            // --------------------------------------------------
+            //
+            // The athlete may belong to many clubs.
+            //
+            // Only return sessions from clubs that THIS
+            // coach belongs to.
+            //
+            // --------------------------------------------------
+
+            } else if (
+                parsedAthleteId !== null
+            ) {
+
+                where.session_teams = {
+                    some: {
+                        team: {
+                            club_id: {
+                                in:
+                                    coachClubIds
+                            }
+                        }
+                    }
+                };
+
+
+            // --------------------------------------------------
+            // Generic session request by a coach
+            // --------------------------------------------------
+            //
+            // If there is no athlete/team/club filter,
+            // restrict the entire result to the coach's
+            // clubs.
+            //
+            // --------------------------------------------------
+
+            } else {
+
+                where.session_teams = {
+                    some: {
+                        team: {
+                            club_id: {
+                                in:
+                                    coachClubIds
+                            }
+                        }
                     }
                 };
             }
+        }
 
-            sessions = await prisma.sessions.findFirst({
-                where,
 
-                include: {
-                    session_teams: {
-                        include: {
-                            team: {
-                                include: {
-                                    club: true
+        // ==================================================
+        // DATE FILTER
+        // ==================================================
+
+        if (
+            startDate ||
+            endDate
+        ) {
+
+            where.session_day = {};
+
+
+            if (startDate) {
+
+                where.session_day.gte =
+                    new Date(
+                        startDate
+                    );
+            }
+
+
+            if (endDate) {
+
+                where.session_day.lte =
+                    new Date(
+                        endDate
+                    );
+            }
+        }
+
+
+        // ==================================================
+        // OTHER FILTERS
+        // ==================================================
+
+        if (location) {
+
+            where.location = {
+                contains:
+                    location,
+
+                mode:
+                    "insensitive"
+            };
+        }
+
+
+        if (discipline) {
+
+            where.discipline =
+                discipline;
+        }
+
+
+        if (snowConditions) {
+
+            where.snow_conditions =
+                snowConditions;
+        }
+
+
+        if (visConditions) {
+
+            where.vis_conditions =
+                visConditions;
+        }
+
+
+        if (terrainType) {
+
+            where.terrain_type =
+                terrainType;
+        }
+
+
+        // ==================================================
+        // GET SESSIONS
+        // ==================================================
+
+        let sessions;
+
+
+        if (
+            parsedSessionId !== null
+        ) {
+
+            const session =
+                await prisma.sessions.findFirst({
+
+                    where,
+
+                    include: {
+
+                        session_teams: {
+                            include: {
+                                team: {
+                                    include: {
+                                        club: true
+                                    }
                                 }
                             }
-                        }
-                    },
+                        },
 
-                    attendance: {
-                        include: {
-                            athlete: {
-                                include: {
-                                    team_memberships: {
-                                        orderBy: {
-                                            start_date: "desc"
-                                        },
-                                        include: {
-                                            team: {
-                                                include: {
-                                                    club: true
+                        attendance: {
+                            include: {
+                                athlete: {
+                                    include: {
+                                        team_memberships: {
+                                            orderBy: {
+                                                start_date:
+                                                    "desc"
+                                            },
+
+                                            include: {
+                                                team: {
+                                                    include: {
+                                                        club:
+                                                            true
+                                                    }
                                                 }
                                             }
                                         }
@@ -1463,124 +1898,63 @@ const getSessions = async (req, res) => {
                             }
                         }
                     }
-                }
-            });
+                });
 
-            if (!sessions) {
+
+            if (!session) {
+
                 return res.status(404).json({
-                    error: "No sessions found"
+                    error:
+                        "No sessions found"
                 });
             }
 
-            sessions = [sessions];
+
+            sessions = [
+                session
+            ];
+
 
         } else {
 
-            // ----------------------------------------
-            // 2. Build session filters
-            // ----------------------------------------
+            sessions =
+                await prisma.sessions.findMany({
 
-            const where = {};
+                    where,
 
-            if (startDate || endDate) {
-                where.session_day = {};
-
-                if (startDate) {
-                    where.session_day.gte =
-                        new Date(startDate);
-                }
-
-                if (endDate) {
-                    where.session_day.lte =
-                        new Date(endDate);
-                }
-            }
-
-            if (location) {
-                where.location = {
-                    contains: location,
-                    mode: "insensitive"
-                };
-            }
-
-            if (discipline) {
-                where.discipline = discipline;
-            }
-
-            if (snowConditions) {
-                where.snow_conditions =
-                    snowConditions;
-            }
-
-            if (visConditions) {
-                where.vis_conditions =
-                    visConditions;
-            }
-
-            if (terrainType) {
-                where.terrain_type =
-                    terrainType;
-            }
-
-            // ----------------------------------------
-            // Filter by athlete
-            // ----------------------------------------
-
-            if (athleteId) {
-                where.attendance = {
-                    some: {
-                        athlete_id:
-                            Number(athleteId)
-                    }
-                };
-            }
-
-            // ----------------------------------------
-            // Filter by team
-            // ----------------------------------------
-
-            if (parsedTeamId !== null) {
-                where.session_teams = {
-                    some: {
-                        team_id: parsedTeamId
-                    }
-                };
-            }
-
-            // ----------------------------------------
-            // 3. Get matching sessions + attendance
-            // ----------------------------------------
-
-            sessions = await prisma.sessions.findMany({
-                where,
-
-                orderBy: {
-                    session_day: "desc"
-                },
-
-                include: {
-                    session_teams: {
-                        include: {
-                            team: {
-                                include: {
-                                    club: true
-                                }
-                            }
-                        }
+                    orderBy: {
+                        session_day:
+                            "desc"
                     },
 
-                    attendance: {
-                        include: {
-                            athlete: {
-                                include: {
-                                    team_memberships: {
-                                        orderBy: {
-                                            start_date: "desc"
-                                        },
-                                        include: {
-                                            team: {
-                                                include: {
-                                                    club: true
+                    include: {
+
+                        session_teams: {
+                            include: {
+                                team: {
+                                    include: {
+                                        club: true
+                                    }
+                                }
+                            }
+                        },
+
+                        attendance: {
+                            include: {
+                                athlete: {
+                                    include: {
+                                        team_memberships: {
+                                            orderBy: {
+                                                start_date:
+                                                    "desc"
+                                            },
+
+                                            include: {
+                                                team: {
+                                                    include: {
+                                                        club:
+                                                            true
+                                                    }
                                                 }
                                             }
                                         }
@@ -1589,221 +1963,331 @@ const getSessions = async (req, res) => {
                             }
                         }
                     }
-                }
-            });
+                });
         }
 
-        // ----------------------------------------
-        // No sessions found
-        // ----------------------------------------
 
-        if (sessions.length === 0) {
+        // ==================================================
+        // NO SESSIONS
+        // ==================================================
+
+        if (
+            sessions.length === 0
+        ) {
+
             return res.status(404).json({
-                error: "No sessions found"
+                error:
+                    "No sessions found"
             });
         }
 
-        // ----------------------------------------
-        // 4. Convert Prisma result to frontend shape
-        // ----------------------------------------
+
+        // ==================================================
+        // FRONTEND RESPONSE
+        // ==================================================
 
         const sessionsWithAttendance =
-            sessions.map((session) => ({
-                session_id:
-                    session.session_id,
+            sessions.map(
+                session => ({
 
-                // ----------------------------------------
-                // Teams associated with this session
-                // ----------------------------------------
+                    session_id:
+                        session.session_id,
 
-                teams:
-                    session.session_teams.map(
-                        (sessionTeam) => ({
-                            teamId:
-                                sessionTeam.team.team_id,
 
-                            teamName:
-                                sessionTeam.team.name,
+                    // --------------------------------------
+                    // Session teams
+                    // --------------------------------------
 
-                            clubId:
-                                sessionTeam.team.club.club_id,
+                    teams:
+                        session.session_teams.map(
+                            sessionTeam => ({
 
-                            clubName:
-                                sessionTeam.team.club.name
-                        })
-                    ),
+                                teamId:
+                                    sessionTeam
+                                        .team
+                                        .team_id,
 
-                session_day:
-                    session.session_day,
+                                teamName:
+                                    sessionTeam
+                                        .team
+                                        .name,
 
-                start_time:
-                    session.start_time
-                        ? session.start_time
-                            .toISOString()
-                            .slice(11, 16)
-                        : null,
+                                clubId:
+                                    sessionTeam
+                                        .team
+                                        .club
+                                        .club_id,
 
-                end_time:
-                    session.end_time
-                        ? session.end_time
-                            .toISOString()
-                            .slice(11, 16)
-                        : null,
+                                clubName:
+                                    sessionTeam
+                                        .team
+                                        .club
+                                        .name
+                            })
+                        ),
 
-                location:
-                    session.location,
 
-                discipline:
-                    session.discipline,
+                    session_day:
+                        session.session_day,
 
-                snow_conditions:
-                    session.snow_conditions,
 
-                vis_conditions:
-                    session.vis_conditions,
+                    start_time:
+                        session.start_time
+                            ? session
+                                .start_time
+                                .toISOString()
+                                .slice(
+                                    11,
+                                    16
+                                )
+                            : null,
 
-                terrain_type:
-                    session.terrain_type,
 
-                num_freeski_runs:
-                    session.num_freeski_runs,
+                    end_time:
+                        session.end_time
+                            ? session
+                                .end_time
+                                .toISOString()
+                                .slice(
+                                    11,
+                                    16
+                                )
+                            : null,
 
-                num_drill_runs:
-                    session.num_drill_runs,
 
-                num_educational_course_runs:
-                    session.num_educational_course_runs,
+                    location:
+                        session.location,
 
-                num_gates_educational_course:
-                    session.num_gates_educational_course,
 
-                num_race_training_course_runs:
-                    session.num_race_training_course_runs,
+                    discipline:
+                        session.discipline,
 
-                num_gates_race_training_course:
-                    session.num_gates_race_training_course,
 
-                num_race_runs:
-                    session.num_race_runs,
+                    snow_conditions:
+                        session.snow_conditions,
 
-                num_gates_race:
-                    session.num_gates_race,
 
-                general_comments:
-                    session.general_comments,
+                    vis_conditions:
+                        session.vis_conditions,
 
-                created_by:
-                    session.created_by,
 
-                // ----------------------------------------
-                // Attendance
-                // ----------------------------------------
+                    terrain_type:
+                        session.terrain_type,
 
-                attendance:
-                    session.attendance.map(
-                        (att) => ({
-                            attendanceId:
-                                att.attendance_id,
 
-                            freeskiRuns:
-                                att.freeski_runs,
+                    num_freeski_runs:
+                        session.num_freeski_runs,
 
-                            drillRuns:
-                                att.drill_runs,
 
-                            educationalCourseRuns:
-                                att.educational_course_runs,
+                    num_drill_runs:
+                        session.num_drill_runs,
 
-                            raceTrainingCourseRuns:
-                                att.race_training_course_runs,
 
-                            raceRuns:
-                                att.race_runs,
+                    num_educational_course_runs:
+                        session.num_educational_course_runs,
 
-                            individualComments:
-                                att.individual_comments,
 
-                            athlete: {
+                    num_gates_educational_course:
+                        session.num_gates_educational_course,
 
-                                athleteId:
-                                    att.athlete.athlete_id,
 
-                                athleteFirstName:
-                                    att.athlete.athlete_first_name,
+                    num_race_training_course_runs:
+                        session.num_race_training_course_runs,
 
-                                athleteLastName:
-                                    att.athlete.athlete_last_name,
 
-                                birthday:
-                                    att.athlete.birthday,
+                    num_gates_race_training_course:
+                        session.num_gates_race_training_course,
 
-                                gender:
-                                    att.athlete.gender,
 
-                                userId:
-                                    att.athlete.users?.[0]
-                                        ?.user_id ?? null,
+                    num_race_runs:
+                        session.num_race_runs,
 
-                                ageGroup:
-                                    att.athlete.age_group,
 
-                                // ----------------------------------------
-                                // ALL team membership history
-                                // ----------------------------------------
+                    num_gates_race:
+                        session.num_gates_race,
 
-                                teamMemberships:
-                                    att.athlete.team_memberships
-                                        .map(
-                                            (membership) => ({
-                                                teamMembershipId:
-                                                    membership.team_membership_id,
 
-                                                athleteId:
-                                                    membership.athlete_id,
+                    general_comments:
+                        session.general_comments,
 
-                                                teamId:
-                                                    membership.team_id,
 
-                                                startDate:
-                                                    membership.start_date,
+                    created_by:
+                        session.created_by,
 
-                                                endDate:
-                                                    membership.end_date,
 
-                                                team:
-                                                    membership.team
-                                                        ? {
-                                                            teamId:
-                                                                membership.team.team_id,
+                    // --------------------------------------
+                    // Attendance
+                    // --------------------------------------
 
-                                                            clubId:
-                                                                membership.team.club_id,
+                    attendance:
+                        session.attendance.map(
+                            att => ({
 
-                                                            name:
-                                                                membership.team.name,
+                                attendanceId:
+                                    att
+                                        .attendance_id,
 
-                                                            club:
-                                                                membership.team.club
-                                                                    ? {
-                                                                        clubId:
-                                                                            membership.team.club.club_id,
 
-                                                                        name:
-                                                                            membership.team.club.name
-                                                                    }
-                                                                    : undefined
-                                                        }
-                                                        : undefined
-                                            })
-                                        )
-                            }
-                        })
-                    )
-            }));
+                                freeskiRuns:
+                                    att
+                                        .freeski_runs,
+
+
+                                drillRuns:
+                                    att
+                                        .drill_runs,
+
+
+                                educationalCourseRuns:
+                                    att
+                                        .educational_course_runs,
+
+
+                                raceTrainingCourseRuns:
+                                    att
+                                        .race_training_course_runs,
+
+
+                                raceRuns:
+                                    att
+                                        .race_runs,
+
+
+                                individualComments:
+                                    att
+                                        .individual_comments,
+
+
+                                athlete: {
+
+                                    athleteId:
+                                        att
+                                            .athlete
+                                            .athlete_id,
+
+
+                                    athleteFirstName:
+                                        att
+                                            .athlete
+                                            .athlete_first_name,
+
+
+                                    athleteLastName:
+                                        att
+                                            .athlete
+                                            .athlete_last_name,
+
+
+                                    birthday:
+                                        att
+                                            .athlete
+                                            .birthday,
+
+
+                                    gender:
+                                        att
+                                            .athlete
+                                            .gender,
+
+
+                                    userId:
+                                        att
+                                            .athlete
+                                            .users?.[0]
+                                            ?.user_id ??
+                                        null,
+
+
+                                    ageGroup:
+                                        att
+                                            .athlete
+                                            .age_group,
+
+
+                                    teamMemberships:
+                                        att
+                                            .athlete
+                                            .team_memberships
+                                            .map(
+                                                membership =>
+                                                    ({
+
+                                                        teamMembershipId:
+                                                            membership
+                                                                .team_membership_id,
+
+                                                        athleteId:
+                                                            membership
+                                                                .athlete_id,
+
+                                                        teamId:
+                                                            membership
+                                                                .team_id,
+
+                                                        startDate:
+                                                            membership
+                                                                .start_date,
+
+                                                        endDate:
+                                                            membership
+                                                                .end_date,
+
+                                                        team:
+                                                            membership
+                                                                .team
+                                                                ? {
+
+                                                                    teamId:
+                                                                        membership
+                                                                            .team
+                                                                            .team_id,
+
+                                                                    clubId:
+                                                                        membership
+                                                                            .team
+                                                                            .club_id,
+
+                                                                    name:
+                                                                        membership
+                                                                            .team
+                                                                            .name,
+
+                                                                    club:
+                                                                        membership
+                                                                            .team
+                                                                            .club
+                                                                            ? {
+
+                                                                                clubId:
+                                                                                    membership
+                                                                                        .team
+                                                                                        .club
+                                                                                        .club_id,
+
+                                                                                name:
+                                                                                    membership
+                                                                                        .team
+                                                                                        .club
+                                                                                        .name
+                                                                            }
+
+                                                                            : undefined
+                                                                }
+
+                                                                : undefined
+                                                    })
+                                            )
+                                }
+                            })
+                        )
+                })
+            );
+
 
         return res.status(200).json(
             sessionsWithAttendance
         );
+
 
     } catch (error) {
 
@@ -3655,6 +4139,700 @@ const getTeams = async (req, res) => {
     }
 };
 
+// get all teams an athlete has ever been apart of
+const getAthleteTeamMemberships = async (req, res) => {
+
+    const { athleteId } = req.params;
+
+    const parsedAthleteId = Number(athleteId);
+
+    if (!Number.isInteger(parsedAthleteId)) {
+        return res.status(400).json({
+            error: "Invalid athleteId"
+        });
+    }
+
+    try {
+
+        const memberships =
+            await prisma.team_memberships.findMany({
+
+                where: {
+                    athlete_id: parsedAthleteId
+                },
+
+                include: {
+
+                    team: {
+                        include: {
+                            club: true
+                        }
+                    }
+
+                },
+
+                orderBy: [
+                    {
+                        start_date: "desc"
+                    },
+                    {
+                        team_id: "asc"
+                    }
+                ]
+            });
+
+
+        return res.status(200).json(
+            memberships.map(
+                (membership) => ({
+
+                    teamMembershipId:
+                        membership.team_membership_id,
+
+                    athleteId:
+                        membership.athlete_id,
+
+                    teamId:
+                        membership.team_id,
+
+                    startDate:
+                        membership.start_date,
+
+                    endDate:
+                        membership.end_date,
+
+                    team: {
+                        teamId:
+                            membership.team.team_id,
+
+                        clubId:
+                            membership.team.club_id,
+
+                        name:
+                            membership.team.name,
+
+                        club: {
+                            clubId:
+                                membership.team.club.club_id,
+
+                            name:
+                                membership.team.club.name
+                        }
+                    }
+
+                })
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error getting athlete team memberships:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error retrieving athlete team memberships"
+        });
+    }
+};
+
+
+// update athlete's team memberships
+const updateAthleteTeamMemberships = async (req, res) => {
+
+    const athleteId =
+        Number(
+            req.params.athleteId
+        );
+
+    if (
+        !Number.isInteger(
+            athleteId
+        )
+    ) {
+
+        return res.status(400).json({
+            error:
+                "Invalid athlete ID"
+        });
+    }
+
+
+    const {
+        memberships
+    } = req.body;
+
+
+    if (
+        !Array.isArray(
+            memberships
+        )
+    ) {
+
+        return res.status(400).json({
+            error:
+                "Request must contain memberships"
+        });
+    }
+
+
+    try {
+
+        // --------------------------------------------------
+        // Make sure athlete exists
+        // --------------------------------------------------
+
+        const athlete =
+            await prisma.athletes.findUnique({
+                where: {
+                    athlete_id:
+                        athleteId
+                }
+            });
+
+        if (!athlete) {
+
+            return res.status(404).json({
+                error:
+                    "Athlete not found"
+            });
+        }
+
+
+        // --------------------------------------------------
+        // Get clubs the coach is a member of
+        // --------------------------------------------------
+
+        const coachMemberships =
+            await prisma.coach_memberships.findMany({
+                where: {
+                    user_id:
+                        req.user.user_id
+                },
+
+                select: {
+                    team: {
+                        select: {
+                            club_id: true
+                        }
+                    }
+                }
+            });
+
+
+        const coachClubIds =
+            new Set(
+                coachMemberships.map(
+                    membership =>
+                        membership
+                            .team
+                            .club_id
+                )
+            );
+
+
+        // --------------------------------------------------
+        // Validate memberships
+        // --------------------------------------------------
+
+        const parsedMemberships =
+            memberships.map(
+                membership => ({
+
+                    teamMembershipId:
+                        membership
+                            .teamMembershipId
+                            ? Number(
+                                membership
+                                    .teamMembershipId
+                            )
+                            : undefined,
+
+                    teamId:
+                        Number(
+                            membership.teamId
+                        ),
+
+                    startDate:
+                        membership.startDate
+                            || null,
+
+                    endDate:
+                        membership.endDate
+                            || null
+                })
+            );
+
+
+        // --------------------------------------------------
+        // Validate team IDs
+        // --------------------------------------------------
+
+        const invalidTeam =
+            parsedMemberships.some(
+                membership =>
+                    !Number.isInteger(
+                        membership.teamId
+                    )
+            );
+
+        if (invalidTeam) {
+
+            return res.status(400).json({
+                error:
+                    "All team IDs must be valid integers"
+            });
+        }
+
+
+        // --------------------------------------------------
+        // Validate dates
+        // --------------------------------------------------
+
+        for (
+            const membership
+            of parsedMemberships
+        ) {
+
+            if (
+                membership.startDate &&
+                Number.isNaN(
+                    Date.parse(
+                        membership.startDate
+                    )
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Invalid start date"
+                });
+            }
+
+
+            if (
+                membership.endDate &&
+                Number.isNaN(
+                    Date.parse(
+                        membership.endDate
+                    )
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Invalid end date"
+                });
+            }
+
+
+            if (
+                membership.startDate &&
+                membership.endDate &&
+                new Date(
+                    membership.endDate
+                ) <
+                new Date(
+                    membership.startDate
+                )
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "End date cannot be before start date"
+                });
+            }
+        }
+
+
+        // --------------------------------------------------
+        // Get existing memberships
+        // --------------------------------------------------
+
+        const existingMemberships =
+            await prisma.team_memberships.findMany({
+                where: {
+                    athlete_id:
+                        athleteId
+                }
+            });
+
+
+        // --------------------------------------------------
+        // Only allow updates to memberships that actually
+        // belong to this athlete.
+        // --------------------------------------------------
+
+        const existingIds =
+            new Set(
+                existingMemberships.map(
+                    membership =>
+                        membership
+                            .team_membership_id
+                )
+            );
+
+
+        const updateIds =
+            parsedMemberships
+                .filter(
+                    membership =>
+                        membership
+                            .teamMembershipId
+                )
+                .map(
+                    membership =>
+                        membership
+                            .teamMembershipId
+                );
+
+
+        const invalidMembershipId =
+            updateIds.some(
+                id =>
+                    !existingIds.has(
+                        id
+                    )
+            );
+
+        if (
+            invalidMembershipId
+        ) {
+
+            return res.status(403).json({
+                error:
+                    "You do not have permission to modify one or more memberships"
+            });
+        }
+
+
+        // --------------------------------------------------
+        // Get all requested teams
+        // --------------------------------------------------
+
+        const teamIds =
+            [
+                ...new Set(
+                    parsedMemberships.map(
+                        membership =>
+                            membership.teamId
+                    )
+                )
+            ];
+
+
+        const teams =
+            await prisma.teams.findMany({
+                where: {
+                    team_id: {
+                        in: teamIds
+                    }
+                },
+
+                select: {
+                    team_id: true,
+                    club_id: true
+                }
+            });
+
+
+        if (
+            teams.length !==
+            teamIds.length
+        ) {
+
+            return res.status(404).json({
+                error:
+                    "One or more teams were not found"
+            });
+        }
+
+
+        // --------------------------------------------------
+        // Make sure every requested team belongs to a club
+        // the coach is authorized to edit.
+        // --------------------------------------------------
+
+        const unauthorizedTeams =
+            teams.filter(
+                team =>
+                    !coachClubIds.has(
+                        team.club_id
+                    )
+            );
+
+
+        if (
+            unauthorizedTeams.length > 0
+        ) {
+
+            return res.status(403).json({
+                error:
+                    "You do not have permission to modify affiliations for one or more clubs"
+            });
+        }
+
+
+        // --------------------------------------------------
+        // Perform updates and creates in one transaction
+        // --------------------------------------------------
+
+        await prisma.$transaction(
+            async (tx) => {
+
+                for (
+                    const membership
+                    of parsedMemberships
+                ) {
+
+                    // --------------------------------------
+                    // Existing membership
+                    // --------------------------------------
+
+                    if (
+                        membership
+                            .teamMembershipId
+                    ) {
+
+                        // ----------------------------------
+                        // Find the existing membership
+                        // ----------------------------------
+
+                        const existingMembership =
+                            existingMemberships.find(
+                                existing =>
+                                    existing
+                                        .team_membership_id ===
+                                    membership
+                                        .teamMembershipId
+                            );
+
+
+                        if (
+                            !existingMembership
+                        ) {
+                            continue;
+                        }
+
+
+                        // ----------------------------------
+                        // Make sure the EXISTING membership
+                        // belongs to a club the coach can edit.
+                        //
+                        // This prevents a coach from taking
+                        // an unauthorized membership ID and
+                        // moving it onto one of their teams.
+                        // ----------------------------------
+
+                        const existingTeam =
+                            teams.find(
+                                team =>
+                                    team.team_id ===
+                                    existingMembership
+                                        .team_id
+                            );
+
+
+                        if (
+                            !existingTeam ||
+                            !coachClubIds.has(
+                                existingTeam.club_id
+                            )
+                        ) {
+                            continue;
+                        }
+
+
+                        await tx.team_memberships.update({
+
+                            where: {
+                                team_membership_id:
+                                    membership
+                                        .teamMembershipId
+                            },
+
+                            data: {
+
+                                team_id:
+                                    membership
+                                        .teamId,
+
+                                start_date:
+                                    membership
+                                        .startDate
+                                        ? new Date(
+                                            membership
+                                                .startDate
+                                        )
+                                        : null,
+
+                                end_date:
+                                    membership
+                                        .endDate
+                                        ? new Date(
+                                            membership
+                                                .endDate
+                                        )
+                                        : null
+                            }
+                        });
+
+
+                    // --------------------------------------
+                    // New membership
+                    // --------------------------------------
+
+                    } else {
+
+                        await tx.team_memberships.create({
+
+                            data: {
+
+                                athlete_id:
+                                    athleteId,
+
+                                team_id:
+                                    membership
+                                        .teamId,
+
+                                start_date:
+                                    membership
+                                        .startDate
+                                        ? new Date(
+                                            membership
+                                                .startDate
+                                        )
+                                        : null,
+
+                                end_date:
+                                    membership
+                                        .endDate
+                                        ? new Date(
+                                            membership
+                                                .endDate
+                                        )
+                                        : null
+                            }
+                        });
+                    }
+                }
+            }
+        );
+
+
+        // --------------------------------------------------
+        // Return updated memberships
+        // --------------------------------------------------
+
+        const updatedMemberships =
+            await prisma.team_memberships.findMany({
+
+                where: {
+                    athlete_id:
+                        athleteId
+                },
+
+                include: {
+                    team: {
+                        include: {
+                            club: true
+                        }
+                    }
+                },
+
+                orderBy: [
+                    {
+                        start_date:
+                            "desc"
+                    },
+                    {
+                        team_id:
+                            "asc"
+                    }
+                ]
+            });
+
+
+        const result =
+            updatedMemberships.map(
+                membership => ({
+
+                    teamMembershipId:
+                        membership
+                            .team_membership_id,
+
+                    athleteId:
+                        membership
+                            .athlete_id,
+
+                    teamId:
+                        membership
+                            .team_id,
+
+                    startDate:
+                        membership
+                            .start_date,
+
+                    endDate:
+                        membership
+                            .end_date,
+
+                    team: {
+                        teamId:
+                            membership
+                                .team
+                                .team_id,
+
+                        clubId:
+                            membership
+                                .team
+                                .club_id,
+
+                        name:
+                            membership
+                                .team
+                                .name,
+
+                        club: {
+                            clubId:
+                                membership
+                                    .team
+                                    .club
+                                    .club_id,
+
+                            name:
+                                membership
+                                    .team
+                                    .club
+                                    .name
+                        }
+                    }
+                })
+            );
+
+
+        return res.status(200).json(
+            result
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error updating athlete team memberships:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error updating athlete affiliations"
+        });
+    }
+};
+
+
+
 module.exports = {
     getAllDataFromAthleteProfile,
     createAthleteProfile,
@@ -3672,5 +4850,7 @@ module.exports = {
     createInvite,
     approveInvite,
     getClubs,
-    getTeams
+    getTeams,
+    getAthleteTeamMemberships,
+    updateAthleteTeamMemberships
 }

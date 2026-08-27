@@ -28,8 +28,6 @@ const MiniSessionsList: React.FC<SessionListProps> = ({
 
       location: session.location ?? "",
 
-      // This assumes Session will eventually have a teams
-      // property containing the teams associated with the session.
       teams:
         session.teams
           ?.map((team) => team.name)

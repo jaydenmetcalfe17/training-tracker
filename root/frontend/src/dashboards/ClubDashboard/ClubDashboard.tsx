@@ -278,7 +278,11 @@ const ClubDashboard: React.FC = () => {
                 session.general_comments,
 
               teams:
-                session.session_teams ?? [],
+                (session.teams ?? []).map((team: any) => ({
+                  teamId: team.teamId,
+                  clubId: team.clubId,
+                  name: team.teamName,
+                })),
             })
           );
 

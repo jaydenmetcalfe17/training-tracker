@@ -298,8 +298,183 @@ async function requireClubCoach(req, res, next) {
     }
 }
 
+// --------------------------------------------------
+// Require coach to belong to clubs associated with
+// the requested athlete membership changes
+// --------------------------------------------------
+
+async function requireAthleteAffiliationCoach(
+    req,
+    res,
+    next
+) {
+
+    if (!req.user) {
+        return res.status(401).json({
+            error: "Not logged in"
+        });
+    }
+
+    if (req.user.status !== "coach") {
+        return res.status(403).json({
+            error: "Coaches only"
+        });
+    }
+
+    const {
+        memberships
+    } = req.body;
+
+    if (!Array.isArray(memberships)) {
+        return res.status(400).json({
+            error:
+                "Request must contain memberships"
+        });
+    }
+
+    const teamIds =
+        [
+            ...new Set(
+                memberships
+                    .map(
+                        membership =>
+                            Number(
+                                membership.teamId
+                            )
+                    )
+                    .filter(
+                        teamId =>
+                            Number.isInteger(
+                                teamId
+                            )
+                    )
+            )
+        ];
+
+    if (teamIds.length === 0) {
+        return res.status(400).json({
+            error:
+                "At least one valid team ID is required"
+        });
+    }
+
+    try {
+
+        // --------------------------------------------------
+        // Get the clubs represented by the requested teams
+        // --------------------------------------------------
+
+        const teams =
+            await prisma.teams.findMany({
+                where: {
+                    team_id: {
+                        in: teamIds
+                    }
+                },
+
+                select: {
+                    team_id: true,
+                    club_id: true
+                }
+            });
+
+        if (
+            teams.length !==
+            teamIds.length
+        ) {
+
+            return res.status(404).json({
+                error:
+                    "One or more teams were not found"
+            });
+        }
+
+        const clubIds =
+            [
+                ...new Set(
+                    teams.map(
+                        team =>
+                            team.club_id
+                    )
+                )
+            ];
+
+
+        // --------------------------------------------------
+        // Get clubs this coach belongs to
+        // --------------------------------------------------
+
+        const memberships =
+            await prisma.coach_memberships.findMany({
+                where: {
+                    user_id:
+                        req.user.user_id
+                },
+
+                select: {
+                    team: {
+                        select: {
+                            club_id: true
+                        }
+                    }
+                }
+            });
+
+
+        const coachClubIds =
+            [
+                ...new Set(
+                    memberships.map(
+                        membership =>
+                            membership.team.club_id
+                    )
+                )
+            ];
+
+
+        // --------------------------------------------------
+        // Make sure every requested team belongs to a
+        // club the coach is a member of
+        // --------------------------------------------------
+
+        const unauthorizedClubIds =
+            clubIds.filter(
+                clubId =>
+                    !coachClubIds.includes(
+                        clubId
+                    )
+            );
+
+        if (
+            unauthorizedClubIds.length > 0
+        ) {
+
+            return res.status(403).json({
+                error:
+                    "You do not have permission to edit affiliations for one or more teams"
+            });
+        }
+
+
+        next();
+
+    } catch (error) {
+
+        console.error(
+            "Error checking athlete affiliation permissions:",
+            error
+        );
+
+        return res.status(500).json({
+            error:
+                "Server error checking affiliation permissions"
+        });
+    }
+}
+
 module.exports = {
     requireAuth,
     requireCoach,
-    requireClubCoach
+    requireClubCoach,
+    requireAthleteAffiliationCoach
 };
