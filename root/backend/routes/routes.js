@@ -47,11 +47,19 @@ router.delete("/session/:sessionId", requireClubCoach, controller.deleteSession)
 /********** DATA ROUTES **************/
 /*************************************/
 
-// Pie chart data for all sessions
-router.get("/data/:column", requireAuth, controller.getPieChartData);
+// Team dashboard
+router.get(
+    "/data/team/:teamId/:column",
+    requireAuth,
+    controller.getPieChartData
+);
 
-// Pie chart data for specific athlete
-router.get("/data/:athleteId/:column", requireAuth, controller.getPieChartData);
+// Athlete data within a team
+router.get(
+    "/data/team/:teamId/athlete/:athleteId/:column",
+    requireAuth,
+    controller.getPieChartData
+);
 
 /*************************************/
 /********* ATTENDANCE ROUTES *********/

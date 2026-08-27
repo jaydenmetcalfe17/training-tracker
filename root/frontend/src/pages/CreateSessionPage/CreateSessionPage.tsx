@@ -16,6 +16,7 @@ const CreateSessionPage: React.FC<CreateSessionPageProps> = ({
 }) => {
   const [sessions, setSessions] = useState<Session[]>([]);
 
+
   // ----------------------------------------
   // Load sessions
   // ----------------------------------------
@@ -33,27 +34,39 @@ const CreateSessionPage: React.FC<CreateSessionPageProps> = ({
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to find sessions");
+          throw new Error(
+            "Failed to find sessions"
+          );
         }
 
         return res.json();
       })
       .then((data) => {
-        const loadedSessions: Session[] = data.map(
-          (session: any) => ({
-            sessionId: session.session_id,
+        const loadedSessions: Session[] =
+          data.map((session: any) => ({
+            sessionId:
+              session.session_id,
 
-            sessionDay: session.session_day
-              ? new Date(session.session_day)
-                  .toISOString()
-                  .split("T")[0]
-              : "",
+            sessionDay:
+              session.session_day
+                ? new Date(
+                    session.session_day
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                : "",
 
-            startTime: session.start_time,
-            endTime: session.end_time,
+            startTime:
+              session.start_time,
 
-            location: session.location,
-            discipline: session.discipline,
+            endTime:
+              session.end_time,
+
+            location:
+              session.location,
+
+            discipline:
+              session.discipline,
 
             snowConditions:
               session.snow_conditions,
@@ -90,8 +103,7 @@ const CreateSessionPage: React.FC<CreateSessionPageProps> = ({
 
             generalComments:
               session.general_comments,
-          })
-        );
+          }));
 
         setSessions(loadedSessions);
 
@@ -112,15 +124,32 @@ const CreateSessionPage: React.FC<CreateSessionPageProps> = ({
   // Create Session
   // ----------------------------------------
 
-  const createSession = (newSession: Session) => {
+  const createSession = (
+    newSession: Session
+  ) => {
+    // We need both pieces of information:
+    //
+    // clubId  -> authorization middleware
+    // teamIds -> which team gets the session
+    //
+    // Do not send a separate teamId.
+
+    if (!teamId) {
+      console.error(
+        "Cannot create session: no team ID"
+      );
+      return;
+    }
+
     fetch(`/api/session`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type":
+          "application/json",
       },
       body: JSON.stringify({
         ...newSession,
-        teamId,
+        teamIds: [teamId],
       }),
     })
       .then(async (res) => {
@@ -166,7 +195,7 @@ const CreateSessionPage: React.FC<CreateSessionPageProps> = ({
           />
         </div>
         <div className="light-tan-box" id="pie-chart">
-          <PieChart selection={"sessions"} />
+          <PieChart selection={"sessions"} teamId={teamId}/>
         </div>
       </div>
 

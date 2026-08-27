@@ -463,6 +463,7 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
             <PieChart
               selection={"sessions"}
               athleteId={athlete?.athleteId}
+              teamId={currentTeam?.teamId}
             />
           </div>
 

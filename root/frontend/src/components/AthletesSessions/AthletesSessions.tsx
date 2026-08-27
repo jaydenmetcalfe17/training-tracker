@@ -1,7 +1,6 @@
 import './AthletesSessions.scss';
 import type { Athlete } from "../../types/Athlete";
 import SessionFilter from '../SessionFilter/SessionFilter';
-// import PieChart from '../PieChart';
 
 interface AthletesProps {
   athlete: Athlete | null;

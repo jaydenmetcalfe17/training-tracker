@@ -1822,25 +1822,86 @@ const getSessions = async (req, res) => {
 // load the data used to create pie charts for the dashboard page
 const getPieChartData = async (req, res) => {
 
-    const { athleteId, column } = req.params;
+    const {
+        teamId,
+        athleteId,
+        column
+    } = req.params;
+
+    const {
+        startDate,
+        endDate
+    } = req.query;
 
     console.log(
-        "athleteID to search:",
+        "teamId to search:",
+        teamId
+    );
+
+    console.log(
+        "athleteId to search:",
         athleteId
     );
 
+    console.log(
+        "column to search:",
+        column
+    );
+
+    console.log(
+        "startDate:",
+        startDate
+    );
+
+    console.log(
+        "endDate:",
+        endDate
+    );
+
+    // ========================================
+    // Validate team ID
+    // ========================================
+
+    const parsedTeamId =
+        Number(teamId);
+
+    if (
+        !Number.isInteger(
+            parsedTeamId
+        )
+    ) {
+        return res.status(400).json({
+            error: "Invalid team ID"
+        });
+    }
+
+    // ========================================
+    // Column mapping
+    // ========================================
+
     const columnMap = {
-        sessionDay: "session_day",
-        location: "location",
-        discipline: "discipline",
-        snowConditions: "snow_conditions",
-        visConditions: "vis_conditions",
-        terrainType: "terrain_type"
+        sessionDay:
+            "session_day",
+
+        location:
+            "location",
+
+        discipline:
+            "discipline",
+
+        snowConditions:
+            "snow_conditions",
+
+        visConditions:
+            "vis_conditions",
+
+        terrainType:
+            "terrain_type"
     };
 
-    // ----------------------------------------
+    // ========================================
     // Validate column
-    // ----------------------------------------
+    // ========================================
 
     if (
         column !== "runColumn" &&
@@ -1851,75 +1912,371 @@ const getPieChartData = async (req, res) => {
         });
     }
 
+    // ========================================
+    // Validate athlete ID
+    // ========================================
+
+    let parsedAthleteId = null;
+
+    if (athleteId) {
+
+        parsedAthleteId =
+            Number(athleteId);
+
+        if (
+            !Number.isInteger(
+                parsedAthleteId
+            )
+        ) {
+            return res.status(400).json({
+                error:
+                    "Invalid athlete ID"
+            });
+        }
+    }
+
+    // ========================================
+    // Build date filter
+    // ========================================
+
+    const dateFilter = {};
+
+    if (startDate) {
+
+        dateFilter.gte =
+            new Date(
+                `${startDate}T00:00:00`
+            );
+    }
+
+    if (endDate) {
+
+        dateFilter.lte =
+            new Date(
+                `${endDate}T23:59:59.999`
+            );
+    }
+
+    // ========================================
+    // Validate dates
+    // ========================================
+
+    if (
+        startDate &&
+        isNaN(
+            dateFilter.gte.getTime()
+        )
+    ) {
+        return res.status(400).json({
+            error:
+                "Invalid start date"
+        });
+    }
+
+    if (
+        endDate &&
+        isNaN(
+            dateFilter.lte.getTime()
+        )
+    ) {
+        return res.status(400).json({
+            error:
+                "Invalid end date"
+        });
+    }
+
     try {
 
+        // ========================================
+        // Determine allowed teams
+        // ========================================
+
+        let allowedTeamIds = [];
+
         // ----------------------------------------
-        // Run column
+        // CASE 1:
+        // Team dashboard
+        //
+        // No athleteId means we only want
+        // the requested team.
         // ----------------------------------------
 
-        if (column === "runColumn") {
+        if (!parsedAthleteId) {
 
-            // If an athleteId is provided,
-            // get run totals from that athlete's attendance.
-            if (athleteId) {
+            allowedTeamIds = [
+                parsedTeamId
+            ];
+        }
+
+        // ----------------------------------------
+        // CASE 2:
+        // Athlete data
+        //
+        // Get every team the athlete has ever
+        // belonged to.
+        // ----------------------------------------
+
+        if (parsedAthleteId) {
+
+            const memberships =
+                await prisma.team_memberships.findMany({
+
+                    where: {
+                        athlete_id:
+                            parsedAthleteId
+                    },
+
+                    select: {
+                        team_id: true,
+
+                        team: {
+                            select: {
+                                team_id: true,
+                                club_id: true
+                            }
+                        }
+                    }
+                });
+
+            allowedTeamIds = [
+                ...new Set(
+                    memberships.map(
+                        membership =>
+                            membership.team_id
+                    )
+                )
+            ];
+
+            console.log(
+                "Athlete historical team IDs:",
+                allowedTeamIds
+            );
+        }
+
+        // ========================================
+        // CASE 3:
+        // Coach viewing athlete
+        //
+        // A coach can only see the athlete's
+        // sessions from teams belonging to
+        // clubs that the coach is authorized for.
+        // ========================================
+
+        if (
+            parsedAthleteId &&
+            req.user?.status === "coach"
+        ) {
+
+            const coachMemberships =
+                await prisma.coach_memberships.findMany({
+
+                    where: {
+                        user_id:
+                            req.user.user_id
+                    },
+
+                    select: {
+                        team: {
+                            select: {
+                                team_id: true,
+                                club_id: true
+                            }
+                        }
+                    }
+                });
+
+            const authorizedTeamIds =
+                coachMemberships.map(
+                    membership =>
+                        membership.team.team_id
+                );
+
+            console.log(
+                "Coach authorized team IDs:",
+                authorizedTeamIds
+            );
+
+            // Keep only the athlete's teams
+            // that the coach is authorized to see.
+            allowedTeamIds =
+                allowedTeamIds.filter(
+                    teamId =>
+                        authorizedTeamIds.includes(
+                            teamId
+                        )
+                );
+
+            console.log(
+                "Final allowed athlete team IDs:",
+                allowedTeamIds
+            );
+        }
+
+        // ========================================
+        // No teams available
+        // ========================================
+
+        if (
+            allowedTeamIds.length === 0
+        ) {
+            return res.status(404).json({
+                error:
+                    "No data found"
+            });
+        }
+
+        // ========================================
+        // RUN COLUMN
+        // ========================================
+
+        if (
+            column === "runColumn"
+        ) {
+
+            // ====================================
+            // Athlete run totals
+            // ====================================
+
+            if (parsedAthleteId) {
 
                 const attendance =
                     await prisma.attendance.findMany({
+
                         where: {
-                            athlete_id: Number(athleteId)
+
+                            // Specific athlete
+                            athlete_id:
+                                parsedAthleteId,
+
+                            // Session must belong to
+                            // one of the allowed teams
+                            session: {
+
+                                session_teams: {
+                                    some: {
+                                        team_id: {
+                                            in:
+                                                allowedTeamIds
+                                        }
+                                    }
+                                },
+
+                                // Date filter
+                                ...(startDate ||
+                                endDate
+                                    ? {
+                                        session_day:
+                                            dateFilter
+                                    }
+                                    : {})
+                            }
                         },
 
                         select: {
-                            freeski_runs: true,
-                            drill_runs: true,
-                            educational_course_runs: true,
-                            race_training_course_runs: true,
-                            race_runs: true
+
+                            freeski_runs:
+                                true,
+
+                            drill_runs:
+                                true,
+
+                            educational_course_runs:
+                                true,
+
+                            race_training_course_runs:
+                                true,
+
+                            race_runs:
+                                true
                         }
                     });
 
-                if (attendance.length === 0) {
+                if (
+                    attendance.length === 0
+                ) {
                     return res.status(404).json({
-                        error: "No data found"
+                        error:
+                            "No data found"
                     });
                 }
 
                 const labels = [
+
                     "Freeski Runs",
+
                     "Drill Runs",
+
                     "Educational Course Runs",
+
                     "Race Training Course Runs",
+
                     "Race Runs"
                 ];
 
                 const values = [
+
                     attendance.reduce(
-                        (sum, row) =>
-                            sum + (row.freeski_runs || 0),
+                        (
+                            sum,
+                            row
+                        ) =>
+                            sum +
+                            (
+                                row.freeski_runs ||
+                                0
+                            ),
                         0
                     ),
 
                     attendance.reduce(
-                        (sum, row) =>
-                            sum + (row.drill_runs || 0),
+                        (
+                            sum,
+                            row
+                        ) =>
+                            sum +
+                            (
+                                row.drill_runs ||
+                                0
+                            ),
                         0
                     ),
 
                     attendance.reduce(
-                        (sum, row) =>
-                            sum + (row.educational_course_runs || 0),
+                        (
+                            sum,
+                            row
+                        ) =>
+                            sum +
+                            (
+                                row.educational_course_runs ||
+                                0
+                            ),
                         0
                     ),
 
                     attendance.reduce(
-                        (sum, row) =>
-                            sum + (row.race_training_course_runs || 0),
+                        (
+                            sum,
+                            row
+                        ) =>
+                            sum +
+                            (
+                                row.race_training_course_runs ||
+                                0
+                            ),
                         0
                     ),
 
                     attendance.reduce(
-                        (sum, row) =>
-                            sum + (row.race_runs || 0),
+                        (
+                            sum,
+                            row
+                        ) =>
+                            sum +
+                            (
+                                row.race_runs ||
+                                0
+                            ),
                         0
                     )
                 ];
@@ -1930,62 +2287,138 @@ const getPieChartData = async (req, res) => {
                 });
             }
 
-            // If there is NO athleteId,
-            // use the run totals stored in the sessions table.
+            // ====================================
+            // Team-wide run totals
+            // ====================================
 
             const sessions =
                 await prisma.sessions.findMany({
+
+                    where: {
+
+                        session_teams: {
+                            some: {
+                                team_id: {
+                                    in:
+                                        allowedTeamIds
+                                }
+                            }
+                        },
+
+                        ...(startDate ||
+                        endDate
+                            ? {
+                                session_day:
+                                    dateFilter
+                            }
+                            : {})
+                    },
+
                     select: {
-                        num_freeski_runs: true,
-                        num_drill_runs: true,
-                        num_educational_course_runs: true,
-                        num_race_training_course_runs: true,
-                        num_race_runs: true
+
+                        num_freeski_runs:
+                            true,
+
+                        num_drill_runs:
+                            true,
+
+                        num_educational_course_runs:
+                            true,
+
+                        num_race_training_course_runs:
+                            true,
+
+                        num_race_runs:
+                            true
                     }
                 });
 
-            if (sessions.length === 0) {
+            if (
+                sessions.length === 0
+            ) {
                 return res.status(404).json({
-                    error: "No data found"
+                    error:
+                        "No data found"
                 });
             }
 
             const labels = [
+
                 "Freeski Runs",
+
                 "Drill Runs",
+
                 "Educational Course Runs",
+
                 "Race Training Course Runs",
+
                 "Race Runs"
             ];
 
             const values = [
+
                 sessions.reduce(
-                    (sum, session) =>
-                        sum + (session.num_freeski_runs || 0),
+                    (
+                        sum,
+                        session
+                    ) =>
+                        sum +
+                        (
+                            session.num_freeski_runs ||
+                            0
+                        ),
                     0
                 ),
 
                 sessions.reduce(
-                    (sum, session) =>
-                        sum + (session.num_drill_runs || 0),
+                    (
+                        sum,
+                        session
+                    ) =>
+                        sum +
+                        (
+                            session.num_drill_runs ||
+                            0
+                        ),
                     0
                 ),
 
                 sessions.reduce(
-                    (sum, session) =>
-                        sum + (session.num_educational_course_runs || 0),
+                    (
+                        sum,
+                        session
+                    ) =>
+                        sum +
+                        (
+                            session.num_educational_course_runs ||
+                            0
+                        ),
                     0
                 ),
 
                 sessions.reduce(
-                    (sum, session) =>
-                        sum + (session.num_race_training_course_runs || 0),
+                    (
+                        sum,
+                        session
+                    ) =>
+                        sum +
+                        (
+                            session.num_race_training_course_runs ||
+                            0
+                        ),
                     0
                 ),
 
                 sessions.reduce(
-                    (sum, session) =>
-                        sum + (session.num_race_runs || 0),
+                    (
+                        sum,
+                        session
+                    ) =>
+                        sum +
+                        (
+                            session.num_race_runs ||
+                            0
+                        ),
                     0
                 )
             ];
@@ -1996,65 +2429,148 @@ const getPieChartData = async (req, res) => {
             });
         }
 
-        // ----------------------------------------
-        // Session columns
-        // ----------------------------------------
+        // ========================================
+        // NORMAL SESSION COLUMNS
+        // ========================================
 
-        const dbColumn = columnMap[column];
+        const dbColumn =
+            columnMap[column];
+
+        // ========================================
+        // Build session query
+        // ========================================
 
         const sessions =
             await prisma.sessions.findMany({
-                where: athleteId
-                    ? {
-                        attendance: {
-                            some: {
-                                athlete_id:
-                                    Number(athleteId)
+
+                where: {
+
+                    // --------------------------------
+                    // Allowed teams
+                    // --------------------------------
+
+                    session_teams: {
+                        some: {
+                            team_id: {
+                                in:
+                                    allowedTeamIds
                             }
                         }
-                    }
-                    : {},
+                    },
+
+                    // --------------------------------
+                    // Date filter
+                    // --------------------------------
+
+                    ...(startDate ||
+                    endDate
+                        ? {
+                            session_day:
+                                dateFilter
+                        }
+                        : {}),
+
+                    // --------------------------------
+                    // If athlete supplied,
+                    // session must have that athlete
+                    // in attendance
+                    // --------------------------------
+
+                    ...(parsedAthleteId
+                        ? {
+                            attendance: {
+                                some: {
+                                    athlete_id:
+                                        parsedAthleteId
+                                }
+                            }
+                        }
+                        : {})
+                },
 
                 select: {
-                    session_day: true,
-                    location: true,
-                    discipline: true,
-                    snow_conditions: true,
-                    vis_conditions: true,
-                    terrain_type: true
+
+                    session_day:
+                        true,
+
+                    location:
+                        true,
+
+                    discipline:
+                        true,
+
+                    snow_conditions:
+                        true,
+
+                    vis_conditions:
+                        true,
+
+                    terrain_type:
+                        true
                 }
             });
 
-        if (sessions.length === 0) {
+        // ========================================
+        // No sessions found
+        // ========================================
+
+        if (
+            sessions.length === 0
+        ) {
             return res.status(404).json({
-                error: "No data found"
+                error:
+                    "No data found"
             });
         }
 
+        // ========================================
+        // Count values
+        // ========================================
+
         const counts = {};
 
-        for (const session of sessions) {
+        for (
+            const session of sessions
+        ) {
 
-            let value = session[dbColumn];
+            let value =
+                session[dbColumn];
+
+            // ------------------------------------
+            // Format session date
+            // ------------------------------------
 
             if (
                 column === "sessionDay" &&
                 value
             ) {
+
                 value =
                     value
                         .toISOString()
                         .split("T")[0];
             }
 
+            // ------------------------------------
+            // Count value
+            // ------------------------------------
+
             if (
                 value !== null &&
                 value !== undefined
             ) {
+
                 counts[value] =
-                    (counts[value] || 0) + 1;
+                    (
+                        counts[value] ||
+                        0
+                    ) + 1;
             }
         }
+
+        // ========================================
+        // Convert counts to chart data
+        // ========================================
 
         const labels =
             Object.keys(counts);
@@ -2062,11 +2578,22 @@ const getPieChartData = async (req, res) => {
         const values =
             Object.values(counts);
 
-        if (labels.length === 0) {
+        // ========================================
+        // No usable values
+        // ========================================
+
+        if (
+            labels.length === 0
+        ) {
             return res.status(404).json({
-                error: "No data found"
+                error:
+                    "No data found"
             });
         }
+
+        // ========================================
+        // Return chart data
+        // ========================================
 
         return res.status(200).json({
             labels,
@@ -2076,13 +2603,13 @@ const getPieChartData = async (req, res) => {
     } catch (error) {
 
         console.error(
-            "Error getting data from sessions:",
+            "Error getting pie chart data:",
             error
         );
 
         return res.status(500).json({
             error:
-                "Server error retrieving sessions"
+                "Server error retrieving pie chart data"
         });
     }
 };

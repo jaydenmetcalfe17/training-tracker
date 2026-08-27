@@ -5,10 +5,11 @@ import { Pie } from 'react-chartjs-2';
 interface PieChartProps {
   selection: string;
   athleteId?: number;
+  teamId?: number;
 }
 
 
-const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
+const PieChart: React.FC<PieChartProps> = ({selection, athleteId, teamId }) => {
     let availableColumns: any[] = [];
 
     if (selection === "sessions"){
@@ -29,6 +30,8 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
     const [selectedColumn, setSelectedColumn] = useState<string>(
         availableColumns[0]?.value || ""
     );
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const [labels, setLabels] = useState<string[]>([]);
     const [values, setValues] = useState<number[]>([]);
 
@@ -44,32 +47,117 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
 
 
     useEffect(() => {
-        console.log("Current loaded athleteId:", athleteId);
+        console.log(
+            "Pie chart athleteId:",
+            athleteId
+        );
 
-        const url = athleteId
-            ? `/api/data/${athleteId}/${selectedColumn}`
-            : `/api/data/${selectedColumn}`;
-        
+        console.log(
+            "Pie chart teamId:",
+            teamId
+        );
+
+        const params = new URLSearchParams();
+
+        if (startDate) {
+            params.append(
+                "startDate",
+                startDate
+            );
+        }
+
+        if (endDate) {
+            params.append(
+                "endDate",
+                endDate
+            );
+        }
+
+        let url: string;
+
+        // ----------------------------------------
+        // Athlete
+        // ----------------------------------------
+
+        if (athleteId && teamId) {
+
+            url =
+                `/api/data/team/${teamId}/athlete/${athleteId}/${selectedColumn}`;
+
+        // ----------------------------------------
+        // Team dashboard
+        // ----------------------------------------
+
+        } else if (teamId) {
+
+            url =
+                `/api/data/team/${teamId}/${selectedColumn}`;
+
+        } else {
+            console.error(
+                "Pie chart requires a team ID"
+            );
+
+            return;
+        }
+
+        const queryString =
+            params.toString();
+
+        if (queryString) {
+            url += `?${queryString}`;
+        }
+
+        console.log(
+            "Pie chart request:",
+            url
+        );
+
         fetch(url)
             .then((res) => {
-            if (!res.ok) {
-                throw new Error('Failed to load data');
-            }
+
+                if (!res.ok) {
+                    throw new Error(
+                        "Failed to load data"
+                    );
+                }
+
                 return res.json();
             })
             .then((data) => {
-                console.log('this is the DATA:', data);
 
-                const mappedLabels = data.labels.map((l: string | number) => labelMap[l] || l);
+                console.log(
+                    "Pie chart DATA:",
+                    data
+                );
+
+                const mappedLabels =
+                    data.labels.map(
+                        (l: string | number) =>
+                            labelMap[l] || l
+                    );
 
                 setLabels(mappedLabels);
                 setValues(data.values);
             })
             .catch((err) => {
-                console.error('Unable to load chart data:', err);
-            });
-    }, [athleteId, selectedColumn]);
 
+                console.error(
+                    "Unable to load chart data:",
+                    err
+                );
+
+                setLabels([]);
+                setValues([]);
+            });
+
+    }, [
+        athleteId,
+        teamId,
+        selectedColumn,
+        startDate,
+        endDate
+    ]);
 
     const data = {
         labels,
@@ -108,6 +196,38 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId}) => {
 
     return (
         <div>
+            <div className="pie-chart-filters">
+
+                <div>
+                    <label htmlFor="pie-start-date">Start date: </label>
+                    <input
+                        id="pie-start-date"
+                        type="date"
+                        value={startDate}
+                        onChange={(e) =>
+                            setStartDate(
+                                e.target.value
+                            )
+                        }
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="pie-end-date">End date: </label>
+
+                    <input
+                        id="pie-end-date"
+                        type="date"
+                        value={endDate}
+                        onChange={(e) =>
+                            setEndDate(
+                                e.target.value
+                            )
+                        }
+                    />
+                </div>
+
+            </div>
             <div className="pie-chart-selector">
                 <label htmlFor="column-select">Choose column: </label>
                 <select

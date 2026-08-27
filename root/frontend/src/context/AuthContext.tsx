@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   // token: string | null;
   // register: (loginInfo: Login) => void;
-  newLogin: (loginInfo: Login) => void;
+  newLogin: (loginInfo: Login) => Promise<string | null>;
   logout: () => void;
   isLoggedIn: () => boolean;
 };
@@ -36,41 +36,86 @@ export const AuthProvider = ({ children }: Props) => {
 }, []);
 
   //No feature for auto-login after user registration yet
-  const newLogin = async (newLogin: Login) => {
-        
-        await fetch(`/auth/login`, {
-		// fetch('http://localhost:3000/auth/login', {    // for when the vite.config.ts file is not redirecting to localhost:3000
-        method: 'POST',
+  const newLogin = async (
+    loginInfo: Login
+  ): Promise<string | null> => {
+
+    try {
+      const res = await fetch(`/auth/login`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
-        body: JSON.stringify(newLogin),
-		  })
-		  .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          console.log("LOGGED SAFEUSER: ", data.safeUser);
-          const userObj: User = {
-            email: data.safeUser.email,
-            userFirstName: data.safeUser.userFirstName,
-            userLastName: data.safeUser.userLastName,
-            userId: data.safeUser.userId,
-            status: data.safeUser.status
-          }
-          if (data.safeUser.athleteId != null) {
-            userObj.athleteId = data.safeUser.athleteId;
-            console.log("Athlete id exists and is: ", userObj.athleteId);
-          }
-          localStorage.setItem("user", JSON.stringify(userObj));
-          // localStorage.setItem("token", data.token);
-          // setToken(data.token);
-          setUser(userObj);
-          console.log('Login complete:', data);
-          navigate('/dashboard');
-        }
-      })
-      .catch((err) => console.error('Failed to login', err));
+        credentials: "include",
+        body: JSON.stringify(loginInfo),
+      });
+
+      const data = await res.json();
+
+      // ----------------------------------------
+      // Login failed
+      // ----------------------------------------
+
+      if (!res.ok || !data.success) {
+        return data.message || "Login failed";
+      }
+
+      // ----------------------------------------
+      // Login successful
+      // ----------------------------------------
+
+      console.log(
+        "LOGGED SAFEUSER: ",
+        data.safeUser
+      );
+
+      const userObj: User = {
+        email: data.safeUser.email,
+        userFirstName:
+          data.safeUser.userFirstName,
+        userLastName:
+          data.safeUser.userLastName,
+        userId: data.safeUser.userId,
+        status: data.safeUser.status,
+      };
+
+      if (
+        data.safeUser.athleteId != null
+      ) {
+        userObj.athleteId =
+          data.safeUser.athleteId;
+
+        console.log(
+          "Athlete id exists and is: ",
+          userObj.athleteId
+        );
+      }
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(userObj)
+      );
+
+      setUser(userObj);
+
+      console.log(
+        "Login complete:",
+        data
+      );
+
+      navigate("/dashboard");
+
+      return null;
+
+    } catch (err) {
+
+      console.error(
+        "Failed to login",
+        err
+      );
+
+      return "Unable to connect to the server. Please try again.";
+    }
   };
 
   const isLoggedIn = () => {
