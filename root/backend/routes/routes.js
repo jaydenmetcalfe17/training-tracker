@@ -54,9 +54,16 @@ router.get(
     controller.getPieChartData
 );
 
-// Athlete data within a team
+// Athlete's own historical data (all teams they've ever belonged to)
 router.get(
-    "/data/team/:teamId/athlete/:athleteId/:column",
+    "/data/athlete/:athleteId/:column",
+    requireAuth,
+    controller.getPieChartData
+);
+
+// Club dashboard (all teams belonging to the club)
+router.get(
+    "/data/club/:clubId/:column",
     requireAuth,
     controller.getPieChartData
 );

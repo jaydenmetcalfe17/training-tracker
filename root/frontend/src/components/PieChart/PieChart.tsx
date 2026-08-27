@@ -1,3 +1,5 @@
+//components/PieChart/PieChart.tsx
+
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
@@ -6,10 +8,11 @@ interface PieChartProps {
   selection: string;
   athleteId?: number;
   teamId?: number;
+  clubId?: number;
 }
 
 
-const PieChart: React.FC<PieChartProps> = ({selection, athleteId, teamId }) => {
+const PieChart: React.FC<PieChartProps> = ({selection, athleteId, teamId, clubId }) => {
     let availableColumns: any[] = [];
 
     if (selection === "sessions"){
@@ -75,29 +78,14 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId, teamId }) => {
 
         let url: string;
 
-        // ----------------------------------------
-        // Athlete
-        // ----------------------------------------
-
-        if (athleteId && teamId) {
-
-            url =
-                `/api/data/team/${teamId}/athlete/${athleteId}/${selectedColumn}`;
-
-        // ----------------------------------------
-        // Team dashboard
-        // ----------------------------------------
-
+        if (athleteId) {
+            url = `/api/data/athlete/${athleteId}/${selectedColumn}`;
+        } else if (clubId) {
+            url = `/api/data/club/${clubId}/${selectedColumn}`;
         } else if (teamId) {
-
-            url =
-                `/api/data/team/${teamId}/${selectedColumn}`;
-
+            url = `/api/data/team/${teamId}/${selectedColumn}`;
         } else {
-            console.error(
-                "Pie chart requires a team ID"
-            );
-
+            console.error("Pie chart requires a team ID, club ID, or athlete ID");
             return;
         }
 
@@ -154,6 +142,7 @@ const PieChart: React.FC<PieChartProps> = ({selection, athleteId, teamId }) => {
     }, [
         athleteId,
         teamId,
+        clubId,
         selectedColumn,
         startDate,
         endDate

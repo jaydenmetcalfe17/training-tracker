@@ -1,9 +1,10 @@
-// components/EditAthleteForm.tsx
+// components/EditAthleteForm/EditAthleteForm.tsx
 
 import { useEffect, useState } from "react";
 import type { Athlete } from "../../types/Athlete";
 import type { Club } from "../../types/Club";
 import type { Team } from "../../types/Team";
+import "./EditAthleteForm.scss";
 
 interface EditAthleteFormProps {
   athlete: Athlete | null;
@@ -41,7 +42,7 @@ const EditAthleteForm: React.FC<
       .then((data) => {
         const loadedClubs: Club[] = data.map(
           (club: any) => ({
-            clubId: club.club_id,
+            clubId: club.clubId,
             name: club.name,
           })
         );
@@ -139,8 +140,8 @@ const EditAthleteForm: React.FC<
       .then((data) => {
         const loadedTeams: Team[] =
           data.map((team: any) => ({
-            teamId: team.team_id,
-            clubId: team.club_id,
+            teamId: team.teamId,
+            clubId: team.clubId,
             name: team.name,
           }));
 
@@ -226,232 +227,237 @@ const EditAthleteForm: React.FC<
   };
 
   return (
-    <div className="edit-athlete-form">
-      <h2>Edit Athlete</h2>
+        <div className="edit-athlete-box">
+          <div className ="light-tan-box">
+            <h2 className="box-h2-title">Edit Athlete</h2>
 
-      <form onSubmit={handleSubmit}>
+            <div className="white-box">
 
-        {/* First Name */}
-        <div className="form-group">
-          <label>
-            First Name:
-          </label>
+              <form onSubmit={handleSubmit}>
 
-          <input
-            type="text"
-            required
-            name="athleteFirstName"
-            value={
-              formData.athleteFirstName
-            }
-            onChange={handleChange}
-          />
+                {/* First Name */}
+                <div className="form-group">
+                  <label>
+                    First Name:
+                  </label>
+
+                  <input
+                    type="text"
+                    required
+                    name="athleteFirstName"
+                    value={
+                      formData.athleteFirstName
+                    }
+                    onChange={handleChange}
+                  />
+                </div>
+
+                {/* Last Name */}
+                <div className="form-group">
+                  <label>
+                    Last Name:
+                  </label>
+
+                  <input
+                    type="text"
+                    required
+                    name="athleteLastName"
+                    value={
+                      formData.athleteLastName
+                    }
+                    onChange={handleChange}
+                  />
+                </div>
+
+                {/* Birthday */}
+                <div className="form-group">
+                  <label>
+                    Birthday:
+                  </label>
+
+                  <input
+                    type="date"
+                    required
+                    name="birthday"
+                    value={
+                      formData.birthday
+                    }
+                    onChange={handleChange}
+                  />
+                </div>
+
+                {/* Gender */}
+                <div className="form-group">
+                  <label>
+                    Gender:
+                  </label>
+
+                  <select
+                    required
+                    name="gender"
+                    value={
+                      formData.gender
+                    }
+                    onChange={handleChange}
+                  >
+                    <option value="">
+                      Select gender
+                    </option>
+
+                    <option value="Male">
+                      Male
+                    </option>
+
+                    <option value="Female">
+                      Female
+                    </option>
+                  </select>
+                </div>
+
+                {/* ACA ID */}
+                <div className="form-group">
+                  <label>
+                    ACA ID:
+                  </label>
+
+                  <input
+                    type="number"
+                    name="acaId"
+                    value={
+                      formData.acaId
+                    }
+                    onChange={handleChange}
+                  />
+                </div>
+
+                {/* FIS ID */}
+                <div className="form-group">
+                  <label>
+                    FIS ID:
+                  </label>
+
+                  <input
+                    type="number"
+                    name="fisId"
+                    value={
+                      formData.fisId
+                    }
+                    onChange={handleChange}
+                  />
+                </div>
+
+                {/* Club */}
+                <div className="form-group">
+                  <label>
+                    Club:
+                  </label>
+
+                  <select
+                    required
+                    name="clubId"
+                    value={
+                      formData.clubId
+                    }
+                    onChange={handleChange}
+                  >
+                    <option value="">
+                      Select club
+                    </option>
+
+                    {clubs.map((club) => (
+                      <option
+                        key={club.clubId}
+                        value={club.clubId}
+                      >
+                        {club.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Team */}
+                <div className="form-group">
+                  <label>
+                    Team:
+                  </label>
+
+                  <select
+                    required
+                    name="teamId"
+                    value={
+                      formData.teamId
+                    }
+                    onChange={handleChange}
+                    disabled={!formData.clubId}
+                  >
+                    <option value="">
+                      {formData.clubId
+                        ? "Select team"
+                        : "Select a club first"}
+                    </option>
+
+                    {teams.map((team) => (
+                      <option
+                        key={team.teamId}
+                        value={team.teamId}
+                      >
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Age Group */}
+                {/* <div className="form-group">
+                  <label>
+                    Age Group:
+                  </label>
+
+                  <select
+                    required
+                    name="ageGroup"
+                    value={
+                      formData.ageGroup
+                    }
+                    onChange={handleChange}
+                  >
+                    <option value="">
+                      Select age group
+                    </option>
+
+                    <option value="U10">
+                      U10
+                    </option>
+
+                    <option value="U12">
+                      U12
+                    </option>
+
+                    <option value="U14">
+                      U14
+                    </option>
+
+                    <option value="U16">
+                      U16
+                    </option>
+
+                    <option value="FIS">
+                      FIS
+                    </option>
+                  </select>
+                </div> */}
+
+                <button
+                  type="submit"
+                  className="main-button"
+                  id="save-button"
+                >
+                  Save Changes
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-
-        {/* Last Name */}
-        <div className="form-group">
-          <label>
-            Last Name:
-          </label>
-
-          <input
-            type="text"
-            required
-            name="athleteLastName"
-            value={
-              formData.athleteLastName
-            }
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* Birthday */}
-        <div className="form-group">
-          <label>
-            Birthday:
-          </label>
-
-          <input
-            type="date"
-            required
-            name="birthday"
-            value={
-              formData.birthday
-            }
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* Gender */}
-        <div className="form-group">
-          <label>
-            Gender:
-          </label>
-
-          <select
-            required
-            name="gender"
-            value={
-              formData.gender
-            }
-            onChange={handleChange}
-          >
-            <option value="">
-              Select gender
-            </option>
-
-            <option value="Male">
-              Male
-            </option>
-
-            <option value="Female">
-              Female
-            </option>
-          </select>
-        </div>
-
-        {/* ACA ID */}
-        <div className="form-group">
-          <label>
-            ACA ID:
-          </label>
-
-          <input
-            type="number"
-            name="acaId"
-            value={
-              formData.acaId
-            }
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* FIS ID */}
-        <div className="form-group">
-          <label>
-            FIS ID:
-          </label>
-
-          <input
-            type="number"
-            name="fisId"
-            value={
-              formData.fisId
-            }
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* Club */}
-        <div className="form-group">
-          <label>
-            Club:
-          </label>
-
-          <select
-            required
-            name="clubId"
-            value={
-              formData.clubId
-            }
-            onChange={handleChange}
-          >
-            <option value="">
-              Select club
-            </option>
-
-            {clubs.map((club) => (
-              <option
-                key={club.clubId}
-                value={club.clubId}
-              >
-                {club.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Team */}
-        <div className="form-group">
-          <label>
-            Team:
-          </label>
-
-          <select
-            required
-            name="teamId"
-            value={
-              formData.teamId
-            }
-            onChange={handleChange}
-            disabled={!formData.clubId}
-          >
-            <option value="">
-              {formData.clubId
-                ? "Select team"
-                : "Select a club first"}
-            </option>
-
-            {teams.map((team) => (
-              <option
-                key={team.teamId}
-                value={team.teamId}
-              >
-                {team.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Age Group */}
-        <div className="form-group">
-          <label>
-            Age Group:
-          </label>
-
-          <select
-            required
-            name="ageGroup"
-            value={
-              formData.ageGroup
-            }
-            onChange={handleChange}
-          >
-            <option value="">
-              Select age group
-            </option>
-
-            <option value="U10">
-              U10
-            </option>
-
-            <option value="U12">
-              U12
-            </option>
-
-            <option value="U14">
-              U14
-            </option>
-
-            <option value="U16">
-              U16
-            </option>
-
-            <option value="FIS">
-              FIS
-            </option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="main-button"
-        >
-          Save Changes
-        </button>
-
-      </form>
-    </div>
   );
 };
 

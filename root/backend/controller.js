@@ -1825,6 +1825,7 @@ const getPieChartData = async (req, res) => {
     const {
         teamId,
         athleteId,
+        clubId,
         column
     } = req.params;
 
@@ -1862,17 +1863,20 @@ const getPieChartData = async (req, res) => {
     // Validate team ID
     // ========================================
 
-    const parsedTeamId =
-        Number(teamId);
+    const parsedTeamId = teamId !== undefined ? Number(teamId) : null;
 
-    if (
-        !Number.isInteger(
-            parsedTeamId
-        )
-    ) {
-        return res.status(400).json({
-            error: "Invalid team ID"
-        });
+    if (teamId !== undefined && !Number.isInteger(parsedTeamId)) {
+        return res.status(400).json({ error: "Invalid team ID" });
+    }
+
+    // ========================================
+    // Validate club ID
+    // ========================================
+
+    const parsedClubId = clubId !== undefined ? Number(clubId) : null;
+
+    if (clubId !== undefined && !Number.isInteger(parsedClubId)) {
+        return res.status(400).json({ error: "Invalid club ID" });
     }
 
     // ========================================
@@ -1919,19 +1923,10 @@ const getPieChartData = async (req, res) => {
     let parsedAthleteId = null;
 
     if (athleteId) {
+        parsedAthleteId = Number(athleteId);
 
-        parsedAthleteId =
-            Number(athleteId);
-
-        if (
-            !Number.isInteger(
-                parsedAthleteId
-            )
-        ) {
-            return res.status(400).json({
-                error:
-                    "Invalid athlete ID"
-            });
+        if (!Number.isInteger(parsedAthleteId)) {
+            return res.status(400).json({ error: "Invalid athlete ID" });
         }
     }
 
@@ -1996,20 +1991,56 @@ const getPieChartData = async (req, res) => {
         // ----------------------------------------
         // CASE 1:
         // Team dashboard
-        //
-        // No athleteId means we only want
-        // the requested team.
         // ----------------------------------------
 
-        if (!parsedAthleteId) {
-
-            allowedTeamIds = [
-                parsedTeamId
-            ];
+        if (!parsedAthleteId && !parsedClubId) {
+            if (parsedTeamId === null) {
+                return res.status(400).json({ error: "Team ID required" });
+            }
+            allowedTeamIds = [parsedTeamId];
         }
 
         // ----------------------------------------
-        // CASE 2:
+        // CASE 2: Club dashboard
+        //
+        // All teams belonging to the club. Only a
+        // coach who belongs to this club may view it.
+        // ----------------------------------------
+
+        if (parsedClubId !== null && !parsedAthleteId) {
+
+            if (req.user?.status !== "coach") {
+                return res.status(403).json({
+                    error: "Only coaches can view club-wide data"
+                });
+            }
+
+            const coachMemberships =
+                await prisma.coach_memberships.findMany({
+                    where: { user_id: req.user.user_id },
+                    select: { team: { select: { club_id: true } } }
+                });
+
+            const coachClubIds = [
+                ...new Set(coachMemberships.map(m => m.team.club_id))
+            ];
+
+            if (!coachClubIds.includes(parsedClubId)) {
+                return res.status(403).json({
+                    error: "You do not have permission to view this club's data"
+                });
+            }
+
+            const clubTeams = await prisma.teams.findMany({
+                where: { club_id: parsedClubId },
+                select: { team_id: true }
+            });
+
+            allowedTeamIds = clubTeams.map(t => t.team_id);
+        }
+
+        // ----------------------------------------
+        // CASE 3:
         // Athlete data
         //
         // Get every team the athlete has ever
@@ -2054,7 +2085,7 @@ const getPieChartData = async (req, res) => {
         }
 
         // ========================================
-        // CASE 3:
+        // CASE 4:
         // Coach viewing athlete
         //
         // A coach can only see the athlete's

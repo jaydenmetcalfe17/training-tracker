@@ -1,4 +1,4 @@
-// components/AthleteList.tsx
+// components/PartialSessionsList.tsx
 // import "./SessionsList.scss";
 import type { Session } from "../../types/Session";
 import { useNavigate } from "react-router-dom";

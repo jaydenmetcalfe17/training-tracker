@@ -1,6 +1,128 @@
 //dashboards/ClubDashboard/ClubDashboard.scss
 
 .team-list {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
+
+.three-column-dash {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 2rem 1rem 1rem 1rem;
+}
+
+/* Each of the three grid columns */
+.three-column-dash > div {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* White box surrounding each mini list */
+.three-column-dash .white-box {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* The table's scroll container */
+.three-column-dash .table-scroll-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+/* Nested tan box created by the existing list/table components */
+.three-column-dash .light-tan-box {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Existing session/athlete list containers */
+.three-column-dash .sessions-list-box,
+.three-column-dash .mini-athletes-table {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Tables themselves */
+.three-column-dash table {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  box-sizing: border-box;
+}
+
+/* Prevent individual cells from forcing the table wider */
+.three-column-dash th,
+.three-column-dash td {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* Pie chart column */
+#pie-chart-div {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#pie-chart-div canvas {
+  max-width: 100% !important;
+  height: auto !important;
+  box-sizing: border-box;
+}
+
+.teams-box{
+    padding-left: 1rem;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+  .three-column-dash {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .three-column-dash > div {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .three-column-dash .white-box {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .three-column-dash .table-scroll-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+

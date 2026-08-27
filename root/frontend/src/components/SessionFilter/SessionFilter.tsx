@@ -219,21 +219,58 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
     fetchSessions();
   };
 
-  // Find the current team membership.
-  //
-  // For now, we use the membership without an end date.
-  // Later, we can make this date-aware if needed.
-  const currentMembership =
-    athlete?.teamMemberships?.find(
+  // ----------------------------------------
+  // Athlete affiliations
+  // ----------------------------------------
+
+  const activeMemberships =
+    athlete?.teamMemberships?.filter(
       (membership) =>
-        !membership.endDate
-    );
+        membership.endDate == null
+    ) ?? [];
 
-  const currentTeam =
-    currentMembership?.team;
+  const affiliations: {
+    club: any;
+    teams: any[];
+  }[] = [];
 
-  const currentClub =
-    currentTeam?.club;
+  activeMemberships.forEach(
+    (membership) => {
+      const team = membership.team;
+      const club = team?.club;
+
+      if (!team || !club) {
+        return;
+      }
+
+      const existingAffiliation =
+        affiliations.find(
+          (affiliation) =>
+            affiliation.club.clubId ===
+            club.clubId
+        );
+
+      if (existingAffiliation) {
+        const alreadyAdded =
+          existingAffiliation.teams.some(
+            (existingTeam) =>
+              existingTeam.teamId ===
+              team.teamId
+          );
+
+        if (!alreadyAdded) {
+          existingAffiliation.teams.push(
+            team
+          );
+        }
+      } else {
+        affiliations.push({
+          club,
+          teams: [team],
+        });
+      }
+    }
+  );
 
   // Edit/update athlete
   const [showEditPopup, setShowEditPopup] =
@@ -370,9 +407,40 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
                         : ""}
                       </h3>
 
-                      <h3>Club: {currentClub?.name ?? "N/A"}</h3>
+                      <div className="athlete-affiliations">
+                        <h3>Affiliations:</h3>
 
-                      <h3>Team: {currentTeam?.name ?? "N/A"}</h3>
+                        {affiliations.length === 0 ? (
+                          <p>No active affiliations</p>
+                        ) : (
+                          affiliations.map(
+                            (affiliation) => (
+                              <div
+                                className="affiliation"
+                                key={
+                                  affiliation.club.clubId
+                                }
+                              >
+                                <h4>
+                                  {affiliation.club.name}
+                                </h4>
+
+                                <ul>
+                                  {affiliation.teams.map(
+                                    (team) => (
+                                      <li
+                                        key={team.teamId}
+                                      >
+                                        {team.name}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            )
+                          )
+                        )}
+                      </div>
 
                       <h3>ACA ID: {athlete.acaId ?? "N/A"}</h3>
 
@@ -384,52 +452,60 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
               )}
             </div>
             <div className="delete-edit-button-box">
-              {isCoach && (
-                <button
-                  className="main-button"
-                  id="edit-button"
-                  onClick={toggleEditPopup}
-                >
-                  <EditIcon />
-                </button>
-              )}
+              <div className="duo-box">
+                {isCoach && (
+                    <button
+                      className="main-button"
+                      id="edit-button"
+                      onClick={toggleEditPopup}
+                    >
+                      <EditIcon />
+                    </button>
+                  )}
 
-              {showEditPopup && (
-                <EditAthleteForm
-                  athlete={athlete}
-                  onSubmit={editAthleteProfile}
-                />
-              )}
-
-              {isCoach && (
-                <button
-                  className="main-button"
-                  id="delete-button"
-                  onClick={toggleDeletePopup}
-                >
-                  <DeleteIcon />
-                </button>
-              )}
-
-              {showDeletePopup && (
-                <>
-                  Are you sure you want to delete this athlete?
-
+                  {showEditPopup && (
+                    <div className="popup-overlay">
+                      <div className="popup-content" data-testid="edit-popup">
+                        <EditAthleteForm
+                          athlete={athlete}
+                          onSubmit={editAthleteProfile}
+                        />
+                      </div>
+                    </div>
+                  )}
+              </div>
+              
+              <div className="duo-box">
+                {isCoach && (
                   <button
                     className="main-button"
-                    onClick={deleteAthlete}
-                  >
-                    Yes, delete the athlete
-                  </button>
-
-                  <button
-                    className="main-button"
+                    id="delete-button"
                     onClick={toggleDeletePopup}
                   >
-                    No, keep the athlete
+                    <DeleteIcon />
                   </button>
-                </>
-              )}
+                )}
+
+                {showDeletePopup && (
+                  <>
+                    Are you sure you want to delete this athlete?
+
+                    <button
+                      className="main-button"
+                      onClick={deleteAthlete}
+                    >
+                      Yes, delete the athlete
+                    </button>
+
+                    <button
+                      className="main-button"
+                      onClick={toggleDeletePopup}
+                    >
+                      No, keep the athlete
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
             
           
@@ -463,7 +539,6 @@ const SessionFilter: React.FC<FilterSessionsProps> = ({
             <PieChart
               selection={"sessions"}
               athleteId={athlete?.athleteId}
-              teamId={currentTeam?.teamId}
             />
           </div>
 
