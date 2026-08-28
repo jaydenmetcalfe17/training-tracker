@@ -17,6 +17,8 @@ app.use(bodyParser.json());
 
 app.use("/api/python", pythonRoutes);
 
+app.set("trust proxy", 1);
+
 app.use(cors({
     origin: process.env.CLIENT_URL,
         credentials: true
@@ -28,9 +30,9 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: true,
+            secure: process.env.NODE_ENV === 'production' ? 'true' : 'auto',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             httpOnly: true,
-            sameSite: 'none',
         },
     })
 );
