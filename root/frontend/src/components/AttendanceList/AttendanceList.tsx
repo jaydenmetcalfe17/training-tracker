@@ -217,13 +217,13 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Team</th>
-                <th>Freeski</th>
                 <th>Drill</th>
-                <th>Ed. Course</th>
-                <th>Race Training</th>
+                <th>Freeski</th>
+                <th>Educational Course</th>
+                <th>Training Course</th>
                 <th>Race</th>
                 <th>Individual Comments</th>
-                {isVisible && <th>Actions</th>}
+                {isVisible && <th></th>}
               </tr>
             </thead>
             <tbody>
@@ -234,8 +234,8 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                   <td>
                     {getAttendanceTeams(a.athlete!)}
                   </td>
-                  <td>{a.freeskiRuns ?? 0}</td>
                   <td>{a.drillRuns ?? 0}</td>
+                  <td>{a.freeskiRuns ?? 0}</td>
                   <td>{a.educationalCourseRuns ?? 0}</td>
                   <td>{a.raceTrainingCourseRuns ?? 0}</td>
                   <td>{a.raceRuns ?? 0}</td>
