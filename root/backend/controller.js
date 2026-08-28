@@ -1528,76 +1528,130 @@ const addAthletesToAttendance = async (req, res) => {
     }
 };
 
-// update the athlete's individual comments in the attendance table for a specific session
-const updateIndividualComment = async (req, res) => {
+// update the athlete's attendance/individual sessions details
+const updateAttendance = async (req, res) => {
     const attendanceId = Number(req.params.attendanceId);
-    const { individualComments } = req.body;
 
-    console.log("Values for attendance comment update:", [
-        attendanceId,
-        individualComments
-    ]);
+    const {
+        individualComments,
+        freeskiRuns,
+        drillRuns,
+        educationalCourseRuns,
+        raceTrainingCourseRuns,
+        raceRuns
+    } = req.body;
 
-    // Server-side input validation
     let errors = [];
 
-    // Attendance ID
     if (!Number.isInteger(attendanceId)) {
-        errors.push({
-            attendanceId: "Invalid attendance ID"
-        });
+        errors.push({ attendanceId: "Invalid attendance ID" });
     }
 
-    // Individual comments
-    if (individualComments === undefined || individualComments === null) {
-        errors.push({
-            individualComments: "Comment is required"
-        });
-    }
+    // A blank/omitted run field clears that value (saved as null).
+    // A provided value must be a non-negative whole number.
+    const parseOptionalInt = (value, fieldName) => {
+        if (value === undefined || value === null || value === "") {
+            return null;
+        }
 
-    // Return validation errors
+        const parsed = Number(value);
+
+        if (!Number.isInteger(parsed) || parsed < 0) {
+            errors.push({
+                [fieldName]: `${fieldName} must be a non-negative whole number`
+            });
+            return null;
+        }
+
+        return parsed;
+    };
+
+    const parsedFreeskiRuns = parseOptionalInt(freeskiRuns, "freeskiRuns");
+    const parsedDrillRuns = parseOptionalInt(drillRuns, "drillRuns");
+    const parsedEducationalCourseRuns = parseOptionalInt(educationalCourseRuns, "educationalCourseRuns");
+    const parsedRaceTrainingCourseRuns = parseOptionalInt(raceTrainingCourseRuns, "raceTrainingCourseRuns");
+    const parsedRaceRuns = parseOptionalInt(raceRuns, "raceRuns");
+
     if (errors.length > 0) {
         return res.status(400).json({ errors });
     }
 
     try {
-        const updatedAttendance =
-            await prisma.attendance.update({
-                where: {
-                    attendance_id: attendanceId
-                },
 
-                data: {
-                    individual_comments:
-                        individualComments
+        // ----------------------------------------
+        // Authorization: a coach may only edit attendance
+        // for sessions belonging to teams in their own club(s).
+        // ----------------------------------------
+
+        const attendanceRecord = await prisma.attendance.findUnique({
+            where: { attendance_id: attendanceId },
+            select: {
+                session: {
+                    select: {
+                        session_teams: {
+                            select: { team: { select: { club_id: true } } }
+                        }
+                    }
                 }
-            });
+            }
+        });
 
-        console.log(
-            "Updated attendance:",
-            updatedAttendance
+        if (!attendanceRecord) {
+            return res.status(404).json({ error: "Attendance not found" });
+        }
+
+        if (req.user?.status !== "coach") {
+            return res.status(403).json({ error: "Coaches only" });
+        }
+
+        const sessionClubIds = attendanceRecord.session.session_teams.map(
+            (st) => st.team.club_id
         );
 
-        return res.status(200).json(
-            updatedAttendance
-        );
+        const coachMemberships = await prisma.coach_memberships.findMany({
+            where: { user_id: req.user.user_id },
+            select: { team: { select: { club_id: true } } }
+        });
 
-    } catch (error) {
-        console.error(
-            "Error updating attendance individual comment:",
-            error
-        );
+        const coachClubIds = [
+            ...new Set(coachMemberships.map((m) => m.team.club_id))
+        ];
 
-        // Prisma P2025 = record wasn't found
-        if (error.code === "P2025") {
-            return res.status(404).json({
-                error: "Attendance not found"
+        const authorized = sessionClubIds.some((id) => coachClubIds.includes(id));
+
+        if (!authorized) {
+            return res.status(403).json({
+                error: "You do not have permission to edit this attendance record"
             });
         }
 
+        // ----------------------------------------
+        // Update
+        // ----------------------------------------
+
+        const updatedAttendance = await prisma.attendance.update({
+            where: { attendance_id: attendanceId },
+            data: {
+                individual_comments: individualComments ?? null,
+                freeski_runs: parsedFreeskiRuns,
+                drill_runs: parsedDrillRuns,
+                educational_course_runs: parsedEducationalCourseRuns,
+                race_training_course_runs: parsedRaceTrainingCourseRuns,
+                race_runs: parsedRaceRuns
+            }
+        });
+
+        return res.status(200).json(updatedAttendance);
+
+    } catch (error) {
+        console.error("Error updating attendance:", error);
+
+        if (error.code === "P2025") {
+            return res.status(404).json({ error: "Attendance not found" });
+        }
+
         return res.status(500).json({
-            error:
-                "Server error updating attendance individual comment"
+            error: "Server error updating attendance"
         });
     }
 };
@@ -6007,7 +6061,7 @@ module.exports = {
     deleteAthleteProfile,
     deleteAthleteAttendanceSingleSession,
     addAthletesToAttendance,
-    updateIndividualComment,
+    updateAttendance,
     createSession,
     getSessions,
     getPieChartData,
