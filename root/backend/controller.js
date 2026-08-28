@@ -452,25 +452,32 @@ const getAllDataFromAthleteProfile = async (req, res) => {
         // No results
         // ----------------------------------------
 
+        const isListQuery =
+            parsedTeamId !== null ||
+            parsedClubId !== null ||
+            parsedParentUserId !== null ||
+            (
+                parsedAcaId === null &&
+                parsedFisId === null &&
+                parsedAthleteId === null &&
+                parsedParentUserId === null &&
+                parsedUserId === null
+            );
+
         if (
             !result ||
-            (
-                Array.isArray(result) &&
-                result.length === 0
-            )
+            (Array.isArray(result) && result.length === 0)
         ) {
+            if (isListQuery) {
+                return res.status(200).json([]);
+            }
 
             return res.status(404).json({
-
-                error:
-                    "No athlete data found"
+                error: "No athlete data found"
             });
         }
 
-
-        return res.status(200).json(
-            result
-        );
+        return res.status(200).json(result);
 
 
     } catch (error) {
@@ -2517,14 +2524,8 @@ const getSessions = async (req, res) => {
         // NO SESSIONS
         // ==================================================
 
-        if (
-            sessions.length === 0
-        ) {
-
-            return res.status(404).json({
-                error:
-                    "No sessions found"
-            });
+        if (sessions.length === 0) {
+            return res.status(200).json([]);
         }
 
 
