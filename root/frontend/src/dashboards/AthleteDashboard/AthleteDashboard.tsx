@@ -4,19 +4,21 @@ import AthletesSessions from "../../components/AthletesSessions/AthletesSessions
 import { useContext, useEffect, useState } from 'react';
 import AuthContext from '../../context/AuthContext';
 import type { Athlete } from "../../types/Athlete";
-import { useNavigate, useParams } from "react-router-dom";
+// import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+// import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 
 import "./AthleteDashboard.scss";
 
+
 const AthleteDashboard: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const params = useParams();
 
   const [athlete, setAthlete] = useState<Athlete | null>(null);
-  const isVisible = (user?.status === 'coach');
+  // const isVisible = (user?.status === 'coach');
 
   useEffect(() => {
     let insert = '';

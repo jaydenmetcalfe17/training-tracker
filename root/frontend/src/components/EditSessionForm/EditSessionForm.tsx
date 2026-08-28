@@ -2,7 +2,6 @@
 
 import { useContext, useEffect, useState } from 'react';
 import type { Session } from "../../types/Session";
-import type { Athlete } from '../../types/Athlete';
 import type { Team } from '../../types/Team';
 import MultiSelectEx from '../Multiselect/Multiselect';
 import AuthContext from '../../context/AuthContext';
@@ -18,7 +17,6 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({
 }) => {
   const { user } = useContext(AuthContext);
 
-  const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
   const [availableTeams, setAvailableTeams] = useState<Team[]>([]);
 
   const [selectedAthletes, setSelectedAthletes] = useState<number[]>([]);
@@ -45,84 +43,6 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({
     attendance: [],
     teamIds: [],
   });
-
-  // --------------------------------------------------
-  // Load athletes with their FULL team membership history
-  // --------------------------------------------------
-
-  useEffect(() => {
-    fetch(`/api/athlete`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Failed to load athletes: ${res.status}`);
-        }
-
-        return res.json();
-      })
-      .then((data) => {
-        const mappedAthletes: Athlete[] = data.map((athlete: any) => ({
-          athleteId: athlete.athlete_id,
-          athleteFirstName: athlete.athlete_first_name,
-          athleteLastName: athlete.athlete_last_name,
-          birthday: athlete.birthday,
-          gender: athlete.gender,
-          acaId: athlete.aca_id,
-          fisId: athlete.fis_id,
-          ageGroup: athlete.age_group,
-
-          // IMPORTANT:
-          // Keep the full membership history here.
-          // MultiSelectEx will determine which ones are current.
-          teamMemberships: athlete.team_memberships?.map(
-            (membership: any) => ({
-              teamMembershipId:
-                membership.team_membership_id,
-
-              athleteId:
-                membership.athlete_id,
-
-              teamId:
-                membership.team_id,
-
-              startDate:
-                membership.start_date,
-
-              endDate:
-                membership.end_date,
-
-              team: membership.team
-                ? {
-                    teamId:
-                      membership.team.team_id,
-
-                    clubId:
-                      membership.team.club_id,
-
-                    name:
-                      membership.team.name,
-
-                    club:
-                      membership.team.club,
-                  }
-                : undefined,
-            })
-          ),
-        }));
-
-        console.log(
-          "Edit session athletes with memberships:",
-          mappedAthletes
-        );
-
-        setAvailableAthletes(mappedAthletes);
-      })
-      .catch((err) =>
-        console.error(
-          'Failed to load athletes',
-          err
-        )
-      );
-  }, []);
 
   // --------------------------------------------------
   // Load teams belonging to the current coach
@@ -262,21 +182,6 @@ const EditSessionForm: React.FC<EditSessionFormProps> = ({
         name.startsWith('num')
           ? Number(value)
           : value,
-    }));
-  };
-
-  // --------------------------------------------------
-  // Handle athlete selection -- removed this from the form for now. but note to self: wasn't adding properly
-  // --------------------------------------------------
-
-  const handleAttendanceChange = (
-    selectedIds: number[]
-  ) => {
-    setSelectedAthletes(selectedIds);
-
-    setFormData((prev) => ({
-      ...prev,
-      attendance: selectedIds,
     }));
   };
 
