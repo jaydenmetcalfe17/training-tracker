@@ -77,7 +77,7 @@ router.get(
 router.delete("/attendance/:athleteId/:sessionId", requireClubCoach, controller.deleteAthleteAttendanceSingleSession);
 
 // Example: PUT /api/attendance/?attendanceId=1 // etc...
-router.put("/attendance/:attendanceId", requireClubCoach, controller.updateAttendance);
+router.put("/attendance/:attendanceId", requireAuth, controller.updateAttendance);
 
 // Example: PUT /api/attendance/
 router.put("/attendance/", requireClubCoach, controller.addAthletesToAttendance);

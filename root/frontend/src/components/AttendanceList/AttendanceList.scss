@@ -7,7 +7,6 @@
     align-items: flex-start;
     padding: 1rem;
     gap: 1rem;
-    // width: min-content;
     overflow-x: auto;
 }
 
@@ -20,6 +19,20 @@
     justify-content: space-evenly;
 }
 
+/* Full-screen overlay */
 #popup-attendance {
     position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
+
+/* The actual popup box */
+#popup-attendance .popup-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+

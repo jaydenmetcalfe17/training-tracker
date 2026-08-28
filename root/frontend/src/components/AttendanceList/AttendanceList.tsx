@@ -153,6 +153,47 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
     toggleEditAttendancePopup();
   };
 
+  const getAttendanceTeams = (athlete: Athlete) => {
+    const sessionTeamIds = session.teamIds ?? [];
+
+    const sessionClubIds = new Set(
+      athlete.teamMemberships
+        ?.filter((membership) =>
+          sessionTeamIds.includes(membership.teamId)
+        )
+        .map((membership) => membership.team?.clubId)
+        .filter((clubId): clubId is number => clubId != null)
+    );
+
+    return athlete.teamMemberships
+      ?.filter((membership) => {
+        const sessionDate = session.sessionDay;
+
+        if (!membership.startDate || !sessionDate) {
+          return false;
+        }
+
+        const activeOnSessionDate =
+          membership.startDate <= sessionDate &&
+          (
+            membership.endDate == null ||
+            membership.endDate >= sessionDate
+          );
+
+        const belongsToSessionClub =
+          membership.team?.clubId != null &&
+          sessionClubIds.has(membership.team.clubId);
+
+        return (
+          activeOnSessionDate &&
+          belongsToSessionClub
+        );
+      })
+      .map((membership) => membership.team?.name)
+      .filter(Boolean)
+      .join(", ");
+  };
+
   return (
     <div className="attendance-list-box">
       <div className="light-tan-box">
@@ -191,31 +232,13 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                   <td>{a.athlete!.athleteFirstName}</td>
                   <td>{a.athlete!.athleteLastName}</td>
                   <td>
-                    {a.athlete?.teamMemberships
-                      ?.filter(membership => {
-                        const sessionDate = session.sessionDay;
-
-                        if (!membership.startDate || !sessionDate) {
-                          return false;
-                        }
-
-                        return (
-                          membership.startDate <= sessionDate &&
-                          (
-                            membership.endDate == null ||
-                            membership.endDate >= sessionDate
-                          )
-                        );
-                      })
-                      .map(membership => membership.team?.name)
-                      .filter(Boolean)
-                      .join(", ")}
+                    {getAttendanceTeams(a.athlete!)}
                   </td>
-                  <td>{a.freeskiRuns ?? "-"}</td>
-                  <td>{a.drillRuns ?? "-"}</td>
-                  <td>{a.educationalCourseRuns ?? "-"}</td>
-                  <td>{a.raceTrainingCourseRuns ?? "-"}</td>
-                  <td>{a.raceRuns ?? "-"}</td>
+                  <td>{a.freeskiRuns ?? 0}</td>
+                  <td>{a.drillRuns ?? 0}</td>
+                  <td>{a.educationalCourseRuns ?? 0}</td>
+                  <td>{a.raceTrainingCourseRuns ?? 0}</td>
+                  <td>{a.raceRuns ?? 0}</td>
                   <td>{a.individualComments}</td>
                   {isVisible && (
                     <td className="button-box">
