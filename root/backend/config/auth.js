@@ -1,6 +1,6 @@
 // root/backend/config/auth.js
 
-require('dotenv').config({ path: './.env' }); // explicit path
+// require('dotenv').config({ path: './.env' }); // explicit path
 
 const passport = require('passport');
 // const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
