@@ -6,87 +6,66 @@ datasource db {
   provider = "postgresql"
 }
 
-// =========================
-// ORGANIZATION
-// =========================
-
 model clubs {
-  club_id Int    @id @default(autoincrement())
-  name    String @unique @db.VarChar(255)
-
-  teams teams[]
+  club_id Int     @id @default(autoincrement())
+  name    String  @unique @db.VarChar(255)
+  teams   teams[]
 }
 
 model teams {
-  team_id Int    @id @default(autoincrement())
-  club_id Int
-  name    String @db.VarChar(100)
-
-  club              clubs               @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
-  members           team_memberships[]
+  team_id           Int                 @id @default(autoincrement())
+  club_id           Int
+  name              String              @db.VarChar(100)
   coach_memberships coach_memberships[]
-  sessions          sessions_teams[]
   invites           invites[]
+  sessions          sessions_teams[]
+  members           team_memberships[]
+  club              clubs               @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
 
   @@unique([club_id, name])
 }
 
-// An athlete can belong to different teams over their career.
-// Historical memberships are retained.
 model team_memberships {
   team_membership_id Int       @id @default(autoincrement())
   athlete_id         Int
   team_id            Int
   start_date         DateTime? @db.Date
   end_date           DateTime? @db.Date
-
-  athlete athletes @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
-  team    teams    @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+  athlete            athletes  @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
+  team               teams     @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
 
   @@unique([athlete_id, team_id, start_date])
   @@index([athlete_id])
   @@index([team_id])
 }
 
-// =========================
-// ATHLETES
-// =========================
-
 model athletes {
-  athlete_id         Int       @id @default(autoincrement())
-  aca_id             Int?      @unique
-  fis_id             Int?      @unique
-  athlete_first_name String    @db.VarChar(100)
-  athlete_last_name  String    @db.VarChar(100)
-  birthday           DateTime? @db.Date
-  gender             String    @db.VarChar(10)
-
-  // These will eventually be removed after the data
-  // has been migrated into clubs/teams.
-  team      String? @db.VarChar(255)
-  age_group String? @db.VarChar(10)
-
-  team_memberships team_memberships[]
-  attendance       attendance[]
-  users            users[]
-  parents          parents[]
-  invites invites[]
+  athlete_id         Int                @id @default(autoincrement())
+  athlete_first_name String             @db.VarChar(100)
+  athlete_last_name  String             @db.VarChar(100)
+  birthday           DateTime?          @db.Date
+  gender             String             @db.VarChar(10)
+  team               String?            @db.VarChar(255)
+  age_group          String?            @db.VarChar(10)
+  aca_id             Int?               @unique
+  fis_id             Int?               @unique
+  attendance         attendance[]
+  invites            invites[]
+  parents            parents[]
+  team_memberships   team_memberships[]
+  users              users[]
 }
 
-// =========================
-// SESSIONS
-// =========================
-
 model sessions {
-  session_id                     Int       @id @default(autoincrement())
-  session_day                    DateTime? @db.Date
-  start_time                     DateTime? @db.Time(6)
-  end_time                       DateTime? @db.Time(6)
-  location                       String?   @db.VarChar(50)
-  discipline                     String?   @db.VarChar(20)
-  snow_conditions                String?   @db.VarChar(50)
-  vis_conditions                 String?   @db.VarChar(50)
-  terrain_type                   String?   @db.VarChar(50)
+  session_id                     Int              @id @default(autoincrement())
+  session_day                    DateTime?        @db.Date
+  start_time                     DateTime?        @db.Time(6)
+  end_time                       DateTime?        @db.Time(6)
+  location                       String?          @db.VarChar(50)
+  discipline                     String?          @db.VarChar(20)
+  snow_conditions                String?          @db.VarChar(50)
+  vis_conditions                 String?          @db.VarChar(50)
+  terrain_type                   String?          @db.VarChar(50)
   num_freeski_runs               Int?
   num_drill_runs                 Int?
   num_educational_course_runs    Int?
@@ -95,124 +74,90 @@ model sessions {
   num_gates_race_training_course Int?
   num_race_runs                  Int?
   num_gates_race                 Int?
-  general_comments               String?   @db.VarChar(250)
+  general_comments               String?          @db.VarChar(250)
   created_by                     Int?
-
-  attendance attendance[]
-  creator    users?       @relation(fields: [created_by], references: [user_id], onDelete: SetNull)
-  session_teams  sessions_teams[]
+  attendance                     attendance[]
+  creator                        users?           @relation(fields: [created_by], references: [user_id])
+  session_teams                  sessions_teams[]
 }
 
 model sessions_teams {
-  session_team_id Int @id @default(autoincrement())
+  session_team_id Int      @id @default(autoincrement())
   session_id      Int
   team_id         Int
-
-  session sessions @relation(fields: [session_id], references: [session_id], onDelete: Cascade)
-  team    teams    @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+  session         sessions @relation(fields: [session_id], references: [session_id], onDelete: Cascade)
+  team            teams    @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
 
   @@unique([session_id, team_id])
   @@index([session_id])
   @@index([team_id])
 }
 
-// =========================
-// ATTENDANCE
-// =========================
-
 model attendance {
-  attendance_id Int @id @default(autoincrement())
-  athlete_id    Int
-  session_id    Int
-
-  // Athlete-specific session values
-  freeski_runs              Int?
+  attendance_id             Int      @id @default(autoincrement())
+  athlete_id                Int
+  session_id                Int
+  individual_comments       String?  @db.VarChar(500)
   drill_runs                Int?
   educational_course_runs   Int?
-  race_training_course_runs Int?
+  freeski_runs              Int?
   race_runs                 Int?
-
-  individual_comments String? @db.VarChar(500)
-
-  athlete athletes @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
-  session sessions @relation(fields: [session_id], references: [session_id], onDelete: Cascade)
+  race_training_course_runs Int?
+  athlete                   athletes @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
+  session                   sessions @relation(fields: [session_id], references: [session_id], onDelete: Cascade)
 
   @@unique([athlete_id, session_id])
   @@index([athlete_id])
   @@index([session_id])
 }
 
-// =========================
-// USERS
-// =========================
-
 model users {
-  user_id    Int     @id @default(autoincrement())
-  first_name String? @db.VarChar(250)
-  last_name  String? @db.VarChar(250)
-  email      String? @unique @db.VarChar(100)
-  password   String? @db.VarChar(200)
-
-  status    String?
-  google_id String? @unique
-
-  // Used for athlete accounts.
-  athlete_id Int?
-
-  athlete athletes? @relation(fields: [athlete_id], references: [athlete_id], onDelete: SetNull)
-
-  parents           parents[]
+  user_id           Int                 @id @default(autoincrement())
+  first_name        String?             @db.VarChar(250)
+  last_name         String?             @db.VarChar(250)
+  email             String?             @unique @db.VarChar(100)
+  password          String?             @db.VarChar(200)
+  status            String?
+  google_id         String?             @unique
+  athlete_id        Int?
   coach_memberships coach_memberships[]
+  parents           parents[]
   created_sessions  sessions[]
+  athlete           athletes?           @relation(fields: [athlete_id], references: [athlete_id])
 }
 
-// =========================
-// COACH MEMBERSHIP
-// =========================
-
 model coach_memberships {
-  coach_membership_id Int @id @default(autoincrement())
+  coach_membership_id Int   @id @default(autoincrement())
   user_id             Int
   team_id             Int
-
-  user users @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  team teams @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+  team                teams @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+  user                users @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([user_id, team_id])
   @@index([user_id])
   @@index([team_id])
 }
 
-// =========================
-// PARENT ↔ ATHLETE
-// =========================
-
 model parents {
   athlete_id Int
   user_id    Int
-
-  athlete athletes @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
-  user    users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  athlete    athletes @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
+  user       users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@id([athlete_id, user_id])
 }
 
-// =========================
-// INVITES
-// =========================
-
 model invites {
   invite_id  Int       @id @default(autoincrement())
   athlete_id Int?
-  team_id    Int?
   token      String    @unique @db.VarChar(128)
   role       String
   expires_at DateTime  @db.Timestamp(6)
   used       Boolean?  @default(false)
   created_at DateTime? @default(now()) @db.Timestamp(6)
-
-  athlete athletes? @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
-  team    teams?    @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+  team_id    Int?
+  athlete    athletes? @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
+  team       teams?    @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
 
   @@index([athlete_id])
   @@index([team_id])
