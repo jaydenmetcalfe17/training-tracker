@@ -5,6 +5,8 @@ require('./config/auth');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
 const routes = require('./routes/routes');
 const authRoutes = require('./routes/auth');
 const cors = require('cors');
@@ -12,6 +14,10 @@ const passport = require('passport');
 const pythonRoutes = require("./routes/pythonRoutes");
 
 const app = express();
+
+const pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
 
 app.use(bodyParser.json());
 
@@ -26,11 +32,16 @@ app.use(cors({
 
 app.use(
     session({
+        store: new pgSession({
+            pool: pgPool,
+            tableName: "session",
+            createTableIfMissing: true,
+        }),
         secret: process.env.COOKIE_SECRET,
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: process.env.NODE_ENV === 'production' ? 'true' : 'auto',
+            secure: process.env.NODE_ENV === 'production' ? true : 'auto',
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             httpOnly: true,
         },
