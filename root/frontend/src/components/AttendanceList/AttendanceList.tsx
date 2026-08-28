@@ -1,3 +1,5 @@
+// components/AttendanceList/AttendanceList.tsx
+
 import { useContext, useEffect, useState } from "react";
 import type { Session } from "../../types/Session";
 import type { Athlete } from "../../types/Athlete";
@@ -17,17 +19,15 @@ interface AttendanceListProps {
 
 const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
   const { user } = useContext(AuthContext);
-  // const [isVisible, setIsVisible] = useState(true);
   const isVisible = (user?.status === 'coach');
 
   const [attendance, setAttendance] = useState<Attendance[]>(
     session.receivedAttendance ?? []
   );
 
-  
   const [availableAthletes, setAvailableAthletes] = useState<Athlete[]>([]);
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [showEditIndCommPopup, setShowEditIndCommPopup] = useState(false);
+  const [showEditAttendancePopup, setShowEditAttendancePopup] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
 
   useEffect(() => {
@@ -64,8 +64,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
           ),
         }));
 
-        // These athletes are ONLY for the "Add Athlete"
-        // dropdown, so current memberships are appropriate here.
         const attendanceIds = attendance.map(
           a => a.athlete?.athleteId
         );
@@ -82,14 +80,13 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
       );
   }, [user]);
 
-  // keep availableAthletes in sync after attendance changes
   useEffect(() => {
     const attendanceIds = attendance.map(a => a.athlete!.athleteId);
     setAvailableAthletes(prev => prev.filter(a => !attendanceIds.includes(a.athleteId)));
   }, [attendance]);
 
   const toggleEditPopup = () => setShowEditPopup(!showEditPopup);
-  const toggleEditIndCommPopup = () => setShowEditIndCommPopup(!showEditIndCommPopup);
+  const toggleEditAttendancePopup = () => setShowEditAttendancePopup(!showEditAttendancePopup);
 
   const handleAttendanceChange = (selectedIds: number[]) => {
     fetch(`/api/attendance/`, {
@@ -121,30 +118,39 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
       .catch(err => console.error('Failed to delete athlete attendance', err));
   };
 
-  const editIndComm = (updatedIndAttendance: Attendance) => {
-    console.log("trying to edit ind comm!", updatedIndAttendance)
-    if (!updatedIndAttendance.attendanceId) return;
+  const editAttendance = (updatedAttendance: Attendance) => {
+    if (!updatedAttendance.attendanceId) return;
 
-    fetch(`/api/attendance/${updatedIndAttendance.attendanceId}`, {
+    fetch(`/api/attendance/${updatedAttendance.attendanceId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        individualComments: updatedIndAttendance.individualComments
+        individualComments: updatedAttendance.individualComments,
+        freeskiRuns: updatedAttendance.freeskiRuns,
+        drillRuns: updatedAttendance.drillRuns,
+        educationalCourseRuns: updatedAttendance.educationalCourseRuns,
+        raceTrainingCourseRuns: updatedAttendance.raceTrainingCourseRuns,
+        raceRuns: updatedAttendance.raceRuns,
       }),
-
     })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to update attendance: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(() => {
         setAttendance(prev =>
           prev.map(a =>
-            a.attendanceId === updatedIndAttendance.attendanceId
-              ? { ...a, individualComments: updatedIndAttendance.individualComments }
+            a.attendanceId === updatedAttendance.attendanceId
+              ? { ...a, ...updatedAttendance }
               : a
           )
         );
       })
-      .catch(err => console.error('Failed to update individual comment', err));
+      .catch(err => console.error('Failed to update attendance', err));
 
-    toggleEditIndCommPopup();
+    toggleEditAttendancePopup();
   };
 
   return (
@@ -170,10 +176,13 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Team</th>
+                <th>Freeski</th>
+                <th>Drill</th>
+                <th>Ed. Course</th>
+                <th>Race Training</th>
+                <th>Race</th>
                 <th>Individual Comments</th>
-                <th>
-                  {isVisible}
-                </th>
+                {isVisible && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -190,9 +199,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                           return false;
                         }
 
-                        // Membership is active on the session date if:
-                        // - it started on/before the session date, AND
-                        // - it has no end date OR it ended on/after the session date
                         return (
                           membership.startDate <= sessionDate &&
                           (
@@ -205,43 +211,46 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ session }) => {
                       .filter(Boolean)
                       .join(", ")}
                   </td>
+                  <td>{a.freeskiRuns ?? "-"}</td>
+                  <td>{a.drillRuns ?? "-"}</td>
+                  <td>{a.educationalCourseRuns ?? "-"}</td>
+                  <td>{a.raceTrainingCourseRuns ?? "-"}</td>
+                  <td>{a.raceRuns ?? "-"}</td>
                   <td>{a.individualComments}</td>
-                  <td className="button-box">
-                    {isVisible && (
-                      <>
-                        <button
-                          className="main-button"
-                          id="edit-button"
-                          data-testid="edit-button"
-                          aria-label="edit-button"
-                          onClick={() => {
-                            setSelectedAttendance(a);
-                            toggleEditIndCommPopup();
-                          }}
-                        >
-                          <EditIcon />
-                        </button>
-                        <button
-                          className="main-button"
-                          id="delete-button"
-                          aria-label="delete-button"
-                          data-testid="delete-button"
-                          onClick={() => deleteAthleteAttendance(a.athlete!.athleteId!)}
-                        >
-                          <DeleteIcon />
-                        </button>
-                      </>
-                    )}
-                  </td>
+                  {isVisible && (
+                    <td className="button-box">
+                      <button
+                        className="main-button"
+                        id="edit-button"
+                        data-testid="edit-button"
+                        aria-label="edit-button"
+                        onClick={() => {
+                          setSelectedAttendance(a);
+                          toggleEditAttendancePopup();
+                        }}
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        className="main-button"
+                        id="delete-button"
+                        aria-label="delete-button"
+                        data-testid="delete-button"
+                        onClick={() => deleteAthleteAttendance(a.athlete!.athleteId!)}
+                      >
+                        <DeleteIcon />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {showEditIndCommPopup && selectedAttendance && (
+          {showEditAttendancePopup && selectedAttendance && (
             <div className="popup-overlay" id="popup-attendance">
               <div className="popup-content">
-                <EditAttendanceForm attendance={selectedAttendance} onSubmit={editIndComm} />
+                <EditAttendanceForm attendance={selectedAttendance} onSubmit={editAttendance} />
               </div>
             </div>
           )}
