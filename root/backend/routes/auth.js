@@ -45,6 +45,10 @@ router.post('/login', (req, res, next) => {
       if (error){
         return next(error);
       }
+
+
+      console.log("SESSION AFTER LOGIN:", req.session);
+      console.log("USER AFTER LOGIN:", req.user);
       // Send user info or success message as JSON
       const safeUser = {
         userId: user.user_id,

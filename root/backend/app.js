@@ -18,19 +18,20 @@ app.use(bodyParser.json());
 app.use("/api/python", pythonRoutes);
 
 app.use(cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL
+    origin: process.env.CLIENT_URL,
+        credentials: true
 }));
 
 app.use(
     session({
         secret: process.env.COOKIE_SECRET,
-        cookie: {
-            secure: process.env.NODE_ENV === 'production' ? true : false,
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        },
         resave: false,
         saveUninitialized: false,
+        cookie: {
+            secure: true,
+            httpOnly: true,
+            sameSite: 'none',
+        },
     })
 );
 
