@@ -5,12 +5,6 @@
 const passport = require('passport');
 // const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const {Strategy: LocalStrategy } = require('passport-local');
-
-// REMOVE AFTER MIGRATION
-const pool = require('./database');
-const queries = require('../queries.json');
-/////////
-
 const prisma = require('../prismaClient');
 const bcrypt = require('bcrypt');
 
