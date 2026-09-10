@@ -55,6 +55,7 @@ model athletes {
   parents            parents[]
   team_memberships   team_memberships[]
   users              users[]
+  fitness_testing_results fitness_testing_results[]
 }
 
 model sessions {
@@ -170,4 +171,147 @@ model auth_sessions {
   expire DateTime @db.Timestamp(6)
 
   @@index([expire], map: "IDX_auth_sessions_expire")
+}
+
+
+model fitness_testing_results {
+  fitness_testing_result_id Int      @id @default(autoincrement())
+  athlete_id               Int
+  test_date                DateTime @db.Date
+
+  age_category             String   @db.VarChar(20)
+  return_to_sport          Boolean  @default(false)
+
+  height                   Decimal? @db.Decimal(5, 2)
+  weight                   Decimal? @db.Decimal(5, 2)
+
+  ais_beep_level            Decimal?
+  beep_max_hr               Int?
+
+  hex_cw_t1                 Decimal?
+  hex_cw_t2                 Decimal?
+  hex_cw_t3                 Decimal?
+  hex_ccw_t1                Decimal?
+  hex_ccw_t2                Decimal?
+  hex_ccw_t3                Decimal?
+
+  slj_t1                    Decimal?
+  slj_t2                    Decimal?
+  slj_t3                    Decimal?
+
+  dlpj_t1                   Decimal?
+  dlpj_t2                   Decimal?
+  dlpj_t3                   Decimal?
+
+  slpj_left_t1              Decimal?
+  slpj_left_t2              Decimal?
+  slpj_left_t3              Decimal?
+  slpj_right_t1             Decimal?
+  slpj_right_t2             Decimal?
+  slpj_right_t3             Decimal?
+
+  pushups                   Int?
+  pullups                   Int?
+  situps                    Int?
+  bar_hang                  Decimal?
+
+  box_jumps_30s              Int?
+  box_jumps_60s              Int?
+  box_jumps_total            Int?
+
+  athlete                   athletes @relation(fields: [athlete_id], references: [athlete_id], onDelete: Cascade)
+
+  @@index([athlete_id])
+  @@index([test_date])
+}
+
+model fitness_tests {
+  test_id               Int      @id @default(autoincrement())
+  name                  String   @unique @db.VarChar(100)
+  unit                  String?  @db.VarChar(30)
+  comparison_direction  String   @db.VarChar(10)
+
+  categories            fitness_test_categories[]
+  tier_rules fitness_tier_rules[]
+}
+
+model fitness_test_categories {
+  cat_id         Int      @id @default(autoincrement())
+  test_id        Int
+  age_category   String?  @db.VarChar(20)
+  gender         String?  @db.VarChar(10)
+  name           String   @db.VarChar(100)
+
+  test           fitness_tests          @relation(fields: [test_id], references: [test_id], onDelete: Cascade)
+
+  scoring_rules  fitness_scoring_rules[]
+
+  @@index([test_id])
+  @@index([age_category, gender])
+}
+
+model fitness_scoring_rules {
+  rule_id     Int      @id @default(autoincrement())
+  cat_id      Int
+  threshold   Decimal  @db.Decimal(10, 3)
+  points      Int
+
+  category    fitness_test_categories @relation(fields: [cat_id], references: [cat_id], onDelete: Cascade)
+
+  @@unique([cat_id, threshold])
+  @@index([cat_id])
+}
+
+
+model fitness_tiers {
+  tier_id   Int    @id @default(autoincrement())
+  name      String @unique @db.VarChar(50)
+  rank      Int
+
+  rules     fitness_tier_rules[]
+  overall_rules  fitness_overall_tier_rules[]
+}
+
+
+model fitness_tier_categories {
+  tier_category_id Int     @id @default(autoincrement())
+  age_category     String  @db.VarChar(20)
+  gender           String? @db.VarChar(10)
+
+  rules            fitness_tier_rules[]
+  overall_rules    fitness_overall_tier_rules[]
+
+  @@unique([age_category, gender])
+}
+
+model fitness_tier_rules {
+  tier_rule_id     Int      @id @default(autoincrement())
+  tier_category_id Int
+  tier_id          Int
+  test_id          Int
+  threshold        Decimal  @db.Decimal(10, 3)
+
+  tier_category fitness_tier_categories @relation(fields: [tier_category_id], references: [tier_category_id], onDelete: Cascade)
+  tier fitness_tiers @relation(fields: [tier_id], references: [tier_id], onDelete: Cascade)
+  test fitness_tests @relation(fields: [test_id], references: [test_id], onDelete: Cascade)
+
+  @@unique([tier_category_id, tier_id, test_id])
+  @@index([tier_category_id])
+  @@index([tier_id])
+  @@index([test_id])
+}
+
+
+model fitness_overall_tier_rules {
+  overall_tier_rule_id Int      @id @default(autoincrement())
+  tier_category_id     Int
+  tier_id              Int
+  threshold            Decimal  @db.Decimal(10, 3)   // total combine points
+
+  tier_category  fitness_tier_categories @relation(fields: [tier_category_id], references: [tier_category_id], onDelete: Cascade)
+  tier           fitness_tiers           @relation(fields: [tier_id], references: [tier_id], onDelete: Cascade)
+
+  @@unique([tier_category_id, tier_id])
+  @@index([tier_category_id])
+  @@index([tier_id])
 }
