@@ -7,9 +7,10 @@ datasource db {
 }
 
 model clubs {
-  club_id Int     @id @default(autoincrement())
-  name    String  @unique @db.VarChar(255)
-  teams   teams[]
+  club_id  Int     @id @default(autoincrement())
+  name     String  @unique @db.VarChar(255)
+  province String @db.VarChar(25)
+  teams    teams[]
 }
 
 model teams {
@@ -161,4 +162,12 @@ model invites {
 
   @@index([athlete_id])
   @@index([team_id])
+}
+
+model auth_sessions {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_auth_sessions_expire")
 }

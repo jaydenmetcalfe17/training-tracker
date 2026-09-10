@@ -34,7 +34,7 @@ app.use(
     session({
         store: new pgSession({
             pool: pgPool,
-            tableName: "session",
+            tableName: "auth_sessions",
             createTableIfMissing: true,
         }),
         secret: process.env.COOKIE_SECRET,
