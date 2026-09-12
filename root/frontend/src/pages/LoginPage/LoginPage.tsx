@@ -23,23 +23,52 @@ const LoginPage: React.FC = () => {
   const [loginError, setLoginError] =
     useState<string | null>(null);
 
+  const [loading, setLoading] =
+    useState(false);
+
 
   const handleLogin = async (
     loginInfo: Login
   ) => {
 
     setLoginError(null);
+    setLoading(true);
 
-    const error =
-      await newLogin(
-        loginInfo,
-        inviteToken || undefined
+    try {
+
+      const error =
+        await newLogin(
+          loginInfo,
+          inviteToken || undefined
+        );
+
+      if (error) {
+        setLoginError(error);
+        setLoading(false);
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      setLoginError(
+        "An unexpected error occurred. Please try again."
       );
 
-    if (error) {
-      setLoginError(error);
+      setLoading(false);
     }
   };
+
+
+  if (loading) {
+
+    return (
+      <div className="athlete-dashboard-wrapper">
+        Loading...
+      </div>
+    );
+
+  }
 
 
   return (

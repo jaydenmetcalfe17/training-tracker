@@ -142,7 +142,7 @@ const AthleteDashboard: React.FC = () => {
   //   navigate(`/club/${athlete.clubId}`);
   // };
 
-  if (!athlete) return <>Loading...</>;
+  if (!athlete) return <div className="athlete-dashboard-wrapper">Loading...</div>;
 
   return (
     <div className="athlete-dashboard-wrapper">
