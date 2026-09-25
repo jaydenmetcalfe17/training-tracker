@@ -33,7 +33,7 @@ Then:
 
 Access frontend locally via localhost:5173 on your browser
 
-For now, the following IP address takes you to the login page. However, a personalized link is required to create an account. [52.53.239.90](http://52.53.239.90/)
+For now, the following IP address takes you to the login page. However, a personalized link is required to create an account. [training-tracker-khaki.vercel.app](https://training-tracker-khaki.vercel.app/)
 
 for Docker:
 `docker compose up --build`
